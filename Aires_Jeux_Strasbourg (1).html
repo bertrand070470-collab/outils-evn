@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Aires de Jeux — Strasbourg EVN</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0f1117;--panel:#1a1d27;--card:#22263a;--accent:#4a9eff;
+  --evn:#4caf50;--sport:#ff9800;--pem:#ab47bc;--fpe:#26c6da;--ssj:#ef5350;--fav:#ffd54f;
+  --txt:#e8eaf0;--txt2:#8892b0;--border:#2a3050;--radius:12px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+#app{display:flex;flex-direction:column;height:100%;}
+
+/* HEADER */
+#header{padding:10px 14px 6px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10;}
+#header h1{font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.3px;}
+#header .sub{font-size:11px;color:var(--txt2);margin-top:1px;}
+
+/* SEARCH BAR */
+#searchbar{padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;gap:8px;align-items:center;}
+#searchInput{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--txt);font-size:14px;outline:none;}
+#searchInput:focus{border-color:var(--accent);}
+#clearBtn{background:var(--border);border:none;border-radius:8px;color:var(--txt2);padding:8px 10px;font-size:13px;cursor:pointer;flex-shrink:0;}
+#sortBtn{background:var(--border);border:none;border-radius:8px;color:var(--txt2);padding:8px 10px;font-size:13px;cursor:pointer;flex-shrink:0;white-space:nowrap;}
+#sortBtn.on{background:#4a9eff22;color:var(--accent);}
+
+/* FILTRES */
+#filters{display:flex;gap:6px;padding:6px 12px;background:var(--panel);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
+#filters::-webkit-scrollbar{display:none;}
+.ftag{border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;opacity:.5;transition:.15s;}
+.ftag.on{opacity:1;}
+.ftag.ALL{background:#4a9eff22;color:var(--accent);border:1px solid var(--accent);}
+.ftag.EVN{background:#4caf5022;color:var(--evn);border:1px solid var(--evn);}
+.ftag.Sport{background:#ff980022;color:var(--sport);border:1px solid var(--sport);}
+.ftag.PEMPEA{background:#ab47bc22;color:var(--pem);border:1px solid var(--pem);}
+.ftag.FPE{background:#26c6da22;color:var(--fpe);border:1px solid var(--fpe);}
+.ftag.SSJ{background:#ef535022;color:var(--ssj);border:1px solid var(--ssj);}
+.ftag.FAV{background:#ffd54f22;color:var(--fav);border:1px solid var(--fav);}
+
+/* TABS */
+#tabs{display:flex;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{flex:1;padding:9px;text-align:center;font-size:12px;font-weight:600;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* MAIN */
+#main{flex:1;overflow:hidden;position:relative;}
+#mapView{width:100%;height:100%;display:none;}
+#listView{height:100%;overflow-y:auto;padding:8px;display:none;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+
+/* CARTE */
+#map{width:100%;height:100%;}
+.leaflet-container{background:#1a1f35;}
+
+/* Popup carte */
+.lpop{min-width:200px;}
+.lpop h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.lpop .adr{font-size:11px;color:#aaa;margin-bottom:6px;}
+.lpop .badges{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+.lpop .badge{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;}
+.lpop .navbtns{display:flex;gap:6px;}
+.lpop .navbtn{flex:1;padding:7px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;display:block;}
+.lpop .gm{background:#4a9eff;color:#fff;}
+.lpop .waze{background:#00c0f3;color:#fff;}
+.lpop .favbtn{background:var(--border);color:var(--fav);flex:0 0 auto;padding:7px 10px;}
+
+/* LISTE */
+.site-card{background:var(--card);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:.15s;position:relative;}
+.site-card:active{transform:scale(.97);}
+.card-head{padding:11px 13px 7px;display:flex;align-items:flex-start;gap:10px;}
+.card-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.card-info{flex:1;min-width:0;}
+.card-nom{font-size:13px;font-weight:700;line-height:1.3;color:var(--txt);}
+.card-adr{font-size:11px;color:var(--txt2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-dist{font-size:11px;color:var(--accent);font-weight:600;flex-shrink:0;}
+.card-foot{padding:0 13px 10px;display:flex;gap:6px;align-items:center;}
+.card-svc{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.card-q{font-size:10px;color:var(--txt2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-actions{display:flex;gap:5px;}
+.card-btn{padding:5px 9px;border-radius:7px;border:none;font-size:11px;font-weight:700;cursor:pointer;text-decoration:none;}
+.card-btn.map-btn{background:#4a9eff22;color:var(--accent);}
+.card-btn.nav-btn{background:#4caf5022;color:var(--evn);}
+.card-btn.fav-btn{background:transparent;color:var(--txt2);font-size:15px;padding:5px 6px;}
+.card-btn.fav-btn.on{color:var(--fav);}
+
+/* LOCALISATION */
+#locBar{padding:5px 12px;background:var(--bg);border-top:1px solid var(--border);font-size:11px;color:var(--txt2);flex-shrink:0;display:flex;align-items:center;gap:6px;}
+#locBtn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;}
+#locStatus{flex:1;}
+#cptSites{font-weight:600;color:var(--txt);}
+
+/* COULEURS SERVICE */
+.c-EVN{background:#4caf5033;color:var(--evn);}
+.c-Sport{background:#ff980033;color:var(--sport);}
+.c-PEMPEA{background:#ab47bc33;color:var(--pem);}
+.c-FPE{background:#26c6da33;color:var(--fpe);}
+.c-SSJ{background:#ef535033;color:var(--ssj);}
+
+/* résultat vide */
+#noResult{text-align:center;padding:40px 20px;color:var(--txt2);display:none;}
+#noResult .ico{font-size:40px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <h1>🗺 Aires de Jeux &amp; Sportives — Strasbourg</h1>
+    <div class="sub">EVN · <span id="cptSites">354</span> sites · Ville et Eurométropole · MAJ 09/08/2026</div>
+  </div>
+  <div id="searchbar">
+    <input id="searchInput" type="text" placeholder="Nom, adresse, quartier…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="sortBtn" onclick="toggleSort()">↕ A-Z</button>
+    <button id="clearBtn" onclick="clearSearch()">✕</button>
+  </div>
+  <div id="filters">
+    <button class="ftag ALL on" onclick="setFilter('ALL',this)">Tous</button>
+    <button class="ftag EVN" onclick="setFilter('EVN',this)">EVN</button>
+    <button class="ftag Sport" onclick="setFilter('Sport',this)">Sport</button>
+    <button class="ftag PEMPEA" onclick="setFilter('PEM/PEA',this)">PEM/PEA</button>
+    <button class="ftag FPE" onclick="setFilter('FPE',this)">FPE</button>
+    <button class="ftag SSJ" onclick="setFilter('SSJ',this)">SSJ</button>
+    <button class="ftag FAV" onclick="setFilter('FAV',this)">★ Favoris</button>
+  </div>
+  <div id="tabs">
+    <div class="tab" id="tabList" onclick="showTab('list')">📋 Liste</div>
+    <div class="tab active" id="tabMap" onclick="showTab('map')">🗺 Carte</div>
+  </div>
+  <div id="main">
+    <div id="mapView"><div id="map"></div></div>
+    <div id="listView">
+      <div id="siteList"></div>
+      <div id="noResult"><div class="ico">🔍</div>Aucun site trouvé</div>
+    </div>
+  </div>
+  <div id="locBar">
+    <button id="locBtn" onclick="geolocate()">📍 Me localiser</button>
+    <span id="locStatus">Localisation inactive</span>
+  </div>
+</div>
+
+<script>
+const SITES = [{"n":"ACADEMIE Ecole Maternelle","a":"6, rue de l'Académie","q":"Bourse - Krutenau","la":48.578529,"lo":7.791181,"s":"PEM/PEA"},{"n":"ALLENDE SALVADOR","a":"Impasse de la Lune","q":"Cronenbourg - Hautepierre","la":48.579018,"lo":7.760892,"s":"EVN"},{"n":"ALLENDE SALVADOR FITNESS","a":"Impasse de la Lune","q":"Cronenbourg - Hautepierre","la":48.578761,"lo":7.760391,"s":"EVN"},{"n":"ALLENDE SALVADOR SPORT","a":"Impasse de la Lune","q":"Cronenbourg - Hautepierre","la":48.579203,"lo":7.761212,"s":"Sport"},{"n":"AMELIE DE BERCKHEIM","a":"Rue Amélie de Berckheim","q":"Robertsau","la":48.601622,"lo":7.785816,"s":"EVN"},{"n":"AMELIE DE BERCKHEIM FITNESS","a":"Rue Amélie de Berckheim","q":"Neudorf - Neuhof","la":48.602041,"lo":7.786015,"s":"Sport"},{"n":"AMPERE Ecole Maternelle","a":"39, rue de Wattwiller","q":"Neudorf","la":48.561035,"lo":7.785419,"s":"PEM/PEA"},{"n":"ARBORETUM","a":"François (rue du Docteur)","q":"Robertsau","la":48.60941,"lo":7.783243,"s":"EVN"},{"n":"ARNOLD","a":"Place Arnold","q":"Conseil des XV","la":48.584852,"lo":7.769385,"s":"EVN"},{"n":"ARNOLD SPORT","a":"Place Arnold","q":"Centre - Krutenau","la":48.584908,"lo":7.768569,"s":"Sport"},{"n":"AUBEPINE","a":"Aubépine (rue de l')","q":"Elsau / Neudorf","la":48.607658,"lo":7.770541,"s":"EVN"},{"n":"AURIOL I","a":"Auriol (rue jacqueline Auriol","q":"Neudorf - Neuhof","la":48.546043,"lo":7.771184,"s":"EVN"},{"n":"AURIOL II","a":"Auriol (rue jacqueline Auriol","q":"Neudorf - Neuhof","la":48.546332,"lo":7.771091,"s":"EVN"},{"n":"BAGGERSEE","a":"Rue du Baggersee","q":"Meinau","la":48.543096,"lo":7.748904,"s":"Sport"},{"n":"BAGGERSEE  FITNESS","a":"Plan d'eau du Baggersee","q":"Bischheim","la":48.542976,"lo":7.748442,"s":"Sport"},{"n":"BAGGERSEE PARCOURS","a":"Plan d'eau du Baggersee","q":"Bischheim","la":48.541717,"lo":7.750531,"s":"Sport"},{"n":"BÂLE JE","a":"138, rue de Bâle","q":"Bischheim","la":48.564716,"lo":7.768138,"s":"FPE"},{"n":"BALTHAZAR MA","a":"11, place Flaubert","q":"Hautepierre","la":48.595929,"lo":7.700757,"s":"FPE"},{"n":"BARTISCHGUT","a":"Rhône (rue du)","q":"Bischheim","la":48.550363,"lo":7.739876,"s":"EVN"},{"n":"BARTISCHGUT SPORT","a":"Rue du Rhône / Parc du Bartischgut","q":"Bischheim","la":48.550204,"lo":7.739903,"s":"Sport"},{"n":"BELIN MA","a":"10,rue de Genève","q":"Bischheim","la":48.582216,"lo":7.75464,"s":"FPE"},{"n":"BERGERIE CSC","a":"Rue du Rieth (Parc de la Bergerie)","q":"Cronenbourg","la":48.600958,"lo":7.720443,"s":"EVN"},{"n":"BERGERIE EST SPORT","a":"Rue du Rieth / Parc de la Bergerie","q":"Cronenbourg - Hautepierre","la":48.600148,"lo":7.722412,"s":"Sport"},{"n":"BERGERIE FITNESS","a":"Rue du Rieth / Parc de la Bergerie","q":"Cronenbourg - Hautepierre","la":48.599537,"lo":7.72182,"s":"Sport"},{"n":"BERGERIE SUD","a":"Rue du Rieth (Parc de la Bergerie)","q":"Cronenbourg - Hautepierre","la":48.59928,"lo":7.721002,"s":"EVN"},{"n":"BERGERIE TALUS","a":"Rue du Rieth (Parc de la Bergerie)","q":"Cronenbourg - Hautepierre","la":48.600049,"lo":7.720036,"s":"EVN"},{"n":"BOCAGE","a":"Bocage (place du)","q":"Wacken","la":48.597155,"lo":7.765965,"s":"EVN"},{"n":"BOCAGE SPORT","a":"Place du Bocage","q":"Esplanade - Conseil des XV - Orangerie","la":48.597137,"lo":7.766047,"s":"Sport"},{"n":"BOECKLIN MA","a":"84, rue Boecklin","q":"Esplanade - Conseil des XV - Orangerie","la":48.602067,"lo":7.782988,"s":"FPE"},{"n":"BOIS DE ROSE","a":"Bois de Rose (place du)","q":"Meinau","la":48.56949,"lo":7.750568,"s":"EVN"},{"n":"BOIS DE ROSE SPORT","a":"Square - Place du Bois de Rose","q":"Meinau","la":48.569732,"lo":7.750571,"s":"Sport"},{"n":"BRANLY Ecole Maternelle","a":"7, rue de l'Abbé Wetterlé","q":"Contades","la":48.614062,"lo":7.772736,"s":"PEM/PEA"},{"n":"BREITLACH","a":"Goldschmidt (allée David),","q":"Stockfeld","la":48.531213,"lo":7.773977,"s":"EVN"},{"n":"BRIGITTE Ecole Maternelle","a":"17, rue Gioberti","q":"Périphérie / Communes associées","la":48.59126,"lo":7.699241,"s":"PEM/PEA"},{"n":"BRUCKHOF","a":"Quai du Bruckhof","q":"Neudorf - Neuhof","la":48.568793,"lo":7.775458,"s":"EVN"},{"n":"BRUCKHOF 2","a":"Quai du Bruckhof","q":"Neudorf - Neuhof","la":48.569146,"lo":7.774815,"s":"EVN"},{"n":"BRULIG","a":"Berge de l'Ill - Brulig (quai du)","q":"Montagne verte","la":48.571651,"lo":7.722945,"s":"EVN"},{"n":"CAMILLE CLAUS Ecole Maternelle","a":"9, rue Gerlinde","q":"Koenigshoffen","la":48.581222,"lo":7.712825,"s":"PEM/PEA"},{"n":"CANARDIERE Ecole Elementaire","a":"12, avenue de Normandie","q":"Bischheim","la":48.54767,"lo":7.751436,"s":"PEM/PEA"},{"n":"CANARDIERE Ecole Maternelle","a":"12, avenue de Normandie","q":"Bischheim","la":48.549413,"lo":7.752917,"s":"PEM/PEA"},{"n":"CANARDIERE JE","a":"55, rue de la Canardière","q":"Neudorf - Neuhof","la":48.549014,"lo":7.751475,"s":"FPE"},{"n":"CANARDIERE MA","a":"55, rue de la Canardière","q":"Neudorf - Neuhof","la":48.548219,"lo":7.751196,"s":"FPE"},{"n":"CANONNIERS","a":"Neuhof (route du)","q":"Centre - Krutenau","la":48.5548,"lo":7.766049,"s":"EVN"},{"n":"CANONNIERS Ecole Maternelle","a":"5, rue Gribeauval","q":"Centre - Krutenau","la":48.554848,"lo":7.765582,"s":"PEM/PEA"},{"n":"CATHERINE Ecole Maternelle","a":"25, place Flaubert","q":"Cronenbourg / Poteries – quartier Ouest","la":48.593892,"lo":7.718207,"s":"PEM/PEA"},{"n":"CATHERINE GRIMM","a":"Rue Marguerite Yourcenar","q":"Cronenbourg / Poteries – quartier Ouest","la":48.594667,"lo":7.70248,"s":"EVN"},{"n":"CATHERINE SINDBAD","a":"Rue Marguerite Yourcenar","q":"Cronenbourg / Poteries – quartier Ouest","la":48.595753,"lo":7.703379,"s":"EVN"},{"n":"CEDRES","a":"Rue des Bornes","q":"Centre - Krutenau","la":48.587625,"lo":7.719993,"s":"EVN"},{"n":"CENTRE ADMINISTRATIF","a":"Etoile (place de l')","q":"Centre - Krutenau","la":48.573848,"lo":7.75056,"s":"EVN"},{"n":"CHALAMPE","a":"Chalampé (rue de)","q":"Elsau","la":48.567267,"lo":7.764083,"s":"EVN"},{"n":"CHALAMPE SPORT","a":"Rue Staedel","q":"Elsau","la":48.567317,"lo":7.763911,"s":"Sport"},{"n":"CHARLES PIERRE PARCOURS","a":"Rue des Borens / Rue Pierre Nuss","q":"Centre - Krutenau","la":48.587718,"lo":7.722147,"s":"Sport"},{"n":"CHARLES PIERRE SPORT","a":"Rue des Borens / Square des Cèdres","q":"Centre - Krutenau","la":48.587568,"lo":7.720458,"s":"Sport"},{"n":"CITADELLE CENTRE","a":"Alpes (quai des)","q":"Esplanade","la":48.574614,"lo":7.774054,"s":"EVN"},{"n":"CITADELLE CENTRE SPORT","a":"Quai des Alpes / Parc de la Citadelle","q":"Esplanade - Conseil des XV - Orangerie","la":48.574702,"lo":7.774337,"s":"Sport"},{"n":"CITADELLE EST 01","a":"Belges (quai des)","q":"Esplanade - Conseil des XV - Orangerie","la":48.575491,"lo":7.776218,"s":"EVN"},{"n":"CITADELLE EST 02","a":"Belges (quai des)","q":"Esplanade - Conseil des XV - Orangerie","la":48.576022,"lo":7.776237,"s":"EVN"},{"n":"CITADELLE EST SPORT","a":"Quai des Alpes / Parc de la Citadelle","q":"Esplanade - Conseil des XV - Orangerie","la":48.576137,"lo":7.776633,"s":"Sport"},{"n":"CITADELLE FITNESS","a":"Quai des Alpes / Parc de la Citadelle","q":"Esplanade - Conseil des XV - Orangerie","la":48.574333,"lo":7.77273,"s":"Sport"},{"n":"CITADELLE SUD FLORENCE ARTHAUD","a":"20, Quai Florence Arthaud","q":"Neudorf - Neuhof","la":48.57231,"lo":7.78191,"s":"EVN"},{"n":"COEURDEVEY","a":"Rue Edouard Coeurdevey","q":"Neudorf - Neuhof","la":48.543383,"lo":7.775638,"s":"EVN"},{"n":"COEURDEVEY SPORT","a":"Rue Edouard Coeurdevey","q":"Neudorf - Neuhof","la":48.543191,"lo":7.775473,"s":"Sport"},{"n":"COLOMBES","a":"Colombes (place des),","q":"Neudorf - Neuhof","la":48.530831,"lo":7.769937,"s":"EVN"},{"n":"COLOMBES FITNESS","a":"Place des Colombes","q":"Stockfeld","la":48.551618,"lo":7.75997,"s":"Sport"},{"n":"COLOMBES SPORT","a":"Place des Colombes","q":"Neudorf - Neuhof","la":48.530676,"lo":7.770178,"s":"Sport"},{"n":"CONFLUENTS FITNESS","a":"Rue de Solignac (à côté du terreain de football)","q":"Neudorf","la":48.551618,"lo":7.75997,"s":"Sport"},{"n":"CONSEIL DES XV Ecole Maternelle","a":"13, rue de Rotterdam","q":"Neuhof / Rhin Tortu – parc Schulmeister","la":48.584878,"lo":7.780041,"s":"PEM/PEA"},{"n":"CONTADES ARQUEBUSIERS","a":"Rue des Arquebusiers","q":"Contades","la":48.590051,"lo":7.758127,"s":"EVN"},{"n":"CONTADES ARQUEBUSIERS II","a":"Boulevard Gambetta","q":"Esplanade - Conseil des XV - Orangerie","la":48.591689,"lo":7.758438,"s":"EVN"},{"n":"CONTADES FITNESS","a":"Boulevard Ganbetta","q":"Esplanade - Conseil des XV - Orangerie","la":48.589954,"lo":7.759088,"s":"Sport"},{"n":"CONTADES GAMBETTA","a":"Boulevard Gambetta","q":"Esplanade - Conseil des XV - Orangerie","la":48.592013,"lo":7.758676,"s":"EVN"},{"n":"CONTADES GAMBETTA SPORT","a":"Boulevard Gambetta / Parc des Contades","q":"Esplanade - Conseil des XV - Orangerie","la":48.591763,"lo":7.758691,"s":"Sport"},{"n":"CORPS DE GARDE","a":"Place du corps de garde","q":"Esplanade - Conseil des XV - Orangerie","la":48.599936,"lo":7.78033,"s":"EVN"},{"n":"CORSE","a":"Rue de la Corse","q":"Neudorf - Neuhof","la":48.545129,"lo":7.755867,"s":"EVN"},{"n":"COUDREUSE","a":"Coudreuse (rue de la)","q":"Montagne verte","la":48.572075,"lo":7.726537,"s":"EVN"},{"n":"COUDREUSE SPORT","a":"Rue de la Coudreuse","q":"Montagne verte","la":48.572071,"lo":7.726422,"s":"Sport"},{"n":"CREPS FITNESS","a":"Chemin du Grossroethig","q":"Neuhof / Stockfeld","la":48.572898,"lo":7.705541,"s":"Sport"},{"n":"CRONENBOURG Ecole Maternelle","a":"6, rue Neuve","q":"Cronenbourg - Hautepierre","la":48.592734,"lo":7.720082,"s":"PEM/PEA"},{"n":"CRONENBOURG ME","a":"87, rte d'Hochfelden","q":"Cronenbourg - Hautepierre","la":48.601368,"lo":7.722605,"s":"FPE"},{"n":"CSC NEUFELD","a":"42, rue du Neufeld","q":"Neudorf - Neuhof","la":48.566276,"lo":7.756417,"s":"SSJ"},{"n":"DANUBE","a":"Rue de l'Elbe","q":"Port du Rhin / Deux-Rives","la":48.611332,"lo":7.788314,"s":"EVN"},{"n":"DOLLER FITNESS","a":"Rue de la Doller","q":"Cité de l'Ill","la":48.616875,"lo":7.7755,"s":"Sport"},{"n":"DOLLFUS Crèche","a":"2, rue Jean Dollfus","q":"Robertsau - Wacken","la":48.561307,"lo":7.762982,"s":"FPE"},{"n":"DORE G Ecole Maternelle","a":"175, route de Mittelhausbergen","q":"Elsau","la":48.592278,"lo":7.724522,"s":"PEM/PEA"},{"n":"ECREVISSE","a":"Rue du Fil / Place de la Bienvenue","q":"Centre / Halles","la":48.586331,"lo":7.748044,"s":"EVN"},{"n":"ELEONORE A Ecole Maternelle","a":"29, place Erasme","q":"Hautepierre","la":48.589904,"lo":7.705738,"s":"PEM/PEA"},{"n":"ELEONORE B Ecole Maternelle","a":"4, place Montaigne","q":"Hautepierre","la":48.590064,"lo":7.703921,"s":"PEM/PEA"},{"n":"ELISA DEROCHE","a":"Rue du Marschallhof","q":"Neudorf - Neuhof","la":48.544803,"lo":7.771421,"s":"EVN"},{"n":"ELSAU CSC","a":"Grunewald (rue Mathias)","q":"Elsau","la":48.567558,"lo":7.724051,"s":"EVN"},{"n":"ELSAU GRUNEWALD FITNESS","a":"Rue Mathias Grunewald / arrière du CSC","q":"Elsau","la":48.566739,"lo":7.723751,"s":"Sport"},{"n":"ELSAU HG","a":"6, rue Mathias Grunewald","q":"Elsau","la":48.567469,"lo":7.724853,"s":"FPE"},{"n":"ENFANTS","a":"Enfants (rue des)","q":"Elsau","la":48.592069,"lo":7.720313,"s":"EVN"},{"n":"ERCKMANN CHATRIAN","a":"280 route de Schirmeck (Parvis de l'école Erckmann C.)","q":"Montagne-Verte / Koenigshoffen","la":48.567865,"lo":7.709492,"s":"EVN"},{"n":"ERCKMANN CHATRIAN Ecole Maternelle","a":"280, route de Schirmeck","q":"Koenigshoffen - Montagne Verte","la":48.574512,"lo":7.725598,"s":"PEM/PEA"},{"n":"ESPLANADE","a":"Place de l'Esplanade","q":"Krutenau / Esplanade","la":48.576149,"lo":7.769837,"s":"EVN"},{"n":"ESPLANADE MA","a":"5, rue de Copenhague","q":"Krutenau / Esplanade","la":48.579812,"lo":7.771033,"s":"FPE"},{"n":"EXES","a":"Rue Langevin","q":"Cronenbourg","la":48.60291,"lo":7.71556,"s":"EVN"},{"n":"EXES SPORT","a":"Rue Langevin","q":"Cronenbourg","la":48.60291,"lo":7.7158,"s":"EVN"},{"n":"EXTENWOERTHFELD","a":"Staedel (rue)","q":"Bischheim","la":48.557457,"lo":7.755044,"s":"EVN"},{"n":"FINKWILLER Ecole Maternelle","a":"1, rue de la Question","q":"Centre","la":48.578681,"lo":7.741501,"s":"PEM/PEA"},{"n":"FISCHART J Ecole Maternelle","a":"8, rue de Provence","q":"Bischheim","la":48.545737,"lo":7.752577,"s":"PEM/PEA"},{"n":"FLANDRE HG","a":"8, rue de Flandre","q":"Esplanade - Conseil des XV - Orangerie","la":48.58139,"lo":7.774369,"s":"FPE"},{"n":"FLEISCHEL GASTON","a":"rue du champ de Manœuvre","q":"Centre - Krutenau","la":48.6031,"lo":7.710978,"s":"EVN"},{"n":"FORGES","a":"Forges (rue des)","q":"Meinau","la":48.579113,"lo":7.757439,"s":"EVN"},{"n":"FRANCO ALLEMANDE MPE","a":"170, av. du Rhin","q":"Port du Rhin","la":48.572759,"lo":7.796964,"s":"FPE"},{"n":"FRESNEL 1","a":"Rue Augustin Fresnel","q":"Cronenbourg - Hautepierre","la":48.602938,"lo":7.720844,"s":"EVN"},{"n":"FRESNEL 2","a":"Rue Augustin Fresnel","q":"Cronenbourg - Hautepierre","la":48.60403,"lo":7.719575,"s":"EVN"},{"n":"FRITZ JE","a":"11, rue Fritz","q":"Meinau","la":48.579662,"lo":7.759663,"s":"FPE"},{"n":"GERSTHEIM","a":"Rue de Gerstheim","q":"Krutenau / Esplanade","la":48.568537,"lo":7.778298,"s":"EVN"},{"n":"GLAUBITZ","a":"Rue des Pluviers","q":"Neuhof / Meinau","la":48.544933,"lo":7.76192,"s":"EVN"},{"n":"GLIESBERG","a":"Berge de l'Ill - Gliesberg (chemin du)","q":"Montagne verte","la":48.568075,"lo":7.712299,"s":"EVN"},{"n":"GLIESBERG Ecole Elementaire","a":"10, chemin du Gliesberg","q":"Montagne verte","la":48.567892,"lo":7.710208,"s":"PEM/PEA"},{"n":"GLIESBERG Ecole Maternelle","a":"10, chemin du Gliesberg","q":"Montagne verte","la":48.567886,"lo":7.711328,"s":"PEM/PEA"},{"n":"GRAND COURONNE","a":"Rue du Grand Couronné","q":"Meinau","la":48.570801,"lo":7.752978,"s":"EVN"},{"n":"GRAND COURONNE SPORT","a":"Rue du Grand Couronné","q":"Meinau","la":48.570801,"lo":7.752978,"s":"Sport"},{"n":"GUTENBERG Ecole Maternelle","a":"32, rue de Balbronn","q":"Centre / Halles","la":48.560821,"lo":7.703725,"s":"PEM/PEA"},{"n":"GUYNEMER Ecole Elementaire","a":"16 rue de Chateauroux","q":"Neuhof / Meinau","la":48.552053,"lo":7.769619,"s":"PEM/PEA"},{"n":"HAGUENAU","a":"Haguenau (rue et place de)","q":"Gare","la":48.592304,"lo":7.742872,"s":"EVN"},{"n":"HAGUENAU SPORT","a":"Place de Haguenau","q":"Centre / Halles","la":48.591841,"lo":7.742444,"s":"Sport"},{"n":"HALDENBOURG","a":"Place de Haldenbourg","q":"Cronenbourg - Hautepierre","la":48.603376,"lo":7.713031,"s":"EVN"},{"n":"HALLES","a":"Halles ( rue des Halles )","q":"Centre / Gare","la":48.587914,"lo":7.741333,"s":"EVN"},{"n":"HALLES FITNESS","a":"Quai Kleber (Berges","q":"Centre / Gare","la":48.585056,"lo":7.742075,"s":"Sport"},{"n":"HANS ARP","a":"Berge de l'Ill - Stade - Collège. Hans Arp","q":"Centre / Gare","la":48.570564,"lo":7.716207,"s":"EVN"},{"n":"HARDT Centre Nautique","a":"Rue du 23 Novembre Illkirch","q":"Ostwald","la":48.530646,"lo":7.710951,"s":"Sport"},{"n":"HASEK JAROSLAV","a":"Giraudoux (rue Jean)","q":"Poteries","la":48.5847,"lo":7.701585,"s":"EVN"},{"n":"HASEK JAROSLAV SPORT","a":"Rue Jean Giraudoux / Square Jaroslav Hasek","q":"Koenigshoffen - Montagne Verte","la":48.584147,"lo":7.701707,"s":"Sport"},{"n":"HAUTEFORT","a":"Rue de Hautefort","q":"Cronenbourg - Hautepierre","la":48.549525,"lo":7.76706,"s":"EVN"},{"n":"HAUTEPIERRE Crèche","a":"21-23, rue Gioberti","q":"Hautepierre","la":48.591662,"lo":7.6995,"s":"FPE"},{"n":"HELBLING","a":"Place Hebling","q":"Périphérie / Communes associées","la":48.573353,"lo":7.762044,"s":"EVN"},{"n":"HENRI WILL","a":"Place Henri Will","q":"Neudorf - Neuhof","la":48.561685,"lo":7.759364,"s":"EVN"},{"n":"HENRI WILL FITNESS","a":"Place Henri Will","q":"Neudorf - Neuhof","la":48.56156,"lo":7.760649,"s":"Sport"},{"n":"HENRI WILL SPORT","a":"Place Henri Will","q":"Neudorf - Neuhof","la":48.561605,"lo":7.759839,"s":"Sport"},{"n":"HEYRITZ","a":"Chemin du Heyritz","q":"Neudorf - Neuhof","la":48.572781,"lo":7.745773,"s":"EVN"},{"n":"HEYRITZ 2 FITNESS","a":"Parc du Heyritz","q":"Neudorf - Neuhof","la":48.573721,"lo":7.741348,"s":"Sport"},{"n":"HEYRITZ FITNESS","a":"Parc du Heyritz","q":"Neudorf - Neuhof","la":48.57306,"lo":7.742836,"s":"Sport"},{"n":"HEYRITZ SPORT","a":"Parc du Heyritz","q":"Neudorf - Neuhof","la":48.573054,"lo":7.741449,"s":"Sport"},{"n":"HILSZ","a":"Rue de l'Indre","q":"Neudorf - Neuhof","la":48.551225,"lo":7.76835,"s":"EVN"},{"n":"HIPPODROME Anguille","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.5719,"lo":7.795422,"s":"EVN"},{"n":"HIPPODROME Brochet","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.570404,"lo":7.796939,"s":"EVN"},{"n":"HIPPODROME Carpe","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.570948,"lo":7.796643,"s":"EVN"},{"n":"HIPPODROME FITNESS","a":"Place de l'Hippodrome (Jardin des Deux Rives)","q":"Port du Rhin - Deux Rives","la":48.570703,"lo":7.796233,"s":"Sport"},{"n":"HIPPODROME Perche","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.570162,"lo":7.797161,"s":"EVN"},{"n":"HIPPODROME Sandre","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.570617,"lo":7.796813,"s":"EVN"},{"n":"HIPPODROME SPORT","a":"Place de l'Hippodrome (Jardin des Deux Rives)","q":"Port du Rhin - Deux Rives","la":48.570287,"lo":7.796424,"s":"Sport"},{"n":"HIRTZ Ecole Elementaire","a":"93 rte Mittelhausbergen","q":"Elsau","la":48.594169,"lo":7.71888,"s":"PEM/PEA"},{"n":"HOCHFELDEN","a":"Hochfelden (rue de)","q":"Cronenbourg - Hautepierre","la":48.597427,"lo":7.725787,"s":"EVN"},{"n":"HOHBERG Ecole Elementaire","a":"8, rue du Hohberg","q":"Koenigshoffen - Montagne Verte","la":48.579472,"lo":7.705162,"s":"PEM/PEA"},{"n":"HOHBERG Ecole Maternelle","a":"8, rue du Hohberg","q":"Koenigshoffen - Montagne Verte","la":48.57931,"lo":7.705165,"s":"PEM/PEA"},{"n":"HOHWALD","a":"Hohwald (rue du)","q":"Périphérie / Communes associées","la":48.576714,"lo":7.730655,"s":"EVN"},{"n":"ICARE","a":"Rue de Châteauroux","q":"Neuhof / Meinau","la":48.552283,"lo":7.770333,"s":"EVN"},{"n":"ICARE ARIANE Ecole Maternelle","a":"3, rue Roland Garros","q":"Neudorf - Neuhof","la":48.552788,"lo":7.770629,"s":"PEM/PEA"},{"n":"ICARE FITNESS","a":"Rue de Châteauroux","q":"Neudorf - Neuhof","la":48.552182,"lo":7.769299,"s":"Sport"},{"n":"ICARE SPORT","a":"Rue de Châteauroux / Square Icare","q":"Neudorf - Neuhof","la":48.551957,"lo":7.771123,"s":"Sport"},{"n":"ILE DE FRANCE","a":"Place de l'Ile de France","q":"Port du Rhin - Deux Rives","la":48.550304,"lo":7.750716,"s":"EVN"},{"n":"ILE DE FRANCE SPORT","a":"Place de l'Ile de France","q":"Port du Rhin - Deux Rives","la":48.550488,"lo":7.75053,"s":"Sport"},{"n":"ILL LAPE","a":"28a, rue de l'Ill","q":"Robertsau - Wacken","la":48.612753,"lo":7.775714,"s":"FPE"},{"n":"ILL MA","a":"35, rue de l'Ill","q":"Robertsau - Wacken","la":48.612907,"lo":7.771869,"s":"FPE"},{"n":"ILOT DES MOULINS","a":"Moulins (rue des),entre Canal Spitzmühle et Dinsenmühle","q":"Robertsau - Wacken","la":48.580511,"lo":7.740684,"s":"EVN"},{"n":"IMBS","a":"Parc Imbs, route de Schirmeck","q":"Koenigshoffen - Montagne Verte","la":48.575114,"lo":7.725302,"s":"EVN"},{"n":"IMBS SPORT","a":"Route de Schirmeck / Parc Eugène Imbs","q":"Koenigshoffen - Montagne Verte","la":48.574609,"lo":7.721949,"s":"Sport"},{"n":"INDRE","a":"Rue de l'Indre","q":"Neudorf - Neuhof","la":48.548575,"lo":7.769519,"s":"EVN"},{"n":"INDRE HG","a":"Rue de l'Indre","q":"Neuhof / Meinau","la":48.549073,"lo":7.769345,"s":"FPE"},{"n":"IPE IV FITNESS","a":"Rue du Général Uhrich (berges de l'Ill)","q":"Esplanade - Conseil des XV - Orangerie","la":48.594506,"lo":7.767423,"s":"Sport"},{"n":"J2R AXE NORD BAS","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.571736,"lo":7.799951,"s":"EVN"},{"n":"J2R AXE NORD MILIEU","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.571589,"lo":7.798615,"s":"EVN"},{"n":"J2R AXE SUD","a":"Jardin des 2 rives","q":"Neudorf - Neuhof","la":48.565448,"lo":7.801451,"s":"EVN"},{"n":"J2R AXE SUD SPORT","a":"Jardin des 2 rives","q":"Neudorf - Neuhof","la":48.565339,"lo":7.800627,"s":"Sport"},{"n":"J2R ELLIPSE NORD","a":"Jardin des 2 rives","q":"Port du Rhin / Deux-Rives","la":48.572501,"lo":7.799986,"s":"EVN"},{"n":"J2R LE RIED ENCHANTE","a":"Jardin des 2 rives","q":"Port du Rhin - Deux Rives","la":48.567801,"lo":7.798558,"s":"EVN"},{"n":"JACQUELINE","a":"Boulevard Dostoievsky","q":"Cronenbourg / Poteries – quartier Ouest","la":48.595604,"lo":7.69635,"s":"EVN"},{"n":"JACQUELINE CHAT PERCHE","a":"Place des Palabres","q":"Cronenbourg / Poteries – quartier Ouest","la":48.594684,"lo":7.695454,"s":"EVN"},{"n":"JACQUELINE Ecole Maternelle","a":"82, place Buchner","q":"Cronenbourg - Hautepierre","la":48.59512,"lo":7.696217,"s":"PEM/PEA"},{"n":"JACQUELINE PETIT BOIS","a":"Chemin Robin des Bois","q":"Cronenbourg - Hautepierre","la":48.594361,"lo":7.697478,"s":"EVN"},{"n":"KARINE ALFRED DE MUSSET","a":"Place Alfred de Musset","q":"Cronenbourg / Poteries – quartier Ouest","la":48.5972,"lo":7.698399,"s":"EVN"},{"n":"KARINE RONSARD","a":"rue Marie Hart","q":"Cronenbourg / Poteries – quartier Ouest","la":48.598589,"lo":7.697763,"s":"EVN"},{"n":"KIBITZENAU Piscine","a":"1, rue de la Kibitzenau","q":"Neuhof / Meinau","la":48.558105,"lo":7.762322,"s":"Sport"},{"n":"KOENIGSHOFFEN MPE","a":"15, rue Guerlinde","q":"Koenigshoffen - Montagne Verte","la":48.581733,"lo":7.712557,"s":"FPE"},{"n":"KRIEGSTORE FITNESS","a":"Parc du Glacis","q":"Centre / Petite France","la":48.587652,"lo":7.730691,"s":"Sport"},{"n":"KRIMMERI Ecole Maternelle","a":"62, rte de la Meneau","q":"Robertsau - Wacken","la":48.562649,"lo":7.752905,"s":"PEM/PEA"},{"n":"KURGARTEN","a":"Corps de Garde (rue des)","q":"Neudorf - Neuhof","la":48.56056,"lo":7.7723,"s":"EVN"},{"n":"KURGARTEN FITNESS","a":"Rue de Corps de Garde / Jardin du Kurgarten","q":"Robertsau - Wacken","la":48.56033,"lo":7.76875,"s":"Sport"},{"n":"KURGARTEN SPORT","a":"Rue de Corps de Garde / Jardin du Kurgarten","q":"Robertsau - Wacken","la":48.56056,"lo":7.77186,"s":"Sport"},{"n":"LA P'TITE MOSAÏQUE LAPE","a":"Rue G. Sand","q":"Hautepierre","la":48.596466,"lo":7.701188,"s":"FPE"},{"n":"LAENNEC","a":"Laennec (rue René)","q":"Meinau","la":48.559395,"lo":7.708224,"s":"EVN"},{"n":"LAENNEC SPORT","a":"Rue René Laennec","q":"Meinau","la":48.55896,"lo":7.708456,"s":"Sport"},{"n":"LAITERIE","a":"Rue du Ban de la Roche","q":"Centre / Gare","la":48.576573,"lo":7.727926,"s":"EVN"},{"n":"LAITERIE SPORT","a":"Rue du Ban de la Roche","q":"Centre / Gare","la":48.576573,"lo":7.727926,"s":"Sport"},{"n":"LAMPROIE","a":"Lamproie (rue de la)","q":"Neudorf - Neuhof","la":48.599448,"lo":7.790649,"s":"EVN"},{"n":"LANGEVIN I Ecole Elementaire","a":"6, rue Langevin","q":"Cronenbourg - Hautepierre","la":48.603615,"lo":7.717276,"s":"PEM/PEA"},{"n":"LANGEVIN I Ecole Maternelle","a":"6, rue Langevin","q":"Cronenbourg - Hautepierre","la":48.603658,"lo":7.715606,"s":"PEM/PEA"},{"n":"LARGINUS SPORT","a":"Rue Salluste (square Caius Larginus)","q":"Cronenbourg - Hautepierre","la":48.58339,"lo":7.697034,"s":"Sport"},{"n":"LEGRAND A. Ecole Elementaire","a":"43, rue de Fréland","q":"Cronenbourg - Hautepierre","la":48.565863,"lo":7.774336,"s":"PEM/PEA"},{"n":"LEGRAND A. Ecole Maternelle","a":"43, rue de Fréland","q":"Cronenbourg - Hautepierre","la":48.562392,"lo":7.774668,"s":"PEM/PEA"},{"n":"LEJEUNE","a":"Rue du général Lejeune","q":"Neudorf / Quartier Esplanade","la":48.613455,"lo":7.786061,"s":"EVN"},{"n":"LEJEUNE SPORT","a":"Rue du général Lejeune / Square Lejeune","q":"Neudorf / Quartier Esplanade","la":48.613242,"lo":7.786273,"s":"Sport"},{"n":"LEONARD DE VINCI Ecole Elementaire","a":"3, rue Léonard de Vinci","q":"Neudorf / Quartier Esplanade","la":48.565461,"lo":7.726413,"s":"PEM/PEA"},{"n":"LEONARD DE VINCI Ecole Maternelle","a":"3, rue Léonard de Vinci","q":"Neudorf / Quartier Esplanade","la":48.565361,"lo":7.726401,"s":"PEM/PEA"},{"n":"LEZAY MARNESIA Ecole Maternelle","a":"24, rue du Poitou","q":"Robertsau - Wacken","la":48.548539,"lo":7.747454,"s":"PEM/PEA"},{"n":"LOUISE WEISS","a":"Ponts Couverts (rue des)","q":"Robertsau - Wacken","la":48.580922,"lo":7.74044,"s":"EVN"},{"n":"LOUISE WEISS SPORT","a":"Ponts Couverts (rue des)","q":"Robertsau - Wacken","la":48.581024,"lo":7.74056,"s":"EVN"},{"n":"LOVISA MA","a":"66,rue Mélanie","q":"Orangerie / Conseil des XV","la":48.6026,"lo":7.79093,"s":"FPE"},{"n":"MAISON DE L'ENFANCE","a":"10, rue Goeffrey Conrath","q":"Cronenbourg - Hautepierre","la":48.579576,"lo":7.732241,"s":"FPE"},{"n":"MALTE FITNESS","a":"Quai Mathis / Quai de Malte","q":"Robertsau - Wacken","la":48.578954,"lo":7.737613,"s":"Sport"},{"n":"MALTE SPORT","a":"Quai Mathis / Quai de Malte","q":"Robertsau - Wacken","la":48.578954,"lo":7.737613,"s":"Sport"},{"n":"MARCELLE CAHN Ecole Elementaire","a":"33a rue Cerf Berr (2 aires)","q":"Robertsau - Wacken","la":48.584899,"lo":7.69213,"s":"PEM/PEA"},{"n":"MARCELLE CAHN Ecole Maternelle","a":"33a rue Cerf Berr (2 aires)","q":"Robertsau - Wacken","la":48.584638,"lo":7.692559,"s":"PEM/PEA"},{"n":"MARGUERITE PEREY Ecole Elementaire","a":"16, rue du Rieth","q":"Elsau","la":48.601736,"lo":7.717153,"s":"PEM/PEA"},{"n":"MARGUERITE PEREY Ecole Maternelle","a":"16, rue du Rieth","q":"Elsau","la":48.60106,"lo":7.714008,"s":"PEM/PEA"},{"n":"MARTINE BERTEREAU","a":"Rue Lavoisier","q":"Cronenbourg - Hautepierre","la":48.603279,"lo":7.719716,"s":"EVN"},{"n":"MATHIEU ZELL","a":"Zell (place Mathieu)","q":"Cronenbourg - Hautepierre","la":48.594301,"lo":7.716585,"s":"EVN"},{"n":"MEINAU Ecole Maternelle","a":"68, rue de la Meinau","q":"Neudorf / Neufeld","la":48.551555,"lo":7.754174,"s":"PEM/PEA"},{"n":"MEINAU LAPE","a":"10, av. de Normandie","q":"Bischheim","la":48.549198,"lo":7.752257,"s":"FPE"},{"n":"MEMLING","a":"Place Memling","q":"Koenigshoffen / Elsau","la":48.563734,"lo":7.719909,"s":"EVN"},{"n":"MENAGERIE","a":"Ménagerie (rue de la)","q":"Elsau","la":48.570235,"lo":7.766594,"s":"EVN"},{"n":"MENTELIN Ecole Elementaire","a":"14, rue Jean Mentelin","q":"Orangerie / Conseil des XV","la":48.575158,"lo":7.704365,"s":"PEM/PEA"},{"n":"MENTELIN Ecole Maternelle","a":"68, rue de la Meinau","q":"Orangerie / Conseil des XV","la":48.575158,"lo":7.704365,"s":"PEM/PEA"},{"n":"MONTAGNE VERTE MA","a":"12, quai du Brülig","q":"Koenigshoffen - Montagne Verte","la":48.572054,"lo":7.72241,"s":"FPE"},{"n":"MONTAGNE VERTE MPE","a":"Rue de Hagenbieten","q":"Koenigshoffen - Montagne Verte","la":48.566394,"lo":7.705723,"s":"FPE"},{"n":"MUHLWASSER","a":"Peupliers (place des)","q":"Robertsau","la":48.608922,"lo":7.776087,"s":"EVN"},{"n":"MUSAU Crèche","a":"16, rue Aristid Brian","q":"Robertsau / Wacken, proximité place des Peupliers","la":48.56733,"lo":7.775272,"s":"FPE"},{"n":"MUSAU Ecole Elementaire","a":"78, avenue Jean Jaurès","q":"Neuhof / Meinau","la":48.56825,"lo":7.76728,"s":"PEM/PEA"},{"n":"MUSAU Ecole Maternelle","a":"78, avenue Jean Jaurès","q":"Neuhof / Meinau","la":48.56825,"lo":7.76728,"s":"PEM/PEA"},{"n":"MUTZIG","a":"Rue de Mutzig","q":"Koenigshoffen - Montagne Verte","la":48.579858,"lo":7.732334,"s":"EVN"},{"n":"NEUFELD","a":"Neufeld (rue du)","q":"Neudorf / Neufeld","la":48.566695,"lo":7.75606,"s":"EVN"},{"n":"NEUFELD Ecole Maternelle","a":"1, rue du Sundgau","q":"Neudorf - Neuhof","la":48.566395,"lo":7.754991,"s":"PEM/PEA"},{"n":"NEUFELD SPORT","a":"Rue du Neufeld","q":"Neudorf / Neufeld","la":48.566359,"lo":7.755969,"s":"Sport"},{"n":"NEUHOF A Ecole Maternelle","a":"2, rue Welch","q":"Koenigshoffen / Elsau","la":48.535852,"lo":7.769936,"s":"PEM/PEA"},{"n":"NEUHOF B Ecole Maternelle","a":"34, route d'Altenheim","q":"Neudorf / Stockfeld","la":48.540925,"lo":7.767047,"s":"PEM/PEA"},{"n":"NEUHOF MPE","a":"7, rue de Clairvivre","q":"Koenigshoffen / Montagne-Verte","la":48.549259,"lo":7.767426,"s":"FPE"},{"n":"NEUHOF PARCOURS","a":"Foret du Neuhof","q":"Périphérie / Communes associées","la":48.529286,"lo":7.773887,"s":"Sport"},{"n":"NICOLAS APPERT","a":"Romains (route des)","q":"Montagne verte","la":48.57907,"lo":7.716713,"s":"EVN"},{"n":"NICOLAS APPERT SPORT","a":"Route des Romains / Square Nicolas Appert","q":"Montagne verte","la":48.578819,"lo":7.71636,"s":"Sport"},{"n":"NICOLAS POUSSIN","a":"Nicolas Poussin (place)","q":"Koenigshoffen / Elsau","la":48.566098,"lo":7.724183,"s":"EVN"},{"n":"NIEDERAU Ecole Elementaire","a":"16, rue de la Papeterie","q":"Orangerie / Conseil des XV","la":48.610472,"lo":7.782351,"s":"PEM/PEA"},{"n":"NIEDERAU Ecole Maternelle","a":"16, rue de la Papeterie","q":"Orangerie / Conseil des XV","la":48.609742,"lo":7.780697,"s":"PEM/PEA"},{"n":"NONTRON I","a":"Brantôme (rue de )","q":"Neuhof / Meinau","la":48.54822,"lo":7.76835,"s":"EVN"},{"n":"NONTRON II","a":"Périgueux (rue de )","q":"Neuhof / Meinau","la":48.547882,"lo":7.767651,"s":"EVN"},{"n":"NOUVELLE ECOLE EUROPEENNE Ecole Maternelle","a":"2, rue Peter Schwarder","q":"Neuhof / Meinau","la":48.600378,"lo":7.776911,"s":"PEM/PEA"},{"n":"OBERLIN Ecole Maternelle","a":"5, rue Jura","q":"Neudorf / Neufeld","la":48.576816,"lo":7.759278,"s":"PEM/PEA"},{"n":"OR HG","a":"3, rue d'Or","q":"Esplanade - Conseil des XV - Orangerie","la":48.578449,"lo":7.749765,"s":"FPE"},{"n":"ORANGERIE FITNESS","a":"Rue François Xavier Richter / Parc de l'Orangerie","q":"Orangerie","la":48.590665,"lo":7.781525,"s":"Sport"},{"n":"ORANGERIE GRANDE PLACE","a":"Orangerie (boulevard de l')","q":"Centre / Gare","la":48.59118,"lo":7.778231,"s":"EVN"},{"n":"ORANGERIE GRANDE PLACE SPORT","a":"Parc de l'Orangerie","q":"Esplanade - Conseil des XV - Orangerie","la":48.591928,"lo":7.778815,"s":"Sport"},{"n":"ORANGERIE JEAN MONNET","a":"Orangerie (boulevard de l')","q":"Centre / Gare","la":48.589342,"lo":7.77733,"s":"EVN"},{"n":"ORANGERIE ZOO","a":"Orangerie (boulevard de l')","q":"Esplanade - Conseil des XV - Orangerie","la":48.591706,"lo":7.77289,"s":"EVN"},{"n":"ORANGERIE ZOO SPORT","a":"Parc de l'Orangerie","q":"Esplanade - Conseil des XV - Orangerie","la":48.591289,"lo":7.773815,"s":"Sport"},{"n":"ORPHELINS","a":"Orphelins (place des)","q":"Centre - Krutenau","la":48.578904,"lo":7.754395,"s":"EVN"},{"n":"ORPHELINS SPORT","a":"Place des Orphelins","q":"Centre - Krutenau","la":48.578799,"lo":7.754124,"s":"Sport"},{"n":"OSTWALD Piscine","a":"8, quai Heydt Ostwald","q":"Périphérie / Communes associées","la":48.547182,"lo":7.712092,"s":"Sport"},{"n":"PALERME","a":"Palerme (rue)","q":"Périphérie / Communes associées","la":48.575978,"lo":7.764293,"s":"EVN"},{"n":"PARC DES ROMAINS","a":"Route des Romains","q":"Koenigshoffen - Montagne Verte","la":48.583443,"lo":7.720379,"s":"EVN"},{"n":"PARC DU PETIT RHIN","a":"Rue du Péage","q":"Neudorf - Neuhof","la":48.573306,"lo":7.797616,"s":"EVN"},{"n":"PASSERELLE LAPE_ICARE ARIANE Ecole Maternelle","a":"Rue Rolland Garros","q":"Neuhof / Meinau","la":48.552788,"lo":7.770629,"s":"PEM/PEA"},{"n":"PASTEUR L Ecole Maternelle","a":"12, rue des Veaux","q":"Centre / Krutenau","la":48.581721,"lo":7.753481,"s":"PEM/PEA"},{"n":"PETIT BOIS","a":"Lamartine (rue),  Maille Brigitte","q":"Poteries / Cronenbourg","la":48.593438,"lo":7.701054,"s":"EVN"},{"n":"PETIT BOIS SPORT","a":"Rue Lamartine /  Maille Brigitte","q":"Poteries / Cronenbourg","la":48.593485,"lo":7.700659,"s":"Sport"},{"n":"PETIT CONTADES SPORT","a":"Rue des Arquebusiers / Petit Contades","q":"Centre - Krutenau","la":48.588739,"lo":7.758039,"s":"Sport"},{"n":"PETITE ORANGERIE","a":"Parc (rue du)","q":"Esplanade - Conseil des XV - Orangerie","la":48.602569,"lo":7.78397,"s":"EVN"},{"n":"PETITE ORANGERIE SPORT","a":"Rue du Parc","q":"Esplanade - Conseil des XV - Orangerie","la":48.601788,"lo":7.784396,"s":"Sport"},{"n":"PEUPLERAIE 01","a":"Auguste Brion (rue)","q":"Neudorf - Neuhof","la":48.547182,"lo":7.755651,"s":"EVN"},{"n":"PEUPLERAIE 02","a":"Auguste Brion (rue)","q":"Neudorf - Neuhof","la":48.546939,"lo":7.756026,"s":"EVN"},{"n":"PEUPLERAIE 03","a":"Auguste Brion (rue)","q":"Neudorf - Neuhof","la":48.54745,"lo":7.756635,"s":"EVN"},{"n":"PEUPLERAIE SPORT","a":"Rue Auguste Brion / Square de la Peupleraie","q":"Neudorf - Neuhof","la":48.547258,"lo":7.756279,"s":"Sport"},{"n":"PHARIO","a":"Ill (rue de l')","q":"Cité de l'Ill","la":48.612507,"lo":7.76935,"s":"EVN"},{"n":"PICQUART FITNESS","a":"Rue du Gal Picquart (Berges bassin des remparts)","q":"Cronenbourg - Hautepierre","la":48.582493,"lo":7.782852,"s":"Sport"},{"n":"PLACE DES ROMAINS","a":"Place des Romains","q":"Koenigshoffen - Montagne Verte","la":48.580353,"lo":7.704577,"s":"EVN"},{"n":"PLAINE DE JEUX","a":"Avenue Pierre Corneille","q":"Cronenbourg - Hautepierre","la":48.60021,"lo":7.70898,"s":"EVN"},{"n":"PLAINE DE JEUX SPORT","a":"Rue Baden Powell,","q":"Cronenbourg / Poteries – quartier Ouest","la":48.595462,"lo":7.690217,"s":"Sport"},{"n":"PLAINE DES JEUX FITNESS","a":"Rue Baden Powell","q":"Cronenbourg / Poteries – quartier Ouest","la":48.595462,"lo":7.690217,"s":"Sport"},{"n":"PORTE BLANCHE","a":"Porte Blanche (place de la)","q":"Centre / Porte Blanche – Petite France","la":48.579635,"lo":7.731357,"s":"EVN"},{"n":"POTERIES","a":"Mitterand (avenue François)","q":"Koenigshoffen - Montagne Verte","la":48.586457,"lo":7.694851,"s":"EVN"},{"n":"POTERIES CLSH MA","a":"10, rue Goeffrey Conrath","q":"Koenigshoffen - Montagne Verte","la":48.586986,"lo":7.694939,"s":"FPE"},{"n":"POTERIES EST MA","a":"10, rue Goeffrey Conrath","q":"Poteries / Cronenbourg","la":48.586892,"lo":7.694979,"s":"FPE"},{"n":"POTERIES FITNESS","a":"Rue Baden Powell","q":"Koenigshoffen - Montagne Verte","la":48.58625,"lo":7.692581,"s":"Sport"},{"n":"POTERIES LAPE MA","a":"10, rue Goeffrey Conrath","q":"Koenigshoffen - Montagne Verte","la":48.58722,"lo":7.694709,"s":"FPE"},{"n":"POTERIES NORD MA","a":"10, rue Goeffrey Conrath","q":"Koenigshoffen - Montagne Verte","la":48.587041,"lo":7.695157,"s":"FPE"},{"n":"POTERIES SUD MA","a":"10, rue Goeffrey Conrath","q":"Koenigshoffen - Montagne Verte","la":48.586936,"lo":7.694685,"s":"FPE"},{"n":"POURTALES Ecole Maternelle","a":"5, rue de la roue","q":"Neudorf - Neuhof","la":48.621859,"lo":7.788865,"s":"PEM/PEA"},{"n":"POURTALES SPORT","a":"Parc du Pourtales","q":"Neudorf / Quartier Esplanade","la":48.609641,"lo":7.799793,"s":"Sport"},{"n":"RACING","a":"Staedel (rue)","q":"Bischheim","la":48.558184,"lo":7.754963,"s":"EVN"},{"n":"RAPHAEL","a":"Berge de l'Ill","q":"Neudorf / Neufeld","la":48.56132,"lo":7.727582,"s":"EVN"},{"n":"RENARDS","a":"Rue des Renards","q":"Elsau","la":48.59259,"lo":7.718485,"s":"EVN"},{"n":"REUSS","a":"Allée Reuss","q":"Neuhof / Meinau","la":48.545854,"lo":7.766608,"s":"EVN"},{"n":"REUSS Ecole Maternelle","a":"12, allée des Déportés","q":"Neuhof / Meinau","la":48.542019,"lo":7.774293,"s":"PEM/PEA"},{"n":"REUTENBOURG","a":"Reutenbourg (rue de)","q":"Cronenbourg / Poteries – quartier Ouest","la":48.600822,"lo":7.703319,"s":"EVN"},{"n":"REUTENBOURG SPORT","a":"Rue de Reutenbourg","q":"Cronenbourg / Poteries – quartier Ouest","la":48.601076,"lo":7.703757,"s":"Sport"},{"n":"RHIN","a":"170 Rte du Rhin (devant l'école maternelle)","q":"Neudorf - Neuhof","la":48.573306,"lo":7.797616,"s":"EVN"},{"n":"RHIN Ecole Elementaire","a":"170, route du Rhin","q":"Neudorf - Neuhof","la":48.572759,"lo":7.796964,"s":"PEM/PEA"},{"n":"RHIN Ecole Maternelle","a":"170, route du Rhin","q":"Neudorf - Neuhof","la":48.572759,"lo":7.796964,"s":"PEM/PEA"},{"n":"ROBERTSAU Ecole Maternelle","a":"2, sentier Christ","q":"Robertsau - Wacken","la":48.600596,"lo":7.78452,"s":"PEM/PEA"},{"n":"ROBERTSAU MPE","a":"Rue de la Baronne d'Oberkirch","q":"Robertsau - Wacken","la":48.600843,"lo":7.7881,"s":"FPE"},{"n":"ROBERTSAU Piscine","a":"210, rte de la Wantzenau","q":"Robertsau - Wacken","la":48.617405,"lo":7.789262,"s":"Sport"},{"n":"ROSA PARKS 1 Maternelle","a":"7 rue Rabelais","q":"Port du Rhin / Deux-Rives","la":48.597425,"lo":7.697807,"s":"PEM/PEA"},{"n":"ROSA PARKS 2 Maternelle","a":"10, place Giono","q":"Port du Rhin / Deux-Rives","la":48.598048,"lo":7.697825,"s":"PEM/PEA"},{"n":"ROTHAU","a":"Rue de Rothau","q":"Koenigshoffen - Montagne Verte","la":48.578649,"lo":7.728583,"s":"EVN"},{"n":"ROTONDE","a":"Rotonde (rue de la)","q":"Elsau","la":48.592467,"lo":7.725088,"s":"EVN"},{"n":"ROTTERDAM","a":"20, rue de Rotterdam","q":"Neuhof / Rhin Tortu – parc Schulmeister","la":48.5844,"lo":7.77835,"s":"EVN"},{"n":"ROTTERDAM SPORT","a":"20, rue de Rotterdam","q":"Neuhof / Rhin Tortu – parc Schulmeister","la":48.5844,"lo":7.77835,"s":"Sport"},{"n":"SAINT ANTOINE","a":"Antoine (place Saint)","q":"Centre - Krutenau","la":48.59842,"lo":7.708075,"s":"EVN"},{"n":"SAINT ANTOINE SPORT","a":"Place St Antoine","q":"Centre - Krutenau","la":48.598242,"lo":7.708007,"s":"Sport"},{"n":"SAINT FLORENT","a":"Marmoutier (rue de)","q":"Neudorf / Saint-Florent","la":48.59677,"lo":7.72194,"s":"EVN"},{"n":"SAINT GOTHARD","a":"12, rue St Gothard","q":"Neudorf / Saint-Florent","la":48.578378,"lo":7.756178,"s":"FPE"},{"n":"SAINT JEAN","a":"Saint-Jean (Quai)","q":"Centre / Gare","la":48.584566,"lo":7.739845,"s":"EVN"},{"n":"SAINT JEAN Ecole Maternelle","a":"13, rue des Bonnes Gens","q":"Centre / Gare","la":48.589223,"lo":7.743803,"s":"PEM/PEA"},{"n":"SAINT THOMAS Ecole Maternelle","a":"2, rue de la Monnaie","q":"Centre / Petite France","la":48.579981,"lo":7.743948,"s":"PEM/PEA"},{"n":"SAINTE AURELIE","a":"Aurélie (place Sainte)","q":"Centre / Petite France","la":48.581832,"lo":7.732743,"s":"EVN"},{"n":"SAINTE AURELIE Ecole Maternelle","a":"5a, rue de Rosheim","q":"Centre / Gare","la":48.580625,"lo":7.733392,"s":"PEM/PEA"},{"n":"SAINTE MADELEINE Ecole Maternelle","a":"2, place Sainte Madeleine","q":"Krutenau / Centre","la":48.579419,"lo":7.754424,"s":"PEM/PEA"},{"n":"SAUER SPORT","a":"Rue de la Sauer (Berges de l'Ill)","q":"Robertsau","la":48.608745,"lo":7.77136,"s":"Sport"},{"n":"SCHEPPLER L Ecole Maternelle","a":"3, rue de Fouday","q":"Koenigshoffen / Cronenbourg","la":48.574478,"lo":7.732186,"s":"PEM/PEA"},{"n":"SCHILTIGHEIM Centre Nautique","a":"9, rue de Turenne Schiltigheim","q":"Schiltigheim","la":48.612364,"lo":7.729419,"s":"Sport"},{"n":"SCHLUTHFELD Ecole Maternelle","a":"62, rue de Saint Dié","q":"Neuhof / Stockfeld","la":48.568767,"lo":7.750987,"s":"PEM/PEA"},{"n":"SCHNOKELOCH","a":"Schnokeloch (rue du)","q":"Koenigshoffen / parc Albert Schweitzer – Schnokeloch","la":48.574404,"lo":7.712509,"s":"EVN"},{"n":"SCHOEPFLIN Ecole Elementaire","a":"6, quai Schoepflin","q":"Centre / Halles","la":48.586542,"lo":7.748437,"s":"PEM/PEA"},{"n":"SCHOEPFLIN Ecole Maternelle","a":"6, quai Schoepflin","q":"Centre / Halles","la":48.586542,"lo":7.748437,"s":"PEM/PEA"},{"n":"SCHONGAUER M Ecole Maternelle","a":"92, rue M. Schoengauer","q":"Elsau/ Koenigshoffen","la":48.563735,"lo":7.718854,"s":"PEM/PEA"},{"n":"SCHULMEISTER NORD I","a":"Rhin Tortu (rue du)","q":"Port du Rhin - Deux Rives","la":48.550776,"lo":7.75923,"s":"EVN"},{"n":"SCHULMEISTER NORD II","a":"Rhin Tortu (rue du)","q":"Port du Rhin - Deux Rives","la":48.55051,"lo":7.758881,"s":"EVN"},{"n":"SCHULMEISTER SUD I","a":"Rhin Tortu (rue du)","q":"Neuhof / Meinau","la":48.548847,"lo":7.759132,"s":"EVN"},{"n":"SCHULMEISTER SUD II","a":"Rhin Tortu (rue du)","q":"Neuhof / Meinau","la":48.548236,"lo":7.759195,"s":"EVN"},{"n":"SCHUMAN R Ecole Maternelle","a":"10, rue Vauban","q":"Centre - Krutenau","la":48.580354,"lo":7.77127,"s":"PEM/PEA"},{"n":"SCHWILGUE JB Ecole Maternelle","a":"20, rue de la Liepvrette","q":"Koenigshoffen - Montagne Verte","la":48.617606,"lo":7.7728,"s":"PEM/PEA"},{"n":"SOLANGE FERNEX Ecole Maternelle","a":"16, rue de l'Elbe","q":"Neuhof / Stockfeld","la":48.572514,"lo":7.768001,"s":"PEM/PEA"},{"n":"SOLIGNAC","a":"Square du manège Solignac","q":"Neudorf - Neuhof","la":48.552398,"lo":7.762553,"s":"EVN"},{"n":"SOULTZ","a":"Rue de Soultz","q":"Neudorf - Neuhof","la":48.563163,"lo":7.777901,"s":"EVN"},{"n":"SQUARE SOLIGNAC","a":"Square du manège Solignac","q":"Neudorf - Neuhof","la":48.552236,"lo":7.763204,"s":"EVN"},{"n":"SQUARE TOTZKE (square des halles)","a":"Rue des halles","q":"Centre / Gare","la":48.563756,"lo":7.767994,"s":"EVN"},{"n":"STARLETTE","a":"Quartier Starlette","q":"Neudorf - Neuhof","la":48.573413,"lo":7.783499,"s":"EVN"},{"n":"STARLETTE SPORT SUD","a":"4 Route du petit Rhin","q":"Neudorf - Neuhof","la":48.571651,"lo":7.783899,"s":"Sport"},{"n":"STENGER BACHMANN Crèche","a":"2, rue de la Douane","q":"Centre / Cathédrale – Douanes","la":48.579162,"lo":7.749106,"s":"FPE"},{"n":"STOCKFELD Ecole Elementaire","a":"1, rue du Loriot","q":"Périphérie / Communes associées","la":48.529294,"lo":7.770166,"s":"PEM/PEA"},{"n":"STOCKFELD Ecole Maternelle","a":"1, rue du Loriot","q":"Périphérie / Communes associées","la":48.529294,"lo":7.770166,"s":"PEM/PEA"},{"n":"STOLTZ JE","a":"5, rue Aloïse Stolz","q":"Neuhof / Rhin Tortu – parc Schulmeister","la":48.575324,"lo":7.751643,"s":"FPE"},{"n":"STOSKOPF G Ecole Elementaire","a":"rue Colette","q":"Cronenbourg / Poteries – quartier Ouest","la":48.585629,"lo":7.699593,"s":"PEM/PEA"},{"n":"STOSKOPF G Ecole Maternelle","a":"rue Colette","q":"Cronenbourg / Poteries – quartier Ouest","la":48.586092,"lo":7.699147,"s":"PEM/PEA"},{"n":"STURM Ecole Maternelle","a":"9, rue d'Upsal","q":"Cronenbourg / Poteries – quartier Ouest","la":48.577891,"lo":7.777837,"s":"PEM/PEA"},{"n":"TERRAIN JEUX ET AVENTURES","a":"Rue Fénelon","q":"Cronenbourg / Poteries – quartier Ouest","la":48.600966,"lo":7.695236,"s":"Sport"},{"n":"TIVOLI","a":"Schutzenberger (avenue)","q":"Esplanade - Conseil des XV - Orangerie","la":48.595308,"lo":7.759673,"s":"EVN"},{"n":"TUILERIE JE","a":"13, quai des Tuileries","q":"Krutenau / Esplanade","la":48.567734,"lo":7.776121,"s":"FPE"},{"n":"TURBULETTE MA","a":"7, rue d'Istanbul","q":"Centre - Krutenau","la":48.575654,"lo":7.770406,"s":"FPE"},{"n":"UNTERJAEGERHOF PARCOURS","a":"Rue des Corps de Garde / Jardin du Kurgarten","q":"Neudorf - Neuhof","la":48.634253,"lo":7.806958,"s":"Sport"},{"n":"VANNEAUX","a":"Vanneaux (rue des)","q":"Neudorf - Neuhof","la":48.554685,"lo":7.759513,"s":"EVN"},{"n":"VAUBAN Ecole Maternelle","a":"4, rue Louvain","q":"Cronenbourg - Hautepierre","la":48.581091,"lo":7.778068,"s":"PEM/PEA"},{"n":"VIEIL ARMAND SPORT","a":"Rue du Vieil Armand (Berges du Ziegelwasser)","q":"Neudorf - Neuhof","la":48.56588,"lo":7.776551,"s":"Sport"},{"n":"VIOLONISTES","a":"Violonistes (rue des)","q":"Centre - Krutenau","la":48.555324,"lo":7.77128,"s":"EVN"},{"n":"WACKEN Ecole Maternelle","a":"5, place du Bocage","q":"Robertsau - Wacken","la":48.597141,"lo":7.765676,"s":"PEM/PEA"},{"n":"WACKEN HG","a":"4, rue du Jasmin","q":"Robertsau - Wacken","la":48.594652,"lo":7.76487,"s":"FPE"},{"n":"WACKEN Piscine","a":"8, rue Pierre de Coubertin","q":"Robertsau - Wacken","la":48.598804,"lo":7.772226,"s":"Sport"},{"n":"WATTWILLER","a":"Place de Watwiller","q":"Robertsau - Wacken","la":48.56036,"lo":7.78549,"s":"EVN"},{"n":"WURTZ Ecole Maternelle","a":"Impasse du Rieth","q":"Elsau","la":48.600354,"lo":7.712072,"s":"PEM/PEA"},{"n":"ZIEGELAU","a":"Place de la Ziegelau","q":"Cronenbourg - Hautepierre","la":48.563004,"lo":7.762942,"s":"EVN"},{"n":"ZIEGELAU Ecole Maternelle","a":"12, rue de Rhinau","q":"Neudorf - Neuhof","la":48.564293,"lo":7.762479,"s":"PEM/PEA"},{"n":"ZIEGELGRABEN","a":"Aubépine (rue de l')","q":"Schiltigheim – Centre nautique / équipements sportifs","la":48.608345,"lo":7.771059,"s":"EVN"},{"n":"ZIEGELWASSER Ecole Maternelle","a":"1, rue de Bergerac","q":"Neuhof / Rhin Tortu – parc Schulmeister","la":48.552023,"lo":7.761595,"s":"PEM/PEA"}];
+
+// Couleurs par service
+const SVC_COLOR = {
+  'EVN':'#4caf50','Sport':'#ff9800','PEM/PEA':'#ab47bc','FPE':'#26c6da','SSJ':'#ef5350'
+};
+function svcColor(s){return SVC_COLOR[s]||'#4a9eff';}
+function svcClass(s){return 'c-'+(s||'EVN').replace('/','');}
+
+// ── FAVORIS (persistant sur le téléphone) ──────────────
+const FAV_KEY = 'evn_aires_favoris_v1';
+const STATE_KEY = 'evn_aires_state_v1';
+function loadFavs(){
+  try{ return new Set(JSON.parse(localStorage.getItem(FAV_KEY)||'[]')); }catch(e){ return new Set(); }
+}
+function saveFavs(){ localStorage.setItem(FAV_KEY, JSON.stringify([...favs])); }
+function siteKey(s){ return s.n+'|'+s.la+'|'+s.lo; }
+function isFav(s){ return favs.has(siteKey(s)); }
+function toggleFav(s){
+  const k = siteKey(s);
+  if(favs.has(k)) favs.delete(k); else favs.add(k);
+  saveFavs();
+  refresh();
+  if(map) renderMap();
+}
+
+// État (avec restauration de la dernière session)
+let savedState = {};
+try{ savedState = JSON.parse(localStorage.getItem(STATE_KEY)||'{}'); }catch(e){}
+let favs = loadFavs();
+let currentFilter = savedState.filter || 'ALL';
+let sortByDist = false;
+let userPos = null;
+let currentTab = savedState.tab || 'map';
+let map, markerLayer;
+
+function saveState(){
+  localStorage.setItem(STATE_KEY, JSON.stringify({filter:currentFilter, tab:currentTab}));
+}
+
+// ── CARTE ──────────────────────────────────────────────
+function initMap(){
+  map = L.map('map',{zoomControl:false,attributionControl:false}).setView([48.5734,7.7521],13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    maxZoom:19,attribution:'© CartoDB'
+  }).addTo(map);
+  L.control.zoom({position:'bottomright'}).addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+  renderMap();
+}
+
+function makeIcon(s){
+  const c = svcColor(s.s);
+  const star = isFav(s) ? '<div style="position:absolute;top:-7px;left:3px;font-size:9px;">★</div>' : '';
+  return L.divIcon({
+    className:'',
+    html:`<div style="position:relative;width:10px;height:10px;">${star}<div style="width:10px;height:10px;border-radius:50%;background:${c};border:2px solid rgba(255,255,255,.5);box-shadow:0 0 4px ${c}88;"></div></div>`,
+    iconSize:[10,10],iconAnchor:[5,5]
+  });
+}
+
+function renderMap(){
+  markerLayer.clearLayers();
+  const shown = getFiltered();
+  shown.forEach(s=>{
+    const m = L.marker([s.la,s.lo],{icon:makeIcon(s)}).addTo(markerLayer);
+    m.bindPopup(popupHTML(s),{maxWidth:260,className:'dark-popup'});
+  });
+  // Style popup
+  if(!document.getElementById('ppStyle')){
+    const st=document.createElement('style');
+    st.id='ppStyle';
+    st.textContent=`.leaflet-popup-content-wrapper{background:#1a1d27!important;border:1px solid #2a3050;border-radius:12px!important;color:#e8eaf0;}.leaflet-popup-tip{background:#1a1d27!important;}.leaflet-popup-content{margin:12px!important;}`;
+    document.head.appendChild(st);
+  }
+}
+
+function popupHTML(s){
+  const c = svcColor(s.s);
+  const gurl = `https://www.google.com/maps/dir/?api=1&destination=${s.la},${s.lo}&travelmode=driving`;
+  const wurl = `https://waze.com/ul?ll=${s.la},${s.lo}&navigate=yes`;
+  const favStar = isFav(s) ? '★' : '☆';
+  const safeN = s.n.replace(/'/g,"\\'");
+  return `<div class="lpop">
+    <h3>${s.n}</h3>
+    <div class="adr">${s.a||''}${s.q?'<br><small>'+s.q+'</small>':''}</div>
+    <div class="badges">
+      <span class="badge" style="background:${c}33;color:${c}">${s.s}</span>
+    </div>
+    <div class="navbtns">
+      <a class="navbtn gm" href="${gurl}" target="_blank">📍 Google Maps</a>
+      <a class="navbtn waze" href="${wurl}" target="_blank">🚗 Waze</a>
+      <button class="navbtn favbtn" onclick="toggleFavByName('${safeN}',${s.la},${s.lo})">${favStar}</button>
+    </div>
+  </div>`;
+}
+
+function toggleFavByName(n,la,lo){
+  const s = SITES.find(x=>x.n===n && Math.abs(x.la-la)<0.00001 && Math.abs(x.lo-lo)<0.00001);
+  if(s) toggleFav(s);
+  if(map){
+    renderMap();
+    setTimeout(()=>{
+      markerLayer.eachLayer(m=>{
+        if(Math.abs(m.getLatLng().lat-la)<0.0001 && Math.abs(m.getLatLng().lng-lo)<0.0001) m.openPopup();
+      });
+    },50);
+  }
+}
+
+// ── LISTE ──────────────────────────────────────────────
+function renderList(){
+  const shown = getFiltered();
+  const ctr = document.getElementById('siteList');
+  const nr  = document.getElementById('noResult');
+  document.getElementById('cptSites').textContent = shown.length;
+
+  if(!shown.length){ctr.innerHTML='';nr.style.display='block';return;}
+  nr.style.display='none';
+
+  ctr.innerHTML = shown.map(s=>{
+    const c = svcColor(s.s);
+    const cls = svcClass(s.s);
+    const dist = userPos ? distStr(userPos.lat,userPos.lon,s.la,s.lo) : '';
+    const gurl = `https://www.google.com/maps/dir/?api=1&destination=${s.la},${s.lo}&travelmode=driving`;
+    const fav = isFav(s);
+    const safeN = s.n.replace(/'/g,"\\'");
+    return `<div class="site-card" onclick="cardClick(${s.la},${s.lo},'${safeN}')">
+      <div class="card-head">
+        <div class="card-dot" style="background:${c}"></div>
+        <div class="card-info">
+          <div class="card-nom">${s.n}</div>
+          <div class="card-adr">${s.a||''}</div>
+        </div>
+        ${dist?`<div class="card-dist">${dist}</div>`:''}
+      </div>
+      <div class="card-foot">
+        <span class="card-svc ${cls}">${s.s}</span>
+        <span class="card-q">${s.q||''}</span>
+        <div class="card-actions">
+          <button class="card-btn fav-btn ${fav?'on':''}" onclick="event.stopPropagation();toggleFavByName('${safeN}',${s.la},${s.lo})">${fav?'★':'☆'}</button>
+          <button class="card-btn map-btn" onclick="event.stopPropagation();openMap(${s.la},${s.lo})">🗺</button>
+          <a class="card-btn nav-btn" href="${gurl}" target="_blank" onclick="event.stopPropagation()">🚗</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function cardClick(la,lo,nom){
+  showTab('map');
+  setTimeout(()=>{
+    map.setView([la,lo],17);
+    markerLayer.eachLayer(m=>{
+      if(Math.abs(m.getLatLng().lat-la)<0.0001 && Math.abs(m.getLatLng().lng-lo)<0.0001){
+        m.openPopup();
+      }
+    });
+  },100);
+}
+
+function openMap(la,lo){
+  showTab('map');
+  setTimeout(()=>map.setView([la,lo],17),100);
+}
+
+// ── FILTRES & SEARCH ───────────────────────────────────
+function getFiltered(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let list = SITES.filter(s=>{
+    const svcOk = currentFilter==='ALL' || (currentFilter==='FAV' ? isFav(s) : s.s===currentFilter);
+    if(!svcOk) return false;
+    if(!q) return true;
+    return s.n.toLowerCase().includes(q)||
+           (s.a&&s.a.toLowerCase().includes(q))||
+           (s.q&&s.q.toLowerCase().includes(q));
+  });
+  if(sortByDist && userPos){
+    list = [...list].sort((a,b)=>{
+      const da = haversine(userPos.lat,userPos.lon,a.la,a.lo);
+      const db = haversine(userPos.lat,userPos.lon,b.la,b.lo);
+      return da-db;
+    });
+  } else {
+    list = [...list].sort((a,b)=>a.n.localeCompare(b.n,'fr'));
+  }
+  return list;
+}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  saveState();
+  refresh();
+}
+
+function toggleSort(){
+  if(!userPos){
+    alert('Activez d\'abord la localisation (📍) pour trier par distance.');
+    return;
+  }
+  sortByDist = !sortByDist;
+  document.getElementById('sortBtn').textContent = sortByDist ? '↕ Proximité' : '↕ A-Z';
+  document.getElementById('sortBtn').classList.toggle('on', sortByDist);
+  refresh();
+}
+
+document.getElementById('searchInput').addEventListener('input',refresh);
+
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  refresh();
+}
+
+function refresh(){
+  if(currentTab==='map') renderMap();
+  else renderList();
+  document.getElementById('cptSites').textContent = getFiltered().length;
+}
+
+// ── TABS ───────────────────────────────────────────────
+function showTab(tab){
+  currentTab=tab;
+  saveState();
+  document.getElementById('mapView').style.display = tab==='map'?'block':'none';
+  document.getElementById('listView').style.display = tab==='list'?'block':'none';
+  document.getElementById('tabMap').classList.toggle('active',tab==='map');
+  document.getElementById('tabList').classList.toggle('active',tab==='list');
+  if(tab==='map'){
+    if(!map) initMap(); else {renderMap();setTimeout(()=>map.invalidateSize(),50);}
+  } else {
+    renderList();
+  }
+}
+
+// ── GÉOLOCALISATION ────────────────────────────────────
+function geolocate(){
+  if(!navigator.geolocation){
+    alert('Géolocalisation non supportée par ce navigateur.');
+    return;
+  }
+  const btn = document.getElementById('locBtn');
+  const status = document.getElementById('locStatus');
+  btn.disabled = true;
+  btn.textContent = '⏳ …';
+  status.textContent = 'Localisation en cours…';
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userPos = {lat: pos.coords.latitude, lon: pos.coords.longitude};
+      status.textContent = `📍 Précision : ${Math.round(pos.coords.accuracy)} m`;
+      btn.disabled = false;
+      btn.textContent = '📍 Me localiser';
+      if(map){
+        if(window._userMarker) window._userMarker.remove();
+        window._userMarker = L.circleMarker([userPos.lat, userPos.lon],{
+          radius:10, color:'#fff', weight:2, fillColor:'#4a9eff', fillOpacity:1
+        }).addTo(map).bindPopup('📍 Vous êtes ici').openPopup();
+        map.setView([userPos.lat, userPos.lon], 15);
+      }
+      if(currentTab === 'list') renderList();
+    },
+    err => {
+      btn.disabled = false;
+      btn.textContent = '📍 Me localiser';
+      const msgs = {
+        1: '🔒 Permission refusée — autorisez la localisation dans votre navigateur',
+        2: '📡 Position indisponible (GPS/réseau)',
+        3: '⏱ Délai dépassé — réessayez en extérieur'
+      };
+      status.textContent = msgs[err.code] || `Erreur géo. (code ${err.code})`;
+    },
+    {enableHighAccuracy: true, timeout: 15000, maximumAge: 0}
+  );
+}
+
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371000,p1=lat1*Math.PI/180,p2=lat2*Math.PI/180;
+  const dp=(lat2-lat1)*Math.PI/180,dl=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function distStr(lat1,lon1,lat2,lon2){
+  const d = haversine(lat1,lon1,lat2,lon2);
+  return d<1000?Math.round(d)+'m':(d/1000).toFixed(1)+'km';
+}
+
+// ── INIT ───────────────────────────────────────────────
+(function(){
+  const cls = {'ALL':'ALL','EVN':'EVN','Sport':'Sport','PEM/PEA':'PEMPEA','FPE':'FPE','SSJ':'SSJ','FAV':'FAV'}[currentFilter] || 'ALL';
+  document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('on'));
+  const btn = document.querySelector('.ftag.'+cls);
+  if(btn) btn.classList.add('on');
+})();
+showTab(currentTab);
+</script>
+</body>
+</html>
