@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide NF EN 1176 — EVN Strasbourg — Complet</title>
+<style>
+:root {
+  /* Palette principale */
+  --bg:#0d1117; --surf:#161b22; --surf2:#21262d; --bord:#30363d;
+  --ok:#3fb950; --info:#58a6ff; --warn:#d29922; --err:#f85149;
+  --txt:#e6edf3; --mut:#8b949e;
+  --sans:'Segoe UI',Calibri,Arial,sans-serif;
+  --mono:Consolas,'Courier New',monospace;
+  /* Palette onglets normatifs */
+  --h1:#64b5f6; --h2:#4fc3f7; --h3:#80deea;
+  --val:#a5d6a7; --tag-bg:#1a3a5c;
+  --accent:#1a73e8; --accent2:#0d47a1;
+  --bg2:#162030; --bg3:#1e2d3d; --border:#2a4060;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:13.5px;min-height:100vh}
+
+/* ── HEADER ── */
+#hdr{background:linear-gradient(135deg,#0d1f33 0%,#1a3a5c 100%);border-bottom:2px solid var(--ok);
+  padding:10px 18px;position:sticky;top:0;z-index:110;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#hdr h1{font-size:.95rem;font-weight:700;color:var(--ok);white-space:nowrap}
+#hdr small{font-size:.72rem;color:var(--mut)}
+.bx{padding:3px 10px;border-radius:4px;font-size:.7rem;font-weight:600}
+.bg{background:#1f3b1f;color:var(--ok);border:1px solid #2d5a2d}
+.bb{background:#1a2a4a;color:var(--info);border:1px solid #2a3a6a}
+.bw{background:#3a2a1a;color:var(--warn);border:1px solid #5a3a1a}
+
+/* ── SEARCH ── */
+#sb{background:var(--surf);border-bottom:1px solid var(--bord);padding:7px 16px;display:flex;gap:10px;align-items:center;position:sticky;top:60px;z-index:100}
+#si{background:var(--surf2);border:1px solid var(--bord);color:var(--txt);padding:5px 12px;border-radius:6px;font-size:.82rem;width:280px}
+#si:focus{outline:none;border-color:var(--info)}
+#sc{font-size:.75rem;color:var(--mut);min-width:80px}
+#toast{position:fixed;bottom:20px;right:20px;background:#1f4a1f;color:var(--ok);border:1px solid var(--ok);
+  padding:8px 16px;border-radius:8px;font-size:.82rem;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999}
+#toast.on{opacity:1}
+
+/* ── TABS ── */
+#tabs{display:flex;flex-wrap:wrap;gap:3px;padding:8px 14px 0;background:var(--surf);
+  border-bottom:1px solid var(--bord);position:sticky;top:105px;z-index:90}
+.tb{padding:6px 13px;border-radius:6px 6px 0 0;cursor:pointer;font-size:.75rem;font-weight:600;
+  color:var(--mut);border:1px solid transparent;border-bottom:none;background:var(--surf2);transition:all .2s}
+.tb:hover{color:var(--h2);background:var(--bg3)}
+.tb.on{color:#fff;background:var(--accent2);border-color:var(--border)}
+
+/* ── PANELS ── */
+#cnt{padding:0}
+.panel{display:none;padding:16px;max-width:1150px;margin:0 auto}
+.panel.on{display:block}
+
+/* ══════════════════════════════
+   STYLES PANELS NORMATIFS (nouveau)
+══════════════════════════════ */
+.n-section{background:var(--surf);border:1px solid var(--bord);border-radius:10px;margin-bottom:16px;overflow:hidden}
+.n-section-header{background:linear-gradient(90deg,var(--surf2),var(--surf));padding:11px 15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bord)}
+.n-section-header h2{font-size:14px;color:var(--h2);font-weight:700}
+.n-section-header h3{font-size:13px;color:var(--h3);font-weight:600}
+.n-chevron{color:var(--mut);font-size:16px;transition:transform .25s}
+.n-section-header.open .n-chevron{transform:rotate(180deg)}
+.n-section-body{padding:13px 15px;display:none}
+.n-section-body.open{display:block}
+.dim-table{width:100%;border-collapse:collapse;margin:9px 0;font-size:.82rem}
+.dim-table th{background:var(--accent2);color:#fff;padding:7px 9px;text-align:left}
+.dim-table td{padding:6px 9px;border-bottom:1px solid var(--bord)}
+.dim-table tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+.dim-table td:last-child{color:var(--val);font-weight:600}
+.n-note{background:#1a2a00;border-left:4px solid #8bc34a;padding:9px 13px;border-radius:0 6px 6px 0;margin:9px 0;font-size:.82rem;color:#c8e6c9}
+.n-warn{background:#2a1500;border-left:4px solid #ff6d00;padding:9px 13px;border-radius:0 6px 6px 0;margin:9px 0;font-size:.82rem;color:#ffcc80}
+.n-info{background:#00202a;border-left:4px solid #00acc1;padding:9px 13px;border-radius:0 6px 6px 0;margin:9px 0;font-size:.82rem;color:#80deea}
+.n-france{background:#1a1a2e;border-left:4px solid #e91e63;padding:9px 13px;border-radius:0 6px 6px 0;margin:9px 0;font-size:.82rem;color:#f48fb1}
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px;margin:10px 0}
+.qcard{background:var(--surf2);border:1px solid var(--bord);border-radius:8px;padding:11px 13px}
+.qcard .qval{font-size:20px;color:var(--val);font-weight:800}
+.qcard .qlabel{font-size:11px;color:var(--mut);margin-top:3px}
+.qcard .qnorm{font-size:10px;color:var(--mut);margin-top:2px;font-style:italic}
+.n-label{display:inline-block;background:var(--tag-bg);color:var(--h2);padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-right:5px}
+.n-val{color:var(--val);font-weight:700}
+p.n-p{margin:7px 0;font-size:.82rem;color:var(--mut)}
+ul.n-ul{padding-left:18px;margin:7px 0}
+ul.n-ul li{margin:3px 0;font-size:.82rem;color:var(--mut)}
+ul.n-ul li::marker{color:var(--info)}
+
+/* ══════════════════════════════
+   STYLES PANELS TERRAIN (ancien)
+══════════════════════════════ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:680px){.g2{grid-template-columns:1fr}}
+.card{background:var(--surf);border:1px solid var(--bord);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.ctit{font-size:.82rem;font-weight:700;color:var(--info);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bord)}
+table{width:100%;border-collapse:collapse;font-size:.77rem}
+thead tr{background:var(--surf2)}
+th{padding:7px 8px;text-align:left;color:var(--mut);font-weight:600;border-bottom:1px solid var(--bord)}
+td{padding:6px 8px;border-bottom:1px solid var(--bord);color:var(--txt)}
+tr:last-child td{border-bottom:none}
+.vr{color:var(--ok);font-weight:700}
+.nr{color:var(--mut);font-size:.7rem}
+.risk{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.7rem;font-weight:700}
+.ri{background:rgba(248,81,73,.15);color:var(--err);border:1px solid rgba(248,81,73,.3)}
+.rw{background:rgba(210,153,34,.15);color:var(--warn);border:1px solid rgba(210,153,34,.3)}
+.ro{background:rgba(63,185,80,.15);color:var(--ok);border:1px solid rgba(63,185,80,.3)}
+.alert{padding:8px 12px;border-radius:6px;font-size:.78rem;margin-bottom:10px}
+.ai{background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.25);color:var(--info)}
+.aw{background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.25);color:var(--warn)}
+.ae{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.25);color:var(--err)}
+
+/* Sections observations */
+.sec{background:var(--surf);border:1px solid var(--bord);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.sh{padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--surf2)}
+.sico{font-size:1rem;flex-shrink:0}
+.st{font-size:.82rem;font-weight:600;color:var(--txt);flex:1}
+.sref{font-size:.68rem;color:var(--info);background:rgba(88,166,255,.08);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.chev{color:var(--mut);font-size:.85rem;transition:transform .25s;margin-left:4px}
+.sec.open>.sh .chev{transform:rotate(90deg)}
+.sb2{display:none;padding:6px 8px}
+.sec.open>.sb2{display:block}
+/* Sous-sections */
+.ss{background:var(--surf2);border:1px solid var(--bord);border-radius:6px;margin:4px 0;overflow:hidden}
+.ssh{padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--mut)}
+.sc3{transition:transform .25s;display:inline-block;font-size:.7rem}
+.ss.open .sc3{transform:rotate(90deg)}
+.ssb{display:none;padding:4px 8px}
+.ss.open .ssb{display:block}
+/* Items observations */
+.oi{padding:6px 10px;border-radius:6px;cursor:pointer;margin:3px 0;border:1px solid transparent;transition:all .15s}
+.oi:hover{background:rgba(88,166,255,.07);border-color:rgba(88,166,255,.2)}
+.ot{font-size:.78rem;line-height:1.55;color:var(--txt)}
+.a{color:var(--ok);font-weight:600}
+.d{color:var(--err)}
+.n{color:var(--info);font-size:.72rem}
+.prio{display:inline-block;background:rgba(248,81,73,.15);color:var(--err);border:1px solid rgba(248,81,73,.3);
+  padding:1px 6px;border-radius:4px;font-size:.68rem;font-weight:700;margin-left:4px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div>
+    <h1>📋 Guide NF EN 1176 — Sécurité des Aires de Jeux — EVN Strasbourg</h1>
+    <small>Référence normative · Bibliothèque observations terrain · Décrets 94-699 / 96-1136 · Clic sur une observation = copier dans le presse-papier</small>
+  </div>
+  <div class="bx bg">📴 Hors ligne</div>
+  <div class="bx bb">EN 1176-1+A1:2023 · EN 1176-2→7 · EN 1176-10/11</div>
+  <div class="bx bw">Décret 96-1136</div>
+  <div class="bx" style="background:#2a1a3a;color:#ce93d8;border:1px solid #7b1fa2">v4 — Avril 2026</div>
+</div>
+
+<div id="sb">
+  <input type="text" id="si" placeholder="🔍 Rechercher dans tous les onglets..." oninput="filterAll(this.value)">
+  <span id="sc"></span>
+</div>
+<div id="toast">✅ Texte copié !</div>
+
+<div id="tabs">
+  <button class="tb on"  onclick="showTab('valeurs',this)">⚡ Valeurs clés</button>
+  <button class="tb"     onclick="showTab('1176-1',this)">📐 EN 1176-1</button>
+  <button class="tb"     onclick="showTab('1176-2',this)">🔄 Balançoires</button>
+  <button class="tb"     onclick="showTab('1176-3',this)">🛝 Toboggans</button>
+  <button class="tb"     onclick="showTab('1176-456',this)">🎠 Manèges / Bascules / Téléph.</button>
+  <button class="tb"     onclick="showTab('1176-7',this)">✅ Contrôle NF EN 1176-7</button>
+  <button class="tb"     onclick="showTab('1177',this)">🌱 Sols NF EN 1177</button>
+  <button class="tb"     onclick="showTab('reglementation',this)">📜 Réglementation</button>
+  <button class="tb"     onclick="showTab('obs',this)">📋 Observations terrain</button>
+  <button class="tb"     onclick="showTab('val-dim',this)">📊 Tableau dimensions</button>
+  <button class="tb"     onclick="showTab('acc',this)">⚠️ Accidents types</button>
+  <button class="tb"     onclick="showTab('equip',this)">🔎 Par équipement</button>
+  <button class="tb"     onclick="showTab('sol',this)">🏗️ Sols détail</button>
+  <button class="tb"     onclick="showTab('ctrl',this)">🗂️ Checklist terrain</button>
+  <button class="tb"     onclick="showTab('enfants',this)">👶 Enfants</button>
+</div>
+
+<div id="cnt">
+<div id="tab-valeurs" class="panel active">
+  <div class="quick-grid">
+    <div class="qcard"><div class="qval">3 000 mm</div><div class="qlabel">Hauteur de chute libre maximale</div><div class="qnorm">NF EN 1176-1 § 4.2.8.4</div></div>
+    <div class="qcard"><div class="qval">600 mm</div><div class="qlabel">Seuil déclenchant l'exigence de sol amortissant</div><div class="qnorm">NF EN 1176-1 § 4.2.8.1.3</div></div>
+    <div class="qcard"><div class="qval">1 500 mm</div><div class="qlabel">Étendue minimale de la surface d'impact</div><div class="qnorm">NF EN 1176-1 — à partir de 60 cm de chute</div></div>
+    <div class="qcard"><div class="qval">&lt;89 ou &gt;230 mm</div><div class="qlabel">Ouvertures satisfaisantes (coincement tête)</div><div class="qnorm">NF EN 1176-1 § 4.2.7.2</div></div>
+    <div class="qcard"><div class="qval">12 mm</div><div class="qlabel">Écartement minimal parties mobiles (doigts)</div><div class="qnorm">NF EN 1176-1 § 4.2.7.6</div></div>
+    <div class="qcard"><div class="qval">8,6 mm</div><div class="qlabel">Ouverture maximale maillons de chaîne</div><div class="qnorm">NF EN 1176-1 § 4.2.13</div></div>
+    <div class="qcard"><div class="qval">350 mm</div><div class="qlabel">Garde au sol balançoire standard</div><div class="qnorm">NF EN 1176-2 § 4.2</div></div>
+    <div class="qcard"><div class="qval">400 mm</div><div class="qlabel">Garde au sol balançoire pneu/nacelle/bébé</div><div class="qnorm">NF EN 1176-2 § 4.2</div></div>
+    <div class="qcard"><div class="qval">1 000 mm</div><div class="qlabel">Hauteur de chute libre max — manèges et bascules</div><div class="qnorm">NF EN 1176-5/6</div></div>
+    <div class="qcard"><div class="qval">5 m/s</div><div class="qlabel">Vitesse max à la périphérie des manèges</div><div class="qnorm">NF EN 1176-5 § 5.7</div></div>
+    <div class="qcard"><div class="qval">60° / 40°</div><div class="qlabel">Angle max / moyen zone de glissade toboggan</div><div class="qnorm">NF EN 1176-3 § 4.4.1</div></div>
+    <div class="qcard"><div class="qval">40 cm</div><div class="qlabel">Profondeur fondations béton sous sol fini</div><div class="qnorm">NF EN 1176-1 § 4.2.14</div></div>
+    <div class="qcard"><div class="qval">Hebdo</div><div class="qlabel">Fréquence contrôle visuel de routine</div><div class="qnorm">NF EN 1176-7</div></div>
+    <div class="qcard"><div class="qval">1–3 mois</div><div class="qlabel">Fréquence contrôle fonctionnel</div><div class="qnorm">NF EN 1176-7</div></div>
+    <div class="qcard"><div class="qval">Annuel</div><div class="qlabel">Fréquence contrôle annuel principal (rapport écrit)</div><div class="qnorm">NF EN 1176-7</div></div>
+    <div class="qcard"><div class="qval">3–5 ans</div><div class="qlabel">Durée d'archivage des rapports de contrôle</div><div class="qnorm">Décret 96-1136</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>📐 Formule espace de chute (à partir de 1,5 m)</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <p><strong>X = 2/3 y + 0,5 m</strong> — où y = hauteur de chute libre (en m)</p>
+      <table class="dim-table">
+        <tr><th>Hauteur de chute libre</th><th>Étendue min surface d'impact</th></tr>
+        <tr><td>1 500 mm</td><td>1 500 mm</td></tr>
+        <tr><td>2 000 mm</td><td>1 833 mm</td></tr>
+        <tr><td>2 250 mm</td><td>2 000 mm</td></tr>
+        <tr><td>2 500 mm</td><td>2 166 mm</td></tr>
+        <tr><td>3 000 mm</td><td>2 500 mm</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- =================== NF EN 1176-1 =================== -->
+<div id="tab-1176-1" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>🎯 Espaces — Définitions essentielles</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <p><strong>Espace minimal</strong> = espace équipement + espace libre + espace de chute.</p>
+      <p><strong>Espace libre</strong> : uniquement pour équipements à mouvement passif (balançoires, toboggans, manèges, téléphériques, bascules).</p>
+      <table class="dim-table">
+        <tr><th>Type d'utilisation</th><th>Cylindre espace libre</th></tr>
+        <tr><td>Station debout (plates-formes manèges)</td><td>Ø 1 000 mm — H 2 000 mm</td></tr>
+        <tr><td>Position assise</td><td>Ø 1 000 mm — H 1 500 mm</td></tr>
+        <tr><td>Position suspendue</td><td>1 800 mm en dessous du point de préhension</td></tr>
+      </table>
+      <div class="info">Principe clé : les espaces libres ne doivent PAS se chevaucher. Les espaces de chute PEUVENT se chevaucher, SAUF pour les balançoires et les manèges.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🔍 Coincement tête/cou — Gabarits (Annexe D)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>Contrôle de toutes les ouvertures accessibles à plus de 60 cm du sol :</p>
+      <table class="dim-table">
+        <tr><th>Gabarit</th><th>Usage</th></tr>
+        <tr><td><span class="label">A</span> Torse (≥3 ans)</td><td>Ouvertures rigides / pieds en premier</td></tr>
+        <tr><td><span class="label">B</span> Tête (≥3 ans)</td><td>Autres cas, y compris tête en premier</td></tr>
+        <tr><td><span class="label">C</span> Torse petit (0–14 ans)</td><td>Équipements accessibles à tous âges</td></tr>
+        <tr><td><span class="label">D</span> Grand gabarit (tête)</td><td>Tous les équipements — doit passer si A ou B passe</td></tr>
+      </table>
+      <div class="note">Ouvertures satisfaisantes : <strong>&lt; 89 mm OU &gt; 230 mm</strong> dans toutes les directions. Les ouvertures en V doivent aussi être contrôlées avec le gabarit losange (Annexe D.2.2).</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🤚 Coincement doigts (§ 4.2.7.6 — Annexe D.4)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>Gabarits : tiges de <strong>8 mm</strong> et <strong>25 mm</strong> de diamètre. Zone à contrôler : espace libre, à plus de 1 200 mm de la surface d'impact.</p>
+      <ul>
+        <li>Si tige 8 mm passe ET se bloque → acceptable uniquement si tige 25 mm passe aussi</li>
+        <li>Écartement entre parties mobiles : <span class="val">minimum 12 mm</span></li>
+        <li>Ouvertures variables : pas inférieures à 12 mm</li>
+        <li>Tubes ouverts > 1 200 mm au-dessus du sol : interdits (risque doigt cassé)</li>
+      </ul>
+      <div class="warn">⚠ Ouvertures entre 80 et 112 mm : particulièrement dangereuses — les extrémités des membres peuvent y être sérieusement mises en danger.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>👕 Coincement vêtements (§ 4.2.7.3 — Annexe D.3)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>Essai avec chaînette + bouton de duffle-coat sur : <strong>toits, toboggans, mâts de pompier</strong> (à plus de 600 mm du sol).</p>
+      <p>Si le bouton ou la chaînette se coince → l'essai ne passe pas.</p>
+      <div class="note">L'accrochage par un cordon d'anorak à un toboggan peut conduire à la strangulation — à exclure absolument.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🪜 Éléments d'accès — Dimensions</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <h3 style="color:var(--h3);margin:10px 0 6px">Échelles (§ 4.2.9.1)</h3>
+      <ul>
+        <li>Inclinaison : 60° à 90° par rapport à l'horizontale</li>
+        <li>Écarts barreaux/montants : <strong>&lt; 110 mm (89 mm si &lt;3 ans)</strong> ou <strong>&gt; 230 mm</strong></li>
+        <li>Espace sous le degré/barreau (depuis le milieu) : ≥ 90 mm sans obstacle</li>
+        <li>Première marche difficilement accessible : commence à 40 cm du sol</li>
+      </ul>
+      <h3 style="color:var(--h3);margin:10px 0 6px">Escaliers (§ 4.2.9.2)</h3>
+      <ul>
+        <li>Inclinaison : 15° à 60°. Minimum 3 marches.</li>
+        <li>Profondeur minimale des marches : <span class="val">140 mm</span></li>
+        <li>Main courante obligatoire si volée à 45°+ et hauteur de chute > 1 m</li>
+      </ul>
+      <h3 style="color:var(--h3);margin:10px 0 6px">Rampes (§ 4.2.9.3)</h3>
+      <ul>
+        <li>Jusqu'à 38° = rampe → protection contre chutes à partir de 1 m (60 cm si &lt;36 mois)</li>
+        <li>Balustrades et garde-corps : commencent à l'endroit le plus bas de la rampe</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>⚓ Fondations (§ 4.2.14)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Parties béton/fixations : <span class="val">≥ 40 cm</span> sous le niveau de sol fini</li>
+        <li>Parties supérieures arrondies sans boulons saillants : admises à 20 cm sous le sol fini</li>
+        <li>Bois : zone critique = contact terre/air → piétements acier, bois imprégné, essences résistantes</li>
+        <li>Acier : corrosion insidieuse possible sous la peinture ou galvanisation → contrôle régulier</li>
+        <li>Stagnation d'eau dans la fondation à éviter absolument → fondation ouverte vers le bas avec couche drainante</li>
+      </ul>
+      <div class="warn">⚠ Le contrôle et l'entretien des fondations requièrent une attention particulière et doivent être effectués par du personnel compétent.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🪢 Cordes, chaînes et assemblages</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <table class="dim-table">
+        <tr><th>Élément</th><th>Exigence</th></tr>
+        <tr><td>Cordes oscillantes (fixées à une extrémité)</td><td>Ø 25–45 mm · hauteur 2–4 m · distance parties fixes ≥ 600 mm</td></tr>
+        <tr><td>Cordes à grimper (fixées aux deux extrémités)</td><td>Ø 18–45 mm · amplitude max 20%</td></tr>
+        <tr><td>Chaînes — ouverture maillons</td><td>≤ 8,6 mm dans toutes les directions</td></tr>
+        <tr><td>Assemblages</td><td>Ne pas pouvoir être démontés sans outil · satisfaire exigences coincement doigts</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- =================== NF EN 1176-2 BALANÇOIRES =================== -->
+<div id="tab-1176-2" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>🔄 Types de balançoires</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Type</th><th>Description</th></tr>
+        <tr><td><span class="label">Type 1</span></td><td>Balançoire à un axe de rotation (portique classique)</td></tr>
+        <tr><td><span class="label">Type 2</span></td><td>Balançoire à plusieurs axes de rotation (siège articulé)</td></tr>
+        <tr><td><span class="label">Type 3</span></td><td>Balançoire à point de suspension unique (disque, pneu)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>📏 Garde au sol h₂ (§ 4.2)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Type de siège</th><th>Garde au sol minimale</th></tr>
+        <tr><td>Sièges standard</td><td>350 mm</td></tr>
+        <tr><td>Sièges souples (textiles, faible masse)</td><td>&lt; 350 mm acceptable</td></tr>
+        <tr><td>Sièges pneumatiques (pneu)</td><td>400 mm</td></tr>
+        <tr><td>Sièges nacelle (bébé/très jeunes)</td><td>400 mm</td></tr>
+        <tr><td>Balançoires à point de suspension unique — dégagement h₄</td><td>400 mm minimum</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>📐 Étendue de l'espace de chute (§ 4.10.2)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>Formule : <strong>A = 0,867 × longueur suspension</strong> · B = 1,75 m (sols synthétiques/stabilisés) · C = 2,25 m (sols naturels meubles)</p>
+      <table class="dim-table">
+        <tr><th>Suspension</th><th>Sol compact/synthétique</th><th>Sol fluent (sable)</th></tr>
+        <tr><td>1 500 mm</td><td>3 050 mm</td><td>—</td></tr>
+        <tr><td>2 000 mm</td><td>3 484 mm</td><td>—</td></tr>
+        <tr><td>2 500 mm</td><td>3 917 mm</td><td>4 417 mm</td></tr>
+        <tr><td>3 000 mm</td><td>4 351 mm</td><td>4 851 mm</td></tr>
+      </table>
+      <div class="warn">⚠ Les espaces de chute des balançoires ne doivent JAMAIS se chevaucher — ni entre elles, ni avec d'autres espaces de chute.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>↔️ Écartements des sièges (§ 4.4.1)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Entre siège et portique : <strong>c ≥ 20% L + 200 mm</strong></li>
+        <li>Entre deux sièges : <strong>s ≥ 20% L + 300 mm</strong></li>
+      </ul>
+      <table class="dim-table">
+        <tr><th>Longueur suspension L</th><th>Entre sièges</th><th>Siège – portique</th></tr>
+        <tr><td>1 500 mm</td><td>600 mm</td><td>500 mm</td></tr>
+        <tr><td>2 000 mm</td><td>700 mm</td><td>600 mm</td></tr>
+        <tr><td>2 500 mm</td><td>800 mm</td><td>700 mm</td></tr>
+        <tr><td>3 000 mm</td><td>900 mm</td><td>800 mm</td></tr>
+      </table>
+      <div class="info">Portique avec plus de 2 sièges → diviser en travées. Une même travée ne peut pas combiner sièges nacelle et sièges d'autre type (§ 4.9).</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🔩 Stabilité des sièges (§ 4.4.2)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>La suspension doit avoir une forme trapézoïdale. Écartement minimal entre les pivots :</p>
+      <p><strong>F ≥ G + 5% L</strong> (G = largeur du siège, L = hauteur de suspension)</p>
+      <table class="dim-table">
+        <tr><th>Siège G</th><th>Suspension L</th><th>Écartement F minimal</th></tr>
+        <tr><td>350 mm</td><td>2 000 mm</td><td>450 mm</td></tr>
+        <tr><td>350 mm</td><td>2 500 mm</td><td>475 mm</td></tr>
+        <tr><td>400 mm</td><td>2 000 mm</td><td>500 mm</td></tr>
+        <tr><td>400 mm</td><td>2 500 mm</td><td>525 mm</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- =================== NF EN 1176-3 TOBOGGANS =================== -->
+<div id="tab-1176-3" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>🛝 Parties du toboggan</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Zone</th><th>Description</th></tr>
+        <tr><td><span class="label">A</span> Zone de départ</td><td>Où l'enfant s'installe avant de glisser</td></tr>
+        <tr><td><span class="label">B</span> Zone de glissade</td><td>La pente proprement dite</td></tr>
+        <tr><td><span class="label">C</span> Zone de sortie</td><td>Ralentissement à la base</td></tr>
+        <tr><td><span class="label">D</span> Hauteur</td><td>Hauteur totale du toboggan</td></tr>
+      </table>
+      <p>La <em>longueur d'installation</em> = projection au sol de l'équipement (important pour l'espace de chute).</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🔼 Zone de départ — Protections (§ 4.2 à 4.3.5)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Longueur minimale zone de départ : <span class="val">350 mm</span></li>
+        <li>Si longueur > 400 mm : exigences plates-formes (NF EN 1176-1) s'appliquent</li>
+        <li>Barre de retenue obligatoire à partir de <span class="val">1 m de hauteur de chute</span></li>
+        <li>Hauteur de chute > 2 m + zone de départ > 40 cm : balustrade <span class="val">700 mm minimum</span></li>
+        <li>Équipements facilement accessibles à tous âges : balustrade à partir de 60 cm de chute</li>
+      </ul>
+      <div class="france">🇫🇷 <strong>Divergence nationale France (décret 94-699)</strong> : les glissières de toboggan doivent systématiquement être conçues de façon à décourager l'accès en position debout → barre de retenue obligatoire quelle que soit la hauteur.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>📐 Zone de glissade — Angle et largeur (§ 4.4.1 et 4.4.2)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <table class="dim-table">
+        <tr><th>Paramètre</th><th>Exigence</th></tr>
+        <tr><td>Angle d'inclinaison maximal en tout point</td><td>60°</td></tr>
+        <tr><td>Angle d'inclinaison moyen</td><td>40° maximum</td></tr>
+        <tr><td>Rayon de courbure (premiers 2 m si changement &gt;15°)</td><td>≥ 450 mm</td></tr>
+        <tr><td>Rayon de courbure (reste du toboggan)</td><td>≥ 1 000 mm</td></tr>
+        <tr><td>Largeur toboggan étroit (1 enfant)</td><td>Maximum 700 mm</td></tr>
+        <tr><td>Largeur toboggan large (plusieurs de front)</td><td>Maximum 900 mm</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🔚 Zone de sortie (§ 4.5)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>Inclinaison : ≤ 10° (type 1 — sortie classique) ou ≤ 5° (type 2 — sortie prolongée)</p>
+      <table class="dim-table">
+        <tr><th>Longueur zone de glissade</th><th>Longueur zone de sortie Type 1</th></tr>
+        <tr><td>≤ 1,5 m</td><td>≥ 300 mm</td></tr>
+        <tr><td>1,5 m à 7,5 m</td><td>&gt; 500 mm</td></tr>
+        <tr><td>&gt; 7,5 m</td><td>&gt; 1 500 mm</td></tr>
+      </table>
+      <p>Hauteur zone de sortie : 200 mm (glissade &lt; 1,5 m) ou 350 mm (glissade = 1,5 m).</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🌀 Toboggans tubulaires (§ 4.9)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Hauteur et largeur intérieures : <span class="val">minimum 750 mm</span></li>
+        <li>Mesurées perpendiculairement à la surface de glissade</li>
+        <li>Dans la partie tubulaire : <strong>aucune ouverture admise</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🎯 Zone d'impact (§ 4.8)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Distance de la zone d'impact depuis les protections latérales de la zone de sortie : <span class="val">≥ 1 m</span></li>
+        <li>Distance depuis la zone de sortie : <span class="val">≥ 2 m (type 1)</span> ou <span class="val">≥ 1 m (type 2)</span></li>
+        <li>Sol conforme à NF EN 1177 obligatoire</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- =================== NF EN 1176-4/5/6 =================== -->
+<div id="tab-1176-456" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>🚡 NF EN 1176-4 — Téléphériques</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Exigence</th><th>Valeur</th></tr>
+        <tr><td>Téléphérique à siège — garde au sol H₂</td><td>≥ 400 mm (charge 130 kg)</td></tr>
+        <tr><td>Téléphérique à suspension — H₂ au point de départ</td><td>≥ 1 500 mm</td></tr>
+        <tr><td>Téléphérique à suspension — H₂ max pendant déplacement</td><td>≤ 3 000 mm</td></tr>
+        <tr><td>Téléphérique à suspension — H₂ élément rigide</td><td>≥ 2 000 mm</td></tr>
+        <tr><td>Angle oscillation câble (butoirs)</td><td>≤ 45°</td></tr>
+        <tr><td>Surface d'impact minimale des poignées</td><td>15 cm² (Ø ≥ 43,7 mm)</td></tr>
+        <tr><td>Distance câble – siège</td><td>2 100 mm (réductible à 1 800 mm si poulies protégées)</td></tr>
+      </table>
+      <div class="note">Les boucles et dispositifs souples pouvant former un nœud coulant sont interdits pour les poignées de suspension.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>🎠 NF EN 1176-5 — Manèges</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Type</th><th>Description</th></tr>
+        <tr><td><span class="label">A</span></td><td>Sièges tournants (∅ &lt; 200 cm)</td></tr>
+        <tr><td><span class="label">B</span></td><td>Manège classique à plateau tournant fermé</td></tr>
+        <tr><td><span class="label">C</span></td><td>Champignon rotatif (pas de géant)</td></tr>
+        <tr><td><span class="label">D</span></td><td>Manège sur piste</td></tr>
+        <tr><td><span class="label">E</span></td><td>Soucoupe</td></tr>
+      </table>
+      <table class="dim-table" style="margin-top:12px">
+        <tr><th>Exigence générale</th><th>Valeur</th></tr>
+        <tr><td>Hauteur de chute libre max</td><td>1 000 mm</td></tr>
+        <tr><td>Espace libre autour du manège</td><td>≥ 2 000 mm</td></tr>
+        <tr><td>Espace libre en hauteur au-dessus</td><td>≥ 2 000 mm</td></tr>
+        <tr><td>Vitesse max à la périphérie</td><td>5 m/s</td></tr>
+        <tr><td>Inclinaison axe max</td><td>5° par rapport à la verticale</td></tr>
+      </table>
+      <table class="dim-table" style="margin-top:12px">
+        <tr><th>Type A — sièges tournants</th><th>Valeur</th></tr>
+        <tr><td>Diamètre max</td><td>2 000 mm</td></tr>
+        <tr><td>Garde au sol H₂</td><td>≥ 400 mm</td></tr>
+        <tr><td>Minimum de places</td><td>3 (réparties également)</td></tr>
+        <tr><td>Accélération max (essai)</td><td>50 g</td></tr>
+        <tr><td>Compression surface max</td><td>90 N/cm²</td></tr>
+      </table>
+      <div class="france" style="margin-top:10px">🇫🇷 <strong>Divergence nationale France</strong> : décret 94-699 interdit les éléments en mouvement relatif par rapport au plateau (volants d'entraînement, sièges pivotants) sur les manèges.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>⚖️ NF EN 1176-6 — Équipements oscillants (bascules)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Type</th><th>Description</th></tr>
+        <tr><td><span class="label">Type 1</span></td><td>Balançoire à fléau (mouvement vertical seul)</td></tr>
+        <tr><td><span class="label">Type 2A/2B</span></td><td>Oscillant à point unique — direction prédet./multidirectionnel</td></tr>
+        <tr><td><span class="label">Type 3A/3B</span></td><td>Oscillant multi-points — direction prédet./multidirectionnel</td></tr>
+        <tr><td><span class="label">Type 4</span></td><td>Bascule longitudinale</td></tr>
+      </table>
+      <table class="dim-table" style="margin-top:12px">
+        <tr><th>Exigence</th><th>Valeur</th></tr>
+        <tr><td>Garde au sol ≥ 230 mm</td><td>Repose-pieds NON exigés</td></tr>
+        <tr><td>Garde au sol &lt; 230 mm</td><td>Repose-pieds EXIGÉS</td></tr>
+        <tr><td>Équipements avec amortisseur</td><td>Exigences garde au sol non obligatoires</td></tr>
+        <tr><td>Espace de chute (toutes positions extrêmes)</td><td>≥ 1 000 mm dans toutes les directions</td></tr>
+        <tr><td>Rayon de courbure arêtes contour</td><td>≥ 20 mm</td></tr>
+        <tr><td>Arêtes des bords</td><td>≥ 3 mm de rayon</td></tr>
+        <tr><td>Diamètre poignées/arceaux</td><td>16 à 45 mm (max 30 mm recommandé pour très jeunes)</td></tr>
+      </table>
+      <div class="info">Test pincement/écrasement (§ 4.5) : tige cylindrique Ø 12 mm dans toutes les positions extrêmes — vérification des ouvertures mobiles (spires de ressort, etc.).</div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== NF EN 1176-7 CONTRÔLE =================== -->
+<div id="tab-1176-7" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>🔎 Les 3 niveaux de contrôle</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Type de contrôle</th><th>Fréquence</th><th>Objectif</th></tr>
+        <tr><td>Contrôle visuel de routine</td><td><span class="val">Hebdomadaire</span></td><td>Détection des dangers évidents : vandalismes, corps étrangers, usure rapide visible</td></tr>
+        <tr><td>Contrôle fonctionnel</td><td><span class="val">1 à 3 mois</span></td><td>Vérification du fonctionnement, de la stabilité et de l'usure des pièces mobiles</td></tr>
+        <tr><td>Contrôle annuel principal</td><td><span class="val">Annuel</span></td><td>Inspection complète par personnel qualifié — rapport écrit archivé 3 à 5 ans</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🏛️ Système de gestion de sécurité (décret 96-1136)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>5 obligations réglementaires :</p>
+      <ul>
+        <li><strong>1)</strong> Dossier précisant la situation, la structure et l'implantation des équipements</li>
+        <li><strong>2)</strong> Plan d'entretien et de maintenance des équipements</li>
+        <li><strong>3)</strong> Archivage des notices fournisseurs + tous les documents d'entretien/maintenance/inspection</li>
+        <li><strong>4)</strong> Définition de la périodicité des contrôles</li>
+        <li><strong>5)</strong> Rapports de contrôle par écrit, archivés <span class="val">3 à 5 ans</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>👥 Niveaux de responsabilité</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <table class="dim-table">
+        <tr><th>Niveau</th><th>Acteurs</th></tr>
+        <tr><td>1.1 Administratif</td><td>Maire, directeurs de service, présidents d'organismes</td></tr>
+        <tr><td>1.2 Décisionnel</td><td>Architectes paysagistes, ingénieurs, fonctionnaires de service, techniciens compétents</td></tr>
+        <tr><td>1.3 Opérationnel</td><td>Techniciens terrain/ateliers, cabinets d'experts qualifiés</td></tr>
+      </table>
+      <div class="info">Chaque agent de maintenance doit avoir accès aux textes des normes et à la réglementation ainsi qu'aux documents techniques du fournisseur.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🚨 Face à un accident</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Soins / appel de soins immédiats</li>
+        <li>Déclarations aux autorités de police</li>
+        <li>Rapport détaillé : circonstances, photos du site et de l'équipement mis en cause</li>
+        <li>Avertir le fabricant dans les meilleurs délais avec copie du rapport</li>
+        <li>Informer la DGCCRF si nécessaire</li>
+      </ul>
+      <div class="warn">⚠ La responsabilité du gestionnaire ne peut jamais être complètement levée, même avec un contrat de maintenance. Domaine incompressible défini aux articles 2 à 5 du décret 96-1136.</div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== NF EN 1177 SOLS =================== -->
+<div id="tab-1177" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>🏗️ NF EN 1177 — Revêtements de sol absorbant l'impact</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <p>La norme définit les exigences pour les surfaces nécessitant une atténuation de l'impact. La méthode d'essai <strong>HIC (Head Injury Criterion)</strong> détermine la <em>hauteur de chute critique</em> pour une surface donnée.</p>
+      <div class="note">Le contrôle des matériaux de revêtement doit être effectué, en cas de doute, en laboratoire sur une dalle en béton (NF EN 1177 § 6.2.7). Les certificats ne peuvent être délivrés que pour des contrôles faits en laboratoire.</div>
+      <table class="dim-table" style="margin-top:12px">
+        <tr><th>Type de revêtement</th><th>Étendue espace de chute</th></tr>
+        <tr><td>Sols compacts ou synthétiques amortissants</td><td>A + B (B = 1,75 m)</td></tr>
+        <tr><td>Sols naturels fluents (sable, gravier)</td><td>A + C (C = 2,25 m)</td></tr>
+        <tr><td>Pelouse naturelle stable</td><td>Considérée comme sol naturel stable (B = 1,75 m)</td></tr>
+      </table>
+      <p style="margin-top:10px">En dessous de 60 cm de hauteur de chute libre : pas d'exigences sur les propriétés amortissantes (matériaux sans propriétés amortissantes particulières admis).</p>
+    </div>
+  </div>
+</div>
+
+<!-- =================== RÉGLEMENTATION =================== -->
+<div id="tab-reglementation" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>📜 Décret 94-699 — Obligations du fournisseur</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>#</th><th>Obligation</th><th>Concrètement</th></tr>
+        <tr><td>1</td><td>Engagement déclaratif</td><td>Marquage "conforme aux exigences de sécurité" sur l'équipement et l'emballage</td></tr>
+        <tr><td>2</td><td>Identification/origine</td><td>Coordonnées du fabricant/fournisseur sur l'équipement (plaquette, gravure, étiquette)</td></tr>
+        <tr><td>3</td><td>Apport de la preuve</td><td>Certificat de conformité aux normes (organisme tiers) OU procédure spécifique de vérification par organisme agréé</td></tr>
+        <tr><td>4</td><td>Notice fournie</td><td>En français, avec rubriques minimales d'installation, entretien et maintenance</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>📜 Décret 96-1136 — Obligations du gestionnaire</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>#</th><th>Obligation</th><th>Référence</th></tr>
+        <tr><td>1</td><td>Gestion de la sécurité : inspections régulières + entretien</td><td>NF EN 1176-1 ch. 5 et 6 + NF EN 1176-7</td></tr>
+        <tr><td>2</td><td>Identification au public : coordonnées affichées à l'entrée + affichage près de chaque jeu</td><td>Art. 4 décret + Principes généraux (Annexe I)</td></tr>
+        <tr><td>3</td><td>Archivage : état descriptif + documentations conformité + plans inspection/maintenance</td><td>Art. 3 décret + Risques particuliers (Annexe II)</td></tr>
+        <tr><td>4</td><td>Environnement du site : application aussi aux sols et abords immédiats</td><td>Annexe II § 1 et 2</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>⚖️ Sécurité équivalente par d'autres moyens (Art. 5.2 décret 94-699)</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <p>L'application stricte des normes n'est pas toujours nécessaire. Un "examen de type" est prévu pour les équipements innovants dont les caractéristiques n'ont pas été prises en compte par les normes.</p>
+      <p>Exemples : espace de chute interrompu par un mur lisse sans diminution de sécurité, plates-formes à ressorts traitées comme un ensemble homogène.</p>
+      <div class="info">Principe : "La meilleure sécurité, c'est la valeur ludique." Un jeu excitant avec un certain niveau de risque perçu sera probablement utilisé dans des conditions plus sûres qu'un jeu trop ennuyeux.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🆕 NF EN 1176-1+A1:2023 — Nouveautés en vigueur</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="n-warn">⚠️ La NF EN 1176-1:2017 a été remplacée par la NF EN 1176-1+A1:2023 (approbation CEN : 1er juin 2023 — transposition nationale obligatoire : avril 2024). Tout rapport d'inspection doit désormais référencer cette version.</div>
+      <table class="dim-table">
+        <tr><th>Nouveauté</th><th>Impact terrain</th></tr>
+        <tr><td><strong>Annexe H (normative)</strong> — Confirmation performances sol après installation</td><td>Test HIC/Gmax post-installation obligatoire sur tout sol coulé neuf par organisme accrédité ISO 17025</td></tr>
+        <tr><td><strong>Annexe F</strong> — Exemples de calculs de HCL</td><td>Aide au calcul des hauteurs de chute pour équipements complexes</td></tr>
+        <tr><td><strong>Annexe G</strong> — Vérification granulométrie sols meubles</td><td>Procédure de vérification sur site de la granulométrie par tamisage</td></tr>
+        <tr><td><strong>NF EN 1177:2018+A1:2023</strong> — Double critère HIC + Gmax</td><td>HIC ≤ 1000 ET Gmax ≤ 200 g obligatoires. Sols testés avant 2018 (HIC seul) à retester.</td></tr>
+      </table>
+      <div class="n-note">Les équipements non conformes à la version 2017 ne doivent pas automatiquement être considérés comme dangereux — une évaluation des risques par personne compétente est requise pour déterminer les actions correctives.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🇫🇷 Divergences France / Europe — Points clés</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <table class="dim-table">
+        <tr><th>Sujet</th><th>EN 1176 (Europe)</th><th>France (Décret 94-699)</th></tr>
+        <tr><td>Barre de retenue toboggan</td><td>Obligatoire dès HCL ≥ 1 m</td><td><strong>Obligatoire quelle que soit la hauteur</strong></td></tr>
+        <tr><td>Éléments rotatifs en mouvement relatif sur manège</td><td>Toléré sous conditions</td><td><strong>Interdit — mise hors service</strong></td></tr>
+        <tr><td>Équipements anciens non conformes EN 1176:2017</td><td>Évaluation risque par compétent suffisante</td><td>Respect Décret 96-1136 obligatoire en toute circonstance</td></tr>
+        <tr><td>Plaquette de marquage fabricant</td><td>§ 7 EN 1176-1</td><td>Art. 2 Décret 94-699 — obligation de résultat</td></tr>
+        <tr><td>Maisonnette : ouverture côté mur sans circulation</td><td>Pas de risque si pas de passage</td><td>Même appréciation — pas d'action requise</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>📚 Référentiel normatif complet — Tous textes applicables</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <table class="dim-table">
+        <tr><th>Référence</th><th>Objet</th><th>Version</th></tr>
+        <tr><td>NF EN 1176-1+A1</td><td>Exigences générales</td><td>Oct. 2023 ✅ EN VIGUEUR</td></tr>
+        <tr><td>NF EN 1176-2+AC</td><td>Balançoires</td><td>Oct. 2019</td></tr>
+        <tr><td>NF EN 1176-3</td><td>Toboggans</td><td>Oct. 2017</td></tr>
+        <tr><td>NF EN 1176-4+AC</td><td>Téléphériques</td><td>Jan. 2019</td></tr>
+        <tr><td>NF EN 1176-5</td><td>Manèges</td><td>Oct. 2019</td></tr>
+        <tr><td>NF EN 1176-6+AC</td><td>Équipements oscillants</td><td>Jan. 2019</td></tr>
+        <tr><td>NF EN 1176-7</td><td>Installation, contrôle, maintenance</td><td>Avr. 2020</td></tr>
+        <tr><td>NF EN 1176-10</td><td>Équipements fermés</td><td>Sept. 2008</td></tr>
+        <tr><td>NF EN 1176-11</td><td>Filets 3D</td><td>Sept. 2014</td></tr>
+        <tr><td>NF EN 1177+AC+A1</td><td>Sols amortissants — HIC/Gmax</td><td>Jan. 2019 + A1:2023</td></tr>
+        <tr><td>NF EN 16630</td><td>Agrès sportifs extérieurs</td><td>2015</td></tr>
+        <tr><td>NF S54-400</td><td>Compétences inspecteurs — contrôle aires de jeux</td><td>Nov. 2018</td></tr>
+        <tr><td>BP S54-216</td><td>Vérification sur site capacité amortissante sols</td><td>Juin 2013</td></tr>
+        <tr><td>FD S54-206 / XP S54-207</td><td>Hygiène bacs à sable</td><td>2013</td></tr>
+        <tr><td>FD CEN/TR 16396</td><td>Réponses interprétation EN 1176</td><td>Déc. 2020</td></tr>
+        <tr><td>FD CEN/TR 16467</td><td>Accessibilité aires de jeux (PMR)</td><td>Juin 2013</td></tr>
+        <tr><td>Décret n° 94-699</td><td>Exigences sécurité équipements (fabricant)</td><td>10 août 1994</td></tr>
+        <tr><td>Décret n° 96-1136</td><td>Prescriptions sécurité aires collectives (gestionnaire)</td><td>18 déc. 1996</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🎓 NF S54-400 — Compétences des inspecteurs</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <table class="dim-table">
+        <tr><th>Type d'inspection</th><th>Compétence requise</th><th>Fréquence</th></tr>
+        <tr><td>Inspection visuelle de routine</td><td>Toute personne formée aux risques évidents</td><td>Hebdomadaire à mensuelle</td></tr>
+        <tr><td>Inspection opérationnelle / fonctionnelle</td><td>Personne formée — connaissance des normes EN 1176</td><td>1 à 3 mois</td></tr>
+        <tr><td>Inspection annuelle principale</td><td><strong>Personne compétente indépendante</strong> — NF S54-400 : formation certifiée, connaissance normative, rapport écrit signé</td><td>Annuelle</td></tr>
+        <tr><td>Test HIC/Gmax sol (EN 1177)</td><td><strong>Organisme accrédité ISO 17025</strong> (MIRAJ, APAVE, Bureau Veritas, DEKRA…)</td><td>Après installation, incident, ou doute</td></tr>
+      </table>
+      <div class="n-note">La NF S54-400 (nov. 2018) définit les exigences générales relatives au contrôle des aires de jeux et des équipements sportifs à usage collectif, et les compétences associées des inspecteurs. Le rapport d'inspection annuelle doit être signé par une personne compétente au sens de cette norme.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- =================== ENFANTS & SURVEILLANCE =================== -->
+<div id="tab-enfants" class="panel">
+
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <h2>👶 Stades de développement — Résumé</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body open">
+      <table class="dim-table">
+        <tr><th>Âge</th><th>Capacités clés</th><th>Surveillance requise</th></tr>
+        <tr><td>6–12 mois</td><td>Se déplace à quatre pattes</td><td>À portée de main d'un adulte à tout moment</td></tr>
+        <tr><td>12–18 mois</td><td>Monte les escaliers en appui sur les mains — découvre le grimper</td><td>Surveillance continue</td></tr>
+        <tr><td>19–24 mois</td><td>Court librement, explore son environnement</td><td>Surveillance visuelle permanente</td></tr>
+        <tr><td>25–36 mois</td><td>Se tient sur une jambe — premiers essais de patinette</td><td>Surveillance visuelle permanente</td></tr>
+        <tr><td>3 ans</td><td>Jardin d'enfants — certain degré d'autonomie commence</td><td>Sous surveillance visuelle d'un adulte</td></tr>
+        <tr><td>4–5 ans</td><td>Coordination améliorée mais jugement encore insuffisant</td><td>Accompagnateur doit intervenir dans situations critiques</td></tr>
+        <tr><td>6–14 ans</td><td>Peut assumer la responsabilité de sécurité des petits enfants</td><td>Supervision parentale recommandée</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>👁️ Règles de surveillance</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Jusqu'à 12 mois : <strong>toujours à portée de main d'un adulte</strong></li>
+        <li>Jusqu'à 36 mois : <strong>toujours sous la surveillance visuelle d'un adulte</strong></li>
+        <li>Un enfant ne doit jamais être laissé sans surveillance</li>
+        <li>Être accompagné par des enfants du même âge ne suffit pas pour protéger contre les accidents</li>
+      </ul>
+      <div class="info">Le devoir de surveillance peut être délégué à des adultes (grands-parents, famille, éducateurs) ou à des adolescents de 12–14 ans jugés à même de le faire.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🎯 Besoins ludiques des enfants — Conception</h2><span class="chevron">▼</span>
+    </div>
+    <div class="section-body">
+      <ul>
+        <li>Apporter une offre pour chaque tranche d'âge et pour les enfants handicapés</li>
+        <li>Privilégier les jeux interactifs dans leur fonction et leur disposition</li>
+        <li>Utiliser l'espace autour des jeux : sols, topographie, végétaux</li>
+        <li>Réserver une place aux adultes (particulièrement pour les jeunes enfants)</li>
+      </ul>
+      <div class="note">La présence d'un aménagement de jeu en milieu urbain est un facteur de RÉDUCTION des accidents — et la valeur ludique a un effet direct positif sur la sécurité.</div>
+    </div>
+  </div>
+</div>
+
+
+<div class="panel" id="tab-obs">
+
+<!-- ── BARRE OUTILS TERRAIN ── -->
+<div style="background:var(--surf2);border-bottom:1px solid var(--bord);padding:8px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+  <span style="font-size:.72rem;color:var(--mut);font-weight:600">FILTRE :</span>
+  <button onclick="filterCrit('all')" id="fb-all" style="padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;background:var(--info);color:#fff">Tout</button>
+  <button onclick="filterCrit('urgent')" id="fb-urgent" style="padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;background:rgba(248,81,73,.2);color:var(--err)">🔴 URGENT</button>
+  <button onclick="filterCrit('mod')" id="fb-mod" style="padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;background:rgba(210,153,34,.2);color:var(--warn)">🟠 MODÉRÉ</button>
+  <button onclick="filterCrit('min')" id="fb-min" style="padding:3px 10px;border-radius:4px;font-size:.72rem;font-weight:700;border:none;cursor:pointer;background:rgba(63,185,80,.2);color:var(--ok)">🟡 MINEUR</button>
+  <span style="flex:1"></span>
+  <span style="font-size:.72rem;color:var(--mut);font-weight:600">DATE :</span>
+  <input type="date" id="insp-date" style="background:var(--surf);border:1px solid var(--bord);color:var(--txt);padding:3px 7px;border-radius:4px;font-size:.72rem">
+  <span style="font-size:.72rem;color:var(--mut);font-weight:600">INSPECTEUR :</span>
+  <input type="text" id="insp-nom" placeholder="Nom…" style="background:var(--surf);border:1px solid var(--bord);color:var(--txt);padding:3px 7px;border-radius:4px;font-size:.72rem;width:130px">
+  <span id="obs-count" style="font-size:.7rem;color:var(--mut)"></span>
+</div>
+
+<div class="sec open">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🏷️</span><span class="st">Identification & Signalétique</span>
+    <span class="sref">Décret 96-1136</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Plaque signalétique fabricant non trouvée / illisible / cassée. <span class="a">→ À remplacer.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Absence de panneau d'information réglementaire : le décret 96-1136 impose au gestionnaire la mise en place d'un affichage réglementaire. <span class="a">→ Mise en place d'un panneau d'information.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Panneau d'information présent mais illisible / dégradé (vandalisme, décoloration). <span class="a">→ Remplacer le panneau.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Absence d'indication de la tranche d'âge recommandée sur le panneau. <span class="a">→ Compléter le panneau.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Plaque de marquage fabricant absente — impossible d'identifier l'année de fabrication, la référence de l'équipement et le numéro/date de parution de la norme. <span class="n">NF EN 1176-1 §7 Marquage</span> <span class="a">→ Demander le dossier technique au fabricant.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🔩</span><span class="st">Visserie, Fixations & Caches</span>
+    <span class="sref">§4.2.5 / §4.2.10</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="ss open">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Caches manquants / abîmés</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Cache sur tube manquant — Qté : ___ / Couleur : ___. <span class="a">→ À remplacer.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Cache sur visserie manquant — Qté : ___ / Couleur : ___. <span class="a">→ À remplacer.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Cache de protection abîmé / fissuré exposant une arête vive ou un piège à vêtements. <span class="a">→ Remplacement urgent.</span> <span class="prio">URGENT</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Visserie</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Un capuchon de protection est manquant, laissant une partie filetée saillante et accessible. <span class="n">§ 4.2.5 NF EN 1176-1</span> : les extrémités saillantes de boulons ou de tiges filetées doivent être protégées en permanence. <span class="a">→ Remettre un capuchon ou un écrou borgne afin d'assurer la protection permanente du filetage.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Visserie desserrée. <span class="a">→ À resserrer.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Visserie saillante accessible — risque de coupure / d'accrochage. <span class="n">NF EN 1176-1 §4.2.5</span> — les éléments saillants de 8 mm et plus doivent être protégés par une surface adjacente éloignée d'au plus 25 mm ou arrondis (rayon ≥ 3 mm). <span class="a">→ À remplacer ou à protéger.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Visserie manquante occasionnant un risque de coincement. <span class="a">→ À remplacer impérativement.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Fixation défectueuse — jeu ou déplacement constaté. <span class="a">→ À corriger.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Écrou / tête de boulon saillant(e) de moins de 8 mm — bavures présentes. <span class="n">§4.2.5</span> : les écrous et têtes de boulons dépassant de moins de 8 mm doivent être exempts de bavures. <span class="a">→ Ébavurage ou remplacement.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Assemblage démontable sans outil (ex. goupille, anneau s'ouvrant à la main). <span class="n">NF EN 1176-1 §4.2.10</span> : les assemblages doivent être protégés de manière à ne pas pouvoir être démontés sans outil. <span class="a">→ Remplacement par fixation sécurisée.</span> <span class="prio">URGENT</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Ancrages, scellements & fondations</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Scellement apparent / bouge sous sollicitation. <span class="a">→ Prévoir décompactage et apport de sol fluent.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Massif béton apparent dans la zone de chute (à moins de 1,50 m de l'équipement) — <span class="d">point dur interdit par le décret 96-1136.</span> <span class="n">EN 1177</span> <span class="a">→ Ragréage arrondi obligatoire : angle 45°, rayon ≥ 100 mm, profondeur −20 cm minimum.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Scellement non arrondi dans la zone de chute (arêtes vives). <span class="n">EN 1177</span> <span class="a">→ Ragréage obligatoire : angle 45° et rayon ≥ 100 mm.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Fondation bois — zone critique de contact terre/air non protégée contre la pourriture (piètement acier manquant). <span class="n">§4.2.14</span> <span class="a">→ Mise en place de piètements ou traitement de préservation. Sondage à la tige si doute sur intégrité.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Fondation béton non conforme — parties supérieures non enfouies à −20 cm minimum, boulons saillants apparents. <span class="n">§4.2.14</span> : parties béton et fixations à ≥ 40 cm sous le niveau fini. Si parties supérieures arrondies sans boulons saillants : acceptable jusqu'à −20 cm. <span class="a">→ Mise en conformité obligatoire.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Stagnation d'eau au pied du poteau / dans la fondation — risque de pourriture accélérée. <span class="a">→ Reprendre la fondation avec couche drainante (gravier). Vérifier l'étanchéité.</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">⛓️</span><span class="st">Chaînes, Câbles & Cordages</span>
+    <span class="sref">§4.2.12 / §4.2.13</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Roulement de tourniquet — jeu latéral excessif et/ou bruit anormal constaté. <span class="n">§ 4.2.2 / § 8.3 NF EN 1176-1</span> : l'évolution de ces symptômes peut entraîner une dégradation accélérée du mécanisme et un risque de blocage ou d'instabilité. <span class="a">→ Graissage si accessible — remplacement du roulement si nécessaire.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Début d'usure de l'enrobage des cordes du filet, laissant apparaître une dégradation progressive de la gaine protectrice des torons. <span class="n">§ 4.2.12.4 NF EN 1176-1</span> : la gaine protectrice doit assurer une protection continue des torons contre l'usure et les blessures par contact. <span class="a">→ Remplacer ou réparer les cordes dont la gaine est usée afin de garantir une protection continue des torons.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Protection plastique de chaîne métallique abîmée / fissurée. <span class="a">→ Prévoir remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Maillon de chaîne ouvert / tordu — usure importante non conforme. <span class="n">NF EN 1176-1 et -2</span> <span class="a">→ Remplacement immédiat.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Ouverture de maillon de chaîne > 8,6 mm dans toutes les directions (hors liaisons). <span class="n">§4.2.13</span> : ouverture maximale des chaînes = 8,6 mm. <span class="a">→ Remplacement de la chaîne.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Manille à usure importante — non conforme aux exigences <span class="n">NF EN 1176-1 et -2</span>. <span class="a">→ Prévoir remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Chaîne torsadée sur siège de balançoire — risque d'accrochage et de chute. <span class="a">→ Détorsader et vérifier les fixations.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Cordage — usure avec fil d'acier apparent. <span class="a">→ Prévoir remplacement.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Câble : toron(s) cassé(s) visible(s) — au-delà de la tolérance d'un toron cassé par pas de câblage. <span class="n">NF EN 1176</span> <span class="a">→ Prévoir remplacement si dépassé.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Corde de filet effilochée — fibres coupées sur plusieurs torons. <span class="a">→ Remplacement du tronçon.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Corde oscillante présentant un risque de nœud coulant (corde trop souple, trop longue ou de trop petit diamètre). <span class="n">§4.2.12.1</span> : diamètre corde oscillante entre 25 et 45 mm. <span class="a">→ Remplacement ou mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Corde à grimper non fixée aux deux extrémités. <span class="n">§4.2.12.2</span> : les cordes à grimper doivent être fixées à leurs deux extrémités. Diamètre requis : 18–45 mm, amplitude d'oscillation ≤ 20% de la distance entre les deux points de fixation. <span class="a">→ Correction de la fixation.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🪵</span><span class="st">Structures Bois — Contreplaqué, Robinier, Pin</span>
+    <span class="sref">§4.2.5 / §3.1 Matériaux</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="ss open">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Contreplaqué</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Le plancher présente des dégradations visibles, notamment dans les zones de passage intense : fissurations et/ou altérations de surface (casse) susceptibles d'affecter sa stabilité et sa durabilité. <span class="n">§ 4.2.5 / § 4.2.11 NF EN 1176-1</span> : les surfaces de jeu doivent être exemptes de dégradations pouvant constituer un danger. <span class="a">→ Procéder au remplacement des lames ou panneaux détériorés — l'usure dépasse le seuil acceptable.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Usure du chant / délaminage (risque d'échardes / d'évolution de dégradation). <span class="a">→ Prévoir remplacement ou réparation des surfaces afin d'éviter le pourrissement.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Début de pourrissement constaté (sans risque d'échardes à ce stade). <span class="a">→ Surveillance renforcée — planifier le remplacement.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Abîmé — usure de la peinture / protection de surface. <span class="a">→ Remplacement ou réparation des surfaces pour éviter le pourrissement.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Échardes accessibles sur surface de jeu ou main courante — risque de blessure. <span class="n">§4.2.5</span> : le bois doit être exempt d'échardes. <span class="a">→ Ponçage ou remplacement de la pièce.</span> <span class="prio">URGENT</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Robinier</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Fissure superficielle constatée sur élément en robinier. Ouverture inférieure aux seuils critiques définis par la <span class="n">NF EN 1176-1</span> (largeur &lt; 5 mm, profondeur &lt; 1/3 de la section). Aucun risque d'écharde ou de coincement de doigt à ce stade. <span class="a">→ Évolution à surveiller lors des prochains contrôles.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Fissure longitudinale évolutive sur élément en robinier. Bord saillant susceptible de générer des échardes (<span class="n">§ 4.2.8</span>) et/ou ouverture constituant un piège à doigt entre 4 et 25 mm (<span class="n">§ 4.2.9</span>). Selon la norme <span class="n">NF EN 1176-1</span>, la fissure ne doit pas dépasser 1/4 de la section de la poutre, ni présenter une ouverture comprise entre 5 mm et 9 mm avec une profondeur > 1/3 de la zone fissurée. <span class="a">→ Ponçage et réparation ou remplacement de la pièce.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Fissure profonde traversante sur poteau porteur en robinier — dépasse les tolérances <span class="n">NF EN 1176</span>. <span class="a">→ Mise hors service — remplacement urgent.</span> <span class="prio">URGENT</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Bois traité / Poteau</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Pourrissement du poteau au niveau de la pénétration dans le sol — zone critique de contact terre/air. <span class="n">§4.2.14</span> <span class="a">→ Sondage à la tige (Ø 3–4 mm) — si résistance compromise : remplacement obligatoire.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Poutre abîmée — section réduite par usure ou choc. <span class="a">→ Prévoir réparation ou remplacement.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Présence de champignons / moisissures actives sur une pièce de structure porteuse. <span class="a">→ Évaluer la résistance mécanique — remplacement si compromis.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Traitement de surface insuffisant — bois grisé, protection épuisée. <span class="n">§4.1 Matériaux</span> : les équipements en bois doivent être protégés contre la pourriture avec des produits de préservation appropriés. L'enfouissement du bois dans la terre n'est permis que lorsque des mesures de protection appropriées préservent le bois de la pourriture. <span class="a">→ Nettoyage et traitement de surface adapté.</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🔧</span><span class="st">Structures Métal & Peinture</span>
+    <span class="sref">§4.2.5 / §4.2.2</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Présence de tags constatée sur l'équipement, entraînant une non-conformité visuelle au regard des exigences de la norme <span class="n">NF EN 1176-1 § 4.2.5</span> (surfaces accessibles exemptes de dégradations). <span class="a">→ Procéder à l'élimination des tags par nettoyage ou remise en peinture.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Usure du thermolaquage laissant apparaître une dégradation de la protection de surface. <span class="n">§ 4.2.5 NF EN 1176-1</span> : prêter une attention particulière à la protection anti-corrosion car la stabilité est menacée lorsque les parties structurales sont rongées par la rouille. <span class="a">→ Rénover le revêtement en ponçant, traitant et repeignant la zone usée afin de rétablir une surface lisse et protégée.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Corrosion — usure de la peinture dans les zones de passage intense. <span class="n">§4.2.5</span> : prêter une attention particulière à la protection anti-corrosion car la stabilité est menacée lorsque les parties structurales sont rongées par la rouille. <span class="a">→ Prévoir traitement de surface et remise en peinture.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Corrosion perforante sur poteau / tube porteur — perte de section structurelle. <span class="a">→ Mise hors service — remplacement urgent.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Déformation / déversement d'un montant ou d'une traverse — hors tolérances géométriques. <span class="n">§4.2.2 Intégrité de structure</span> : les parties structurales doivent résister aux conditions de charge les plus défavorables. <span class="a">→ Évaluation structurelle — remplacement si nécessaire.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Soudure fissurée / décollée sur assemblage structurel. <span class="n">§4.2.5</span> : toutes les soudures doivent avoir été ébarbées de façon à être lisses (pas de perles de soudure). <span class="a">→ Mise hors service — réparation par professionnel habilité.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Arête vive accessible sur profilé métallique (découpe, arrachement). <span class="n">§4.2.5</span> : les surfaces brutes ne doivent pas présenter de risque de blessure. <span class="a">→ Protection ou remplacement de la pièce.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Stabilité de la construction à point de support unique compromise — susceptibilité accrue à la corrosion et à la pourriture. <span class="n">§4.2.1 Généralités</span> : contrôle et entretien soigneux s'imposent particulièrement ici. <span class="a">→ Inspection approfondie et renforcement.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🛡️</span><span class="st">Garde-corps, Barrières & Balustrades</span>
+    <span class="sref">§4.2.4 / §4.2.7.2</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="ss open">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Ouvertures & risques de coincement</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Ouverture(s) dans la plage <span class="d">89–230 mm</span> — risque de coincement de la tête. <span class="n">NF EN 1176-1 §4.2.7.2</span> : ouvertures dans cette plage considérées potentiellement dangereuses — test avec gabarits A/B/C/D obligatoire. <span class="a">→ Mise hors service immédiate — correction urgente.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Ouverture(s) dans la plage <span class="d">8–25 mm</span> — risque de coincement des doigts. <span class="n">NF EN 1176-1 §4.2.7.6</span> : contrôle avec gabarits de 8 mm et 25 mm de diamètre. <span class="a">→ Correction nécessaire.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Tube ou tuyau ouvert à plus de 1 200 mm au-dessus de la surface d'impact potentielle. <span class="n">§4.2.7.6</span> : risque de doigt cassé / blessures sévères. <span class="a">→ Obturation immédiate du tube ou bouchon.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Ouverture en V ou accès étroit susceptible de coincer un vêtement / cordon d'anorak. <span class="n">§4.2.7.3 Coincement des vêtements</span> : éviter les trous en V, les saillies et les pivots/parties rotatives. Risque de strangulation — risque inacceptable. <span class="a">→ Correction des ouvertures en V ou installation d'un cache.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Ouverture dans la surface de plancher / passerelle avec intervalle > 30 mm dans le sens longitudinal. <span class="n">§4.2.7.5 Coincement du pied</span> : les ouvertures ne doivent pas dépasser 30 mm (ex. sur plateforme). <span class="a">→ Réduction des intervalles ou remplacement des lames.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Angle aigu (60°) à plus de 60 cm au-dessus de la surface d'appui — risque de coincement de la tête. <span class="n">§4.2.7.2</span> : les angles aigus situés à plus de 60 cm de la surface d'appui ne sont pas acceptables. <span class="a">→ Correction ou protection de l'angle.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Espace entre parties mobiles inférieur à 12 mm. <span class="n">§4.2.7.6</span> : les espaces entre parties mobiles doivent conserver en toute circonstance un écart minimum de 12 mm pour protéger les doigts. <span class="a">→ Réglage ou protection de la pièce mobile.</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Garde-corps, mains courantes & balustrades</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Garde-corps absent sur plateforme à H > 0,60 m (équipement accessible aux &lt; 36 mois). <span class="n">NF EN 1176-1 §4.2.4</span> <span class="a">→ Mise hors service — installation obligatoire d'un garde-corps.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Hauteur de main courante hors tolérance — inférieure à 600 mm ou supérieure à 850 mm au-dessus de la surface. <span class="n">§4.2.4.2</span> : mains courantes entre 600 mm et 850 mm. <span class="a">→ Mise en conformité.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Hauteur du bord supérieur du garde-corps hors tolérance — hors plage 600–850 mm. <span class="n">§4.2.4.3</span> <span class="a">→ Mise en conformité.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Balustrade absente alors que la hauteur de chute libre est supérieure à 600 mm (équipement accessible aux &lt; 36 mois) ou supérieure à 2 000 mm (équipement difficile d'accès). <span class="n">§4.2.4.4</span> : H balustrade ≥ 700 mm. <span class="a">→ Installation obligatoire.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Garde-corps rigidité insuffisante — jeu excessif sous poussée latérale. <span class="a">→ Renforcement ou remplacement.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Barrière grillage à picots en bordure d'aire de jeux (< 10 m) — risque d'empalement / coincement. Décret 96-1136 : l'environnement ne doit pas présenter de danger. <span class="a">→ Protection des picots ou remplacement par barrière à entraxes conformes (< 89 mm ou > 230 mm).</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Portillon d'accès défectueux — fermeture non assurée. <span class="a">→ Réparation du système de fermeture.</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🌱</span><span class="st">Sol Amortissant & Revêtements</span>
+    <span class="sref">NF EN 1177 / §4.2.4 / Tableau 4</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="ss open">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Sable alluvionnaire (0,2–2 mm)</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Compaction du sable alluvionnaire constatée — perte des propriétés amortissantes. <span class="n">NF EN 1177</span> <span class="a">→ Prévoir décompactage (ratissage profond) ou apport de sable alluvionnaire granulométrie 0,2–2 mm.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Niveau de sable insuffisant — profondeur &lt; 300 mm pour HCL > 1 m. <span class="n">NF EN 1177 Tableau 4</span> : épaisseur minimale 300 mm, granulométrie 0,2–2 mm, HCL maximale ≤ 3 000 mm. <span class="a">→ Apport de sable alluvionnaire 0,2–2 mm (sans argile ni sédiments).</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Corps étrangers dans le sable (verre, métal, déchets, seringues). <span class="a">→ Nettoyage et tamisage immédiat.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Contamination du sable (déjections animales, matières organiques). <span class="a">→ Nettoyage, désinfection si nécessaire — envisager pose d'un grillage anti-fouissement.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Affaissement / creux localisé dans la zone de réception. <span class="a">→ Remise à niveau et complétion en sable alluvionnaire 0,2–2 mm.</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Gravillon alluvionnaire (2–8 mm)</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Compaction du gravillon alluvionnaire constatée. <span class="n">NF EN 1177 Tableau 4</span> : granulométrie 2–8 mm (idéal 4/8, max 6/10), épaisseur min 300 mm. <span class="a">→ Décompactage et/ou apport de gravillon 4/8.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Niveau de gravillon insuffisant — épaisseur &lt; 300 mm. <span class="a">→ Apport de gravillon alluvionnaire granulométrie 4/8 (max 6/10).</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Propreté insuffisante du gravillon — présence de déchets / corps étrangers. <span class="a">→ Nettoyage et tri.</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Copeaux de bois (5–30 mm) / Fragments d'écorce (20–80 mm)</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Compaction des copeaux / mulch constatée — tassement réduisant le pouvoir amortissant. <span class="n">NF EN 1177 Tableau 4</span> : copeaux granulométrie 5–30 mm, épaisseur min 300 mm, HCL max ≤ 3 000 mm. <span class="a">→ Ratissage et remodelage — apport de copeaux certifiés si épaisseur insuffisante.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Épaisseur de copeaux insuffisante (&lt; 300 mm pour HCL > 1 m). <span class="a">→ Apport de copeaux certifiés granulométrie 5–30 mm.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Décomposition avancée des copeaux — matière organique dégradée, odeur. <span class="a">→ Remplacement partiel ou total par copeaux certifiés.</span></div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="ssh" onclick="togS(this)"><span class="sc3">▶</span>Sol coulé synthétique (EPDM / polyuréthane)</div>
+      <div class="ssb">
+        <div class="oi" onclick="cp(this)"><div class="ot">Sol EPDM présentant une colonisation biologique (mousse) sur l'ensemble de la surface, rendant le revêtement glissant par temps humide. Risque de chute à plat. <span class="n">NF EN 1176-1 § 4.2.4 / § 8.3 — NF EN 1177</span> : la surface de la zone de jeu doit être praticable et exempte de tout risque de glissance. <span class="a">→ Nettoyage au karcher basse pression avec traitement biocide préconisé. En l'absence de traitement, réévaluation de la criticité lors du prochain contrôle.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Déformation localisée du revêtement EPDM constatée, imputable à la présence de racines affleurantes en sous-face. La surface de la zone de jeu présente une irrégularité susceptible de provoquer une chute. <span class="n">NF EN 1176-1 § 4.2.4 et § 4.2.11 — NF EN 1177</span> : le revêtement amortissant est localement soulevé, ce qui peut réduire l'épaisseur utile d'amortissement. <span class="a">→ Évolution à surveiller. Intervention à planifier (traitement des racines + réfection locale).</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Présence de racines affleurantes entraînant un soulèvement significatif du revêtement EPDM. La surface de la zone de jeu est non uniforme et constitue un risque de trébuchement et de chute. <span class="n">NF EN 1176-1 § 4.2.4 et § 4.2.11 — NF EN 1177</span> : l'épaisseur amortissante est localement compromise, rendant la conformité aux exigences d'amortissement non assurable sans intervention. <span class="a">→ Réparation ou remplacement partiel du revêtement à prévoir après traitement des racines.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Infiltration de sable ou de matières organiques dans le revêtement EPDM — colmatage des pores réduisant sensiblement la capacité amortissante. <span class="n">NF EN 1177 / NF EN 1176-1 § 8.3</span> : toute contamination du sol coulé peut altérer ses propriétés d'absorption des chocs. <span class="a">→ Nettoyage haute pression contrôlé. Test HIC/Gmax recommandé si contamination ancienne ou étendue.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Sol amortissant coulé (EPDM/polyuréthane) dont la confirmation des performances HIC/Gmax après installation (Annexe H normative — <span class="n">NF EN 1176-1+A1:2023</span>) n'a pas été réalisée ou dont le rapport est absent du dossier. Cette annexe H est normative depuis octobre 2023 — le test post-installation est obligatoire. <span class="a">→ Commander une confirmation HIC/Gmax auprès d'un organisme accrédité ISO 17025 (MIRAJ, APAVE, Bureau Veritas…).</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Sol amortissant testé avant 2018 selon l'ancienne méthode EN 1177:2008 (critère HIC seul, sans Gmax). <span class="n">NF EN 1177:2018+A1:2023</span> : deux critères sont désormais obligatoires — HIC ≤ 1000 ET Gmax ≤ 200 g. Certains sols conformes à l'ancienne version ne le sont plus. <span class="a">→ Nouveau test selon EN 1177:2018 à programmer pour confirmation de conformité.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Rétractation du sol coulé en périphérie / à la jointure — décollement visible. <span class="a">→ Prévoir reprise de joint ou ragréage périphérique.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Sol coulé arraché / décollé sur zone de ___ × ___ m. <span class="a">→ Réparation ou remplacement de la section concernée.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Fissure traversante dans le sol coulé — compromet l'intégrité amortissante. <span class="a">→ Évaluation et réparation ou remplacement. Test HIC recommandé.</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Sol dur (béton, asphalte) dans la zone d'impact d'un équipement alors que la HCL est > 60 cm. <span class="n">NF EN 1177 §4.2.1</span> : le béton ou l'asphalte ne doivent pas être utilisés dans la zone d'impact d'un équipement de jeu. <span class="a">→ Mise en conformité urgente — pose d'un revêtement certifié.</span> <span class="prio">URGENT</span></div></div>
+        <div class="oi" onclick="cp(this)"><div class="ot">Usure importante du sol coulé — couche supérieure EPDM éraillée, sous-couche visible. <span class="a">→ Test HIC/Gmax recommandé — remplacement si HIC > 1000.</span></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🛝</span><span class="st">Toboggans</span>
+    <span class="sref">NF EN 1176-3</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Zone de départ de longueur insuffisante — &lt; 350 mm. <span class="n">§4.3.1 NF EN 1176-3</span> : chaque toboggan doit comporter une zone de départ d'au moins 350 mm. <span class="a">→ Mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Barre de retenue absente alors que la HCL est ≥ 1 m. <span class="n">§4.3.5 NF EN 1176-3</span> : barre de retenue requise à partir de 1 m de HCL. Note : en France (divergence nationale), les toboggans doivent systématiquement comporter une barre de retenue quelle que soit la hauteur. <span class="a">→ Installation obligatoire.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Angle d'inclinaison de la zone de glissade > 60° en un point ou > 40° en moyenne. <span class="n">§4.4.1 NF EN 1176-3</span> <span class="a">→ Mise hors service — remplacement ou modification.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Largeur de glissière non conforme — toboggan étroit > 700 mm ou toboggan large > 900 mm (mesure 10 cm sous le bord supérieur). <span class="n">§4.4.2 NF EN 1176-3</span> <span class="a">→ Vérification et mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Zone de sortie trop courte ou angle d'inclinaison trop élevé (> 10° type 1 / > 5° type 2). Hauteur de bordure de sortie insuffisante (< 200 mm si zone &lt; 1,5 m ou &lt; 350 mm si zone = 1,5 m). <span class="n">§4.5 NF EN 1176-3</span> <span class="a">→ Mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Extrémité métallique de glissière sans rayon de courbure minimal de 50 mm. <span class="n">§4.6 NF EN 1176-3</span> : extrémités métalliques doivent présenter un rayon minimal de 50 mm, recourbées à 100° minimum vers l'arrière. <span class="a">→ Remplacement de la glissière ou adaptation.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Profil latéral du toboggan inacceptable — protection latérale non conforme au gabarit (50 × 265 × 100 mm). <span class="n">§4.6 NF EN 1176-3</span> <span class="a">→ Mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Toboggan tubulaire — dimension intérieure &lt; 750 mm. <span class="n">§4.9 NF EN 1176-3</span> : parties fermées hauteur et largeur intérieures ≥ 750 mm. <span class="a">→ Vérification de conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Zone d'impact du toboggan non conforme — sol amortissant absent ou étendue insuffisante (< 1 m des protections latérales et &lt; 2 m type 1 / 1 m type 2 de la zone de sortie). <span class="n">§4.8 NF EN 1176-3</span> <span class="a">→ Mise en conformité — sol contrôlé NF EN 1177 obligatoire.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Eau stagnante dans la goulotte du toboggan — risque de glissade incontrôlée. <span class="a">→ Vérifier le drainage — correction si récurrent.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Bord vif / protubérance accessible sur la glissière — risque de coupure. <span class="a">→ Mise hors service — correction urgente.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Toboggan combiné — zone de départ sur plateforme sans protection latérale conforme (garde-corps entre 1 m et 2 m de HCL / balustrade au-delà de 2 m, longueur > 40 cm). <span class="n">§4.3.4 et §4.3.1 NF EN 1176-3</span> <span class="a">→ Mise en conformité.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🔄</span><span class="st">Balançoires</span>
+    <span class="sref">NF EN 1176-2</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Garde au sol du siège insuffisant — &lt; 350 mm pour siège standard ou &lt; 400 mm pour siège pneumatique / masse importante. <span class="n">NF EN 1176-2 §4.2</span> <span class="a">→ Ajustement de la longueur de suspension ou remplacement du siège.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Écartement entre siège et portique non conforme — &lt; (20% L + 200 mm) entre siège et portique, ou &lt; (20% L + 300 mm) entre deux sièges. <span class="n">§4.4.1 NF EN 1176-2</span> — L = longueur de suspension. <span class="a">→ Repositionnement des sièges.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Suspension de balançoire non trapézoïdale — risque de balancement latéral. <span class="n">§4.4.2</span> : écartement minimal entre pivots F ≥ G + 5% L (G = largeur siège, L = hauteur suspension). <span class="a">→ Mise en conformité de la suspension.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Siège balançoire cassé / fissuré — risque de chute soudaine. <span class="a">→ Remplacement immédiat ou condamnation.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Espace de chute de balançoire chevauché par un autre équipement ou un obstacle — chevauchement interdit. <span class="n">§4.10.2 NF EN 1176-2</span> : les espaces de chute des balançoires ne doivent jamais se chevaucher. <span class="a">→ Déplacement de l'équipement gênant.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Branche d'arbre dans l'espace libre de la balançoire. <span class="n">§4.2.8.2</span> : aucune partie d'équipement ne doit pénétrer dans l'espace libre — la présence d'une branche dans l'espace libre est inacceptable. <span class="a">→ Élagage immédiat.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Travée de balançoire combinant siège nacelle (jeunes enfants) avec siège standard sur la même travée. <span class="n">§4.9 NF EN 1176-2</span> : une même travée ne doit pas combiner siège nacelle et siège d'un autre type. <span class="a">→ Réorganisation des sièges par travée.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Balançoire à suspension unique (type 3) — dégagement h₄ &lt; 400 mm (mesuré au-dessous du bord externe du siège). <span class="n">§4.3 NF EN 1176-2</span> <span class="a">→ Ajustement du montage.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🔁</span><span class="st">Tourniquets / Manèges</span>
+    <span class="sref">NF EN 1176-5</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">HCL du manège &gt; 1 000 mm. <span class="n">NF EN 1176-5 §5.2</span> : hauteur maximale de chute libre ≤ 1 000 mm. <span class="a">→ Non-conformité structurelle — signalement et mise hors service.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Manège type A (sièges tournants) — diamètre > 2 000 mm ou garde au sol H₂ &lt; 400 mm. <span class="n">§6.1 NF EN 1176-5</span> <span class="a">→ Mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Manège type B (plateau tournant) — garde au sol &lt; 60 mm ou intervalle > 6 mm entre le sol et le bord du plateau au niveau du sol. <span class="n">§6.2 NF EN 1176-5</span> : zone potentielle de coincement. <span class="a">→ Mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Plateau tournant — face inférieure non lisse / présentant des aspérités (garde au sol ≥ 400 mm). <span class="n">§6.2.3 à §6.2.5 NF EN 1176-5</span> <span class="a">→ Ponçage ou remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Manège type E (soucoupe) — espace libre/de chute &lt; 3 000 mm autour du manège ou HCL > 1 000 mm. <span class="n">§6.5 NF EN 1176-5</span> : espace libre ≥ 2 000 mm autour, espace de chute ≥ 3 000 mm, H chute ≤ 1 000 mm max. <span class="a">→ Vérification et mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Vitesse de rotation du manège > 5 m/s à la périphérie. <span class="n">§5.7 NF EN 1176-5</span> : vitesse maximale ≤ 5 m/s. <span class="a">→ Contrôle de vitesse et blocage si dépassé.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Axe du manège incliné à plus de 5° par rapport à la verticale. <span class="n">§5.6 NF EN 1176-5</span> <span class="a">→ Remise à niveau.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Jeu entre le bord tournant du manège et le sol mesuré dans la plage dangereuse de 12 à 39 mm. <span class="n">NF EN 1176-5 § 5.4</span> : tout jeu compris entre 12 et 39 mm constitue un risque de cisaillement du pied ou de la jambe. <span class="a">→ Mise hors service immédiate — réglage ou remplacement de l'axe/roulement.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Roulement de tourniquet — jeu latéral excessif / bruit anormal. Jeu vertical de l'axe central > 10 mm ou rotation saccadée constatée. <span class="n">NF EN 1176-5 § 5.4</span> : l'axe doit tourner librement, sans à-coups ni jeu excessif — risque de dégradation accélérée et de blocage. <span class="a">→ Graissage si accessible — remplacement du roulement si nécessaire.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Élément rotatif en mouvement relatif par rapport au plateau (siège pivotant, volant d'entraînement non protégé). <span class="n">Divergence nationale France (Décret 94-699)</span> : les éléments rotatifs doivent être conçus de manière à réduire au minimum les risques de blessure quand l'enfant quitte l'élément en mouvement. <span class="a">→ Non admis sur les aires de jeux françaises — mise hors service.</span> <span class="prio">URGENT</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🏄</span><span class="st">Jeux à bascule / Oscillants</span>
+    <span class="sref">NF EN 1176-6</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Capot de protection du mécanisme à ressort absent ou fissuré — mécanisme accessible. <span class="n">NF EN 1176-6 § 4.3</span> : le mécanisme de ressort doit être intégralement protégé (capot entier ou espace &lt; 8 mm). Risque de coincement de doigt ou de main dans le ressort. <span class="a">→ Mise hors service — pose ou remplacement du capot de protection.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Débattement du ressort insuffisant (&lt; 100 mm) ou excessif (&gt; 150 mm) — ressort fatigué ou dérèglé. Angle d'inclinaison > 15° constaté lors de l'oscillation forcée manuelle. <span class="n">NF EN 1176-6</span> : le débattement doit rester dans la plage 100–150 mm, inclinaison max 15°. <span class="a">→ Remplacement du ressort.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">HCL du jeu à bascule > 1 500 mm (type 1 / type 4). <span class="n">NF EN 1176-6 Tableau 1</span> : HCL max 1 500 mm pour type 1 et 4. <span class="a">→ Non-conformité — mise hors service.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Garde au sol &lt; 230 mm (types 1, 2B, 3B, 4). <span class="n">NF EN 1176-6 §4.10</span> <span class="a">→ Ajustement ou remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Ressort de jeu à bascule — corps dur présent dans les spires (zone de coincement à l'espace mobile). <span class="n">§4.5 NF EN 1176-6</span> : test avec tige de 12 mm — aucun espace d'écrasement toléré. <span class="a">→ Nettoyage immédiat et protection des spires.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Poignées de jeu à bascule — diamètre hors tolérance (hors plage 16–45 mm). <span class="n">§4.8 NF EN 1176-6</span> <span class="a">→ Remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Arêtes du corps / plateau de jeu à bascule non arrondies — rayon &lt; 20 mm sur contour extérieur. <span class="n">§4.9 NF EN 1176-6</span> : rayon de courbure minimum 20 mm sur le contour, arêtes arrondies à 3 mm minimum. <span class="a">→ Ponçage ou remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Espace de chute du jeu à bascule &lt; 1 000 mm dans toutes les directions à partir des positions extrêmes. <span class="n">§4.11 NF EN 1176-6</span> <span class="a">→ Dégagement de l'espace ou déplacement de l'équipement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Repose-pieds manquants sur jeu de type 2A ou 4 alors que la garde au sol est &lt; 230 mm. <span class="n">§4.7 / §4.10 NF EN 1176-6</span> : repose-pieds exigés lorsque la garde au sol est &lt; 230 mm pour ces types. <span class="a">→ Installation des repose-pieds.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🚡</span><span class="st">Téléphériques</span>
+    <span class="sref">NF EN 1176-4</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Fil rompu visible sur le câble porteur de la tyrolienne. <span class="n">NF EN 1176-4</span> : un seul fil rompu visible sur le câble porteur constitue un critère de mise hors service immédiate — le câble doit être intègre en toutes circonstances. <span class="a">→ Mise hors service immédiate — remplacement du câble porteur.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Vitesse du chariot de tyrolienne supérieure à 3 m/s mesurée sur parcours complet. <span class="n">NF EN 1176-4</span> : vitesse maximale autorisée 3 m/s. Zone de freinage à l'arrivée absente ou inefficace. <span class="a">→ Vérification et réglage du système de freinage — intervention prestataire spécialisé.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Zone d'atterrissage de tyrolienne sans sol amortissant conforme ou étendue insuffisante (&lt; 2 m autour du point d'arrivée). <span class="n">NF EN 1176-4 / NF EN 1177</span> : HCC minimale de 2,00 m exigée dans la zone d'atterrissage. <span class="a">→ Mise en conformité du sol amortissant dans la zone d'arrivée.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Butoirs du téléphérique défectueux — n'assurent pas le ralentissement progressif du chariot jusqu'à l'arrêt. <span class="n">§4.4 NF EN 1176-4</span> : angle d'oscillation du câble de suspension ≤ 45° lors de l'essai. <span class="a">→ Réparation ou remplacement des butoirs.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Poignée de suspension présentant une boucle susceptible d'accrocher la main ou le poignet. <span class="n">§4.8 NF EN 1176-4</span> : les poignées ne doivent pas être des dispositifs souples en forme de boucle ni susceptibles de créer un nœud coulant. <span class="a">→ Remplacement de la poignée.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Siège de téléphérique à l'intérieur duquel le corps risque de rester bloqué — non conforme. <span class="n">§4.8 NF EN 1176-4</span> <span class="a">→ Mise hors service — remplacement du siège.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Garde au sol H₂ du téléphérique à siège insuffisante — &lt; 400 mm au point de départ. <span class="n">§4.12 NF EN 1176-4</span> <span class="a">→ Ajustement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Garde au sol H₂ du téléphérique à suspension — hors plage : 1 500 mm au départ, 3 000 mm max en déplacement, 2 000 mm min si suspension rigide. <span class="n">§4.12 NF EN 1176-4</span> <span class="a">→ Vérification et mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Distance câble–poignée hors de la valeur normative (non conforme au tableau 2 EN 1176-1 = 300 mm minimum). <span class="n">§4.8 NF EN 1176-4 / Panel CEN/TC 136/SC 1</span> <span class="a">→ Vérification de la longueur du câble de suspension.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🧗</span><span class="st">Escalade, Échelles, Escaliers & Rampes</span>
+    <span class="sref">§4.2.9 / §4.2.4</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Câble ou corde du filet 3D de circonférence inférieure à 70 mm accessible à plus de 1 m de hauteur. <span class="n">NF EN 1176-11</span> : les câbles fins (&lt; 70 mm de circonférence) à plus de 1 m du sol constituent un risque de coincement du cou. <span class="a">→ Mise hors service de la zone concernée — remplacement par câbles conformes.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Manchon de câble ouvert ou déformé sur structure à grimper / filet 3D. <span class="n">NF EN 1176-11 / EN 13411-3</span> : les manchons de câble doivent être conformes et intègres — un manchon ouvert supprime la sécurité d'assemblage. <span class="a">→ Mise hors service immédiate — remplacement du manchon.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Espacement entre points d'appui du filet 3D supérieur à 375 mm — risque de coincement tête. <span class="n">NF EN 1176-11</span> : écartement maximal entre points d'ancrage du filet 375 mm. <span class="a">→ Vérification et mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Barre de retenue / prise d'escalade qui bouge — doit être bloquée en rotation. <span class="a">→ À corriger.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Prise d'escalade cassée / manquante — risque de chute soudaine. <span class="a">→ Remplacement immédiat ou condamnation.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Échelle — écarts entre barreaux dans la plage 89–230 mm (ou 110–230 mm si équipement accessible aux &lt; 36 mois). <span class="n">§4.2.9.1</span> : testés avec gabarits de tête. Premier échelon difficile d'accès à ≥ 40 cm du sol. <span class="a">→ Mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Échelon ou montant d'échelle — section ne permettant pas la prise totale (section hors plage 16–45 mm). <span class="n">§4.2.9.1 / §4.2.4.6</span> <span class="a">→ Remplacement ou ajout de main courante permettant la prise totale.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Escalier — profondeur des marches &lt; 140 mm. <span class="n">§4.2.9.2</span> : profondeur minimale 140 mm. Inclinaison courante 15°–60°. <span class="a">→ Mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Rampe d'inclinaison ≤ 38° sans garde-corps ou balustrade alors que la HCL > 1 m (ou > 60 cm si accessible aux &lt; 36 mois). <span class="n">§4.2.9.3</span> : les plans inclinés jusqu'à 38° nécessitent un dispositif de protection contre les chutes. <span class="a">→ Installation du garde-corps.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Espace libre de 90 mm minimum sous le degré ou le barreau (mesuré à partir du milieu) contenant un obstacle. <span class="n">§4.2.9.1</span> <span class="a">→ Suppression de l'obstacle ou correction.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">⚽</span><span class="st">Agrès Sportifs — Buts, Paniers, Frontons (EN 16630)</span>
+    <span class="sref">EN 16630</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">But de football — ancrage béton dégradé / insuffisant. <span class="n">EN 16630</span> : résistance charge statique ≥ 1 100 N, moment résistant ≥ 2 200 N·m. <span class="a">→ Contrôle ancrage — reprise béton ou remplacement.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">But de football — filet absent, déchiré ou maille pouvant servir de prise d'escalade. <span class="a">→ Remplacement du filet.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">But de football — montant déformé / courbé. <span class="a">→ Mise hors service — remplacement.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Panier de basket — anneau non horizontal / déformé ou acier exposé / arête vive accessible. <span class="a">→ Remise en état ou remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Planche de fronton — fissure traversante ou fixations défectueuses. <span class="a">→ Mise hors service — réparation ou remplacement.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Agrès sportif — angle vif ou protubérance accessible suite à arrachement / choc. <span class="a">→ Mise hors service — correction urgente.</span> <span class="prio">URGENT</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🌳</span><span class="st">Environnement général de l'aire</span>
+    <span class="sref">Décret 96-1136 / §4.2.8</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Présence de lierre envahissant sur ou dans la structure de l'équipement. <span class="n">NF EN 1176-1 § 4.2.8</span> : toute végétation pouvant créer des boucles ou entrelacement constitue un risque de coincement ou d'étranglement. Le lierre masque également la corrosion, les fissures et la pourriture — obstacle à l'inspection visuelle. <span class="a">→ Suppression obligatoire du lierre — inspection approfondie de la structure après dégagement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Présence d'une plante épineuse (ronces, haie épineuse, mahonia, rosier...) ou à baies toxiques (if, laurier-cerise, muguet, digitale, fusain, belladone...) accessible depuis la zone de jeux. <span class="n">Décret 96-1136</span> : l'environnement immédiat de l'aire ne doit pas présenter de danger pour les utilisateurs. <span class="a">→ Arrachage ou taille de recul à planifier. Distance minimale recommandée : 2 m des zones de circulation enfants.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Arbre présent dans ou à proximité immédiate de la zone de jeux présentant des signes de dépérissement (branches mortes, champignons de pied, cavités, penchement). <span class="n">Décret 96-1136</span> : l'environnement ne doit pas constituer un danger pour les utilisateurs. <span class="a">→ Diagnostic arboricole à commander. Périmètre de sécurité à délimiter si risque de chute de branche ou d'arbre.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Eau stagnante constatée sur plateforme ou plancher — surface glissante par temps de pluie ou après précipitations. <span class="n">NF EN 1176-1 § 4.2.11 / § 8.3</span> : la surface de jeu doit être praticable. Les trous de drainage sont obstrués ou absents. <span class="a">→ Débouchage des trous de drainage ou reprise de pente à planifier.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Mobilier urbain (banc, table, corbeille) présentant des arêtes vives, bords tranchants ou fixations saillantes dans la zone de jeux ou à moins de 1,50 m des équipements. <span class="n">Décret 96-1136 / NF EN 1176-1 § 4.2.5</span> : l'environnement ne doit pas présenter de danger. <span class="a">→ Remplacement ou protection des éléments dangereux. Déplacement hors zone si nécessaire.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Absence de dispositif de protection physique entre l'aire de jeux et une voie de circulation (route, parking, voie partagée). <span class="n">Décret 96-1136 Annexe</span> : une protection physique est obligatoire pour empêcher l'intrusion de véhicules. Risque d'écrasement. <span class="a">→ Pose de barrières, potelets ou bordures anti-intrusion.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Luminaire défaillant, câble électrique apparent ou armoire technique non verrouillée dans la zone de jeux. <span class="n">Décret 96-1136</span> : la sécurité des utilisateurs doit être assurée dans les conditions normales d'utilisation. Risque d'électrocution ou de chute liée au défaut de visibilité. <span class="a">→ Intervention électricien habilité — condamnation si câble apparent.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Peinture écaillée accessible sur équipement dont l'année de fabrication est antérieure à 2000 — risque potentiel d'ingestion de peinture contenant du plomb. <span class="n">NF EN 1176-1 § 4.1</span> : les matériaux ne doivent pas présenter de risque toxicologique pour les utilisateurs. <span class="a">→ Prélèvement et analyse si doute sur composition. Décapage et remise en peinture certifiée sans plomb.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Affaissement du sol au pied de l'équipement — dénivellation visible autour du massif de fondation. <span class="n">NF EN 1176-1 § 4.2.14</span> : les fondations doivent assurer la stabilité de l'équipement en toutes conditions. Un affaissement peut indiquer un début de déchaussement ou une infiltration d'eau fragilisant l'ancrage. <span class="a">→ Sondage à la tige recommandé — remblaiement compacté ou reprise de fondation si instabilité confirmée.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Branche d'arbre dans l'espace libre ou de chute d'un équipement. <span class="n">§4.2.8.2</span> : les espaces libres ne doivent contenir aucun obstacle. La présence d'une branche dans l'espace libre est inacceptable. <span class="a">→ Élagage immédiat.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Obstacle à hauteur des chevilles ou à hauteur des yeux dans l'espace de circulation autour de l'équipement. <span class="n">§4.2.8.5</span> : pas d'obstacles pouvant surprendre l'utilisateur et le blesser en cas de choc. <span class="a">→ Suppression de l'obstacle.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Végétation envahissante dans la zone de jeux — réduction de la visibilité. <span class="a">→ Désherbage et entretien.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Présence de déchets / dépôts dans ou à proximité de l'aire. <span class="a">→ Enlèvement et nettoyage.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Présence de seringues / objets contaminants dans la zone de jeux. <span class="a">→ Collecte sécurisée immédiate — signalement.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Espaces de chute de deux équipements se chevauchant de manière inacceptable (balançoire ou manège + autre équipement). <span class="n">§4.2.8.3</span> : les espaces de chute des balançoires et des manèges ne doivent jamais se chevaucher. <span class="a">→ Réimplantation d'un des équipements.</span> <span class="prio">URGENT</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🏷️</span><span class="st">Marquage, Identification & Traçabilité</span>
+    <span class="sref">NF EN 1176-1 § 4.4 / § 7</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Plaque de marquage fabricant absente — impossible d'identifier l'année de fabrication, la référence de l'équipement et le numéro/date de parution de la norme. <span class="n">NF EN 1176-1 § 7 Marquage</span> : le marquage du fabricant, de la référence et de l'année de fabrication est obligatoire. <span class="a">→ Installer une plaque d'identification durable comportant fabricant, référence et année, conformément aux exigences de traçabilité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Équipement sans identification visible (absence de plaque fabricant, marquage CE non localisé, année de fabrication inconnue). <span class="n">NF EN 1176-1 § 4.4</span> : non-conformité à la conception d'origine — traçabilité impossible. Sans identification, la hauteur de chute libre déclarée et la conformité du sol amortissant (NF EN 1177) ne peuvent être vérifiées. <span class="a">→ Recherche en archives et contact gestionnaire préconisés. En l'absence d'identification, appliquer la règle du pire cas (hauteur mesurée sur site) et envisager la mise hors service.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">📦</span><span class="st">Éléments Manquants & Conformité à la Conception</span>
+    <span class="sref">NF EN 1176-1 § 4.4 / § 4.2.3 / § 4.2.5</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Élément absent constaté : ……………… manquant(s). L'équipement n'est plus conforme à sa conception d'origine (<span class="n">NF EN 1176-1 § 4.4</span>). Aucun danger immédiat identifié à ce stade, mais la remise en place des éléments manquants est nécessaire afin de rétablir la conformité de l'installation. <span class="a">→ Remise en place à prévoir.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Élément absent créant un risque secondaire : ……………… manquant(s). Les points de fixation libres (crochets, anneaux, points d'accroche) constituent des parties saillantes dangereuses au sens du <span class="n">§ 4.2.3 NF EN 1176-1</span>. L'équipement n'est plus conforme à sa conception d'origine (§ 4.4). <span class="a">→ Remise en place des éléments manquants sans délai ou protection des points d'accroche libres.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Manque de matière (affaissement de terre) sous le toboggan sur butte. Vide mesuré d'environ 1 ml entre la lisse et la surface de la butte, sur toute la longueur ou partie de celle-ci. La butte constituant la surface fonctionnelle de l'équipement, tout vide significatif entre lisse et sol > 1 ml représente un danger pour les utilisateurs. <span class="n">§ 4.2.4 / § 4.2.11 NF EN 1176-1</span> <span class="a">→ Remblaiement et reprofilage à prévoir en entretien courant.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">📐</span><span class="st">Implantation, Espaces Libres & Clôtures</span>
+    <span class="sref">NF EN 1176-1 § 4.2.8 / NF EN 1176-2</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Le garde-corps de la butte est absent, créant un risque de chute latérale depuis une zone en hauteur accessible. <span class="n">NF EN 1176-1 § 4.2.4</span> : tout bord accessible à plus de 60 cm de hauteur doit être protégé. <span class="a">→ Installer un garde-corps ou une barrière conforme à la NF EN 1176 afin d'assurer la protection contre les chutes sur toute la longueur exposée.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">La clôture est implantée trop près de la balançoire, à une distance inférieure à 1,50 m du bord du siège. <span class="n">NF EN 1176-2</span> : un dégagement minimal de 1,50 m doit être respecté latéralement et dans la zone d'impact. <span class="a">→ Repositionner la clôture ou la balançoire afin de garantir un dégagement minimal de 1,50 m.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">CAS 1 — Maisonnette isolée, espace libre insuffisant. La maisonnette est accessible sur plusieurs côtés. Un obstacle rigide (bordure, massif, clôture, autre équipement) est présent à moins de 1,50 m dans la zone de circulation. <span class="n">NF EN 1176-1 § 4.2.8</span> : espace libre minimal de 1,50 m sans point dur exigé autour des équipements accessibles. <span class="a">→ Reconfigurer l'implantation afin de garantir un dégagement minimum de 1,50 m sans point dur.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">CAS 2 — Maisonnette accolée à un mur, sans circulation derrière. La maisonnette est implantée contre un mur d'enceinte sans ouverture côté mur. Aucune circulation n'est possible dans la zone concernée — usage statique, hauteur de chute faible. Cette configuration ne génère pas de risque de collision dans la zone adossée. <span class="n">NF EN 1176-1</span> <span class="a">→ Aucune action corrective requise sur ce point. Surveiller lors des prochains contrôles que l'implantation reste inchangée.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">CAS 3 — Maisonnette partiellement adossée avec circulation résiduelle. La maisonnette est partiellement adossée à un obstacle avec ouverture côté mur : une circulation d'enfants reste possible dans la zone concernée. La distance entre l'équipement et le point dur est inférieure à 1,50 m, ce qui peut générer un risque de choc. <span class="n">NF EN 1176-1 § 4.2.8</span> <span class="a">→ Vérifier l'accessibilité réelle de la zone. Si une circulation est possible, reconfigurer l'implantation pour garantir 1,50 m d'espace libre sans obstacle rigide.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🏖️</span><span class="st">Bac à Sable — Hygiène & Sol</span>
+    <span class="sref">FD S54-206 / XP S54-207</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Bac à sable présentant des déjections animales et/ou des corps étrangers (verre, métal, déchets). <span class="n">FD S54-206 / XP S54-207</span> : le sable doit être propre, régulièrement entretenu et protégé de la contamination animale. <span class="a">→ Nettoyage et tamisage immédiats. Mise en place ou réparation du couvercle de protection.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Bac à sable sans dispositif de fermeture (couvercle, filet, grillage) — contamination animale non maîtrisée. <span class="n">FD S54-206</span> : tout bac à sable accessible au public doit pouvoir être protégé de la contamination entre les périodes d'utilisation. <span class="a">→ Pose d'un couvercle ou d'un filet de protection.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Sable du bac à sable colmaté / compacté ou de granulométrie non conforme. <span class="n">XP S54-207</span> : le sable doit être alluvionnaire, exempt d'argile, granulométrie 0,2–2 mm, épaisseur minimale 300 mm. <span class="a">→ Remplacement ou décompactage (ratissage profond) et apport de sable alluvionnaire certifié.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Niveau de sable insuffisant dans le bac — épaisseur &lt; 300 mm sous la HCL de l'équipement associé. <span class="n">NF EN 1177 Tableau 4 / XP S54-207</span> : épaisseur minimale 300 mm pour HCL ≤ 3 000 mm. <span class="a">→ Apport de sable alluvionnaire 0,2–2 mm.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🏠</span><span class="st">Équipements Fermés — Tunnels, Grottes, Igloos</span>
+    <span class="sref">NF EN 1176-10</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Équipement de jeu totalement fermé (tunnel, grotte, igloo) — ouverture d'accès adulte inférieure à 500 mm. <span class="n">NF EN 1176-10 § 4.3</span> : les équipements fermés doivent comporter au minimum une ouverture de secours de 500 × 500 mm accessible depuis l'extérieur par un adulte, permettant une intervention en cas d'urgence. <span class="a">→ Mise en conformité — perçage ou agrandissement de l'ouverture de secours.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Équipement fermé — ventilation insuffisante ou absence d'ouverture d'aération. <span class="n">NF EN 1176-10 § 4.4</span> : les espaces fermés doivent être ventilés afin d'éviter tout risque d'asphyxie ou d'accumulation de chaleur. <span class="a">→ Perçage d'ouvertures de ventilation conformes.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Équipement fermé — accumulation d'eau stagnante à l'intérieur. <span class="n">NF EN 1176-10 / § 8.3 NF EN 1176-1</span> : l'eau stagnante dans un espace confiné constitue un risque sanitaire et de glissance. <span class="a">→ Perçage de trous de drainage ou correction de la pente. Nettoyage immédiat.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🏋️</span><span class="st">Fitness Extérieur — Agrès Sportifs</span>
+    <span class="sref">NF EN 16630 / NF EN 1176-1</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Pièce mobile de l'appareil de fitness (engrenage, poulie, câble de guidage) présentant un espace entre 8 et 25 mm dans le mécanisme en mouvement. <span class="n">NF EN 16630 § 5.2</span> : tout espace compris entre 8 et 25 mm dans un mécanisme mobile constitue un risque de coincement de doigt ou de main. <span class="a">→ Mise hors service — correction ou protection du mécanisme.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Butée de fin de course absente ou défaillante sur appareil de fitness à guidage (presse, tirage, barre guidée). <span class="n">NF EN 16630</span> : les butées de fin de course sont obligatoires pour prévenir tout mouvement incontrôlé susceptible de blesser l'utilisateur. <span class="a">→ Mise hors service — remplacement de la butée.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Appareil de fitness extérieur — panneau d'instructions d'utilisation absent ou illisible. <span class="n">NF EN 16630</span> : chaque appareil doit comporter un panneau avec pictogrammes d'exercice et instructions d'utilisation, accessible et lisible en permanence. <span class="a">→ Pose ou remplacement du panneau d'information spécifique à l'appareil.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Barre de traction fixe — Ø de barre hors plage 28–40 mm ou hauteur de fixation > 2 500 mm. <span class="n">NF EN 16630</span> : diamètre de prise 28–40 mm, hauteur maximale ≤ 2 500 mm. <span class="a">→ Remplacement ou mise en conformité.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Barres parallèles / dips — espacement entre barres hors plage 500–600 mm. <span class="n">NF EN 16630</span> : espacement entre barres 500–600 mm. Sol amortissant obligatoire si HCL > 1 000 mm. <span class="a">→ Réglage de l'écartement ou remplacement.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Sol amortissant absent sous agrès sportif dont la HCL est > 1 000 mm. <span class="n">NF EN 16630 § 5.3 / NF EN 1177</span> : une zone amortissante conforme est obligatoire dès que la hauteur de chute libre dépasse 1 000 mm. <span class="a">→ Mise en conformité du sol dans la zone d'impact.</span> <span class="prio">URGENT</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">📄</span><span class="st">Registre de Sécurité & Documents Obligatoires</span>
+    <span class="sref">Décret 96-1136 Art. 3 / NF EN 1176-7</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Registre de sécurité absent ou non tenu à jour pour cet équipement. <span class="n">Décret 96-1136 Art. 3 / NF EN 1176-7 § 8</span> : le gestionnaire doit tenir un registre documentant toutes les inspections, interventions et réparations réalisées sur chaque équipement. L'absence de registre constitue une infraction passible d'amende de 5e classe. <span class="a">→ Mise à jour immédiate du registre de sécurité — consignation de toutes les interventions passées et futures.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Dossier technique de l'équipement incomplet — notice de montage, fiche technique ou certificat CE manquant. <span class="n">Décret 96-1136 Art. 3</span> : le gestionnaire doit conserver la documentation technique fournie par le fabricant (notice, instructions, attestations de conformité). <span class="a">→ Demande de duplicata auprès du fabricant — archivage obligatoire.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Panneau réglementaire de l'aire absent, illisible ou incomplet — nom du gestionnaire, numéro d'urgence, tranche d'âge ou règlement non identifiables. <span class="n">Décret 96-1136 Art. 4 et 6</span> : ces informations doivent être affichées de façon visible, lisible et indélébile à chaque entrée de l'aire. <span class="a">→ Pose ou remplacement du panneau réglementaire complet.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">♿</span><span class="st">Accessibilité & Inclusion</span>
+    <span class="sref">FD CEN/TR 16467 / Loi 2005-102</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Aucune accessibilité PMR constatée sur cette aire — absence de cheminement stabilisé en accès, aucun équipement adapté. <span class="n">FD CEN/TR 16467</span> : les aires de jeux devraient être accessibles à tous les enfants, y compris en situation de handicap. Loi 2005-102 : obligation d'accessibilité des espaces publics. <span class="a">→ Signaler au gestionnaire pour étude d'accessibilité lors d'une prochaine réhabilitation.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Cheminement d'accès à l'aire non praticable en fauteuil roulant — sol meuble, obstacles, dénivelés non aménagés. <span class="n">FD CEN/TR 16467 / Loi 2005-102</span> : un cheminement accessible (surface stabilisée, largeur ≥ 1,40 m) doit permettre l'accès depuis la voie publique. <span class="a">→ Mise en accessibilité du cheminement à planifier.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">🌡️</span><span class="st">Température de Surface & Risques Thermiques</span>
+    <span class="sref">NF EN 1176-1 § 4.1</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Revêtement métallique ou plastique noir / foncé susceptible d'atteindre une température de surface dangereuse en exposition solaire directe prolongée. <span class="n">NF EN 1176-1 § 4.1</span> : les matériaux ne doivent pas présenter de risque lié à leur température en conditions normales d'utilisation. Un métal exposé au soleil peut dépasser 70°C en été — risque de brûlure au contact. <span class="a">→ Contrôle de température par temps chaud. Ombrage ou protection thermique à envisager si brûlure possible au contact.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Sol EPDM de couleur foncée en exposition solaire — surface pouvant atteindre des températures de brûlure pour les enfants pieds nus. <span class="n">NF EN 1176-1 § 4.1 / NF EN 1177</span> : le revêtement de sol ne doit pas constituer un danger thermique en conditions normales d'utilisation. <span class="a">→ Vérification de température en période estivale — envisager une couleur claire ou un ombrage lors d'une prochaine réfection.</span></div></div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh" onclick="tog(this)">
+    <span class="sico">💧</span><span class="st">Jeux d'Eau & Brumisateurs</span>
+    <span class="sref">NF EN 1176-1 § 4.2.11 / Code Santé Publique</span><span class="chev">▶</span>
+  </div>
+  <div class="sb2">
+    <div class="oi" onclick="cp(this)"><div class="ot">Sol mouillé / glissant autour d'un jeu d'eau ou brumisateur — revêtement lisse sans propriété antidérapante mouillé en permanence. <span class="n">NF EN 1176-1 § 4.2.11 / § 4.2.4</span> : la surface de la zone de jeux doit être praticable et exempte de risque de chute. <span class="a">→ Pose d'un revêtement antidérapant drainant certifié sur toute la zone humide.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Drainage insuffisant autour du jeu d'eau — accumulation d'eau stagnante créant un risque sanitaire et de noyade. <span class="n">Code de la Santé Publique / Décret 96-1136</span> : tout point d'eau stagnante d'une profondeur significative dans une zone de jeux constitue un risque de noyade. <span class="a">→ Reprise du système de drainage — vérification et débouchage du réseau.</span> <span class="prio">URGENT</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Absence de panneau d'information sur un jeu d'eau collectif (tranche d'âge, règles d'utilisation, interdiction de consommer l'eau, numéro gestionnaire). <span class="n">Décret 96-1136 Art. 4 et 6</span> : les informations d'usage et de contact doivent être accessibles et lisibles en permanence. <span class="a">→ Pose d'un panneau réglementaire spécifique au jeu d'eau.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Système de traitement / filtration de l'eau du jeu d'eau non maintenu ou absent — risque de contamination bactériologique. <span class="n">Code de la Santé Publique</span> : les installations aquatiques collectives doivent faire l'objet d'une surveillance de la qualité de l'eau et d'un entretien régulier. <span class="a">→ Contrôle du système de traitement — analyses d'eau à programmer.</span></div></div>
+    <div class="oi" onclick="cp(this)"><div class="ot">Arêtes vives ou parties saillantes accessibles sur les équipements du jeu d'eau (buses, buses d'aspersion, canalisations). <span class="n">NF EN 1176-1 § 4.2.5 / § 4.2.3</span> : toutes les surfaces accessibles doivent être exemptes d'arêtes vives ou de saillies dangereuses. <span class="a">→ Protection ou remplacement des éléments concernés.</span> <span class="prio">URGENT</span></div></div>
+  </div>
+</div>
+
+</div><!-- /panel-obs -->
+
+
+
+<div class="panel" id="tab-val-dim">
+<div class="g2">
+<div>
+<div class="card">
+  <div class="ctit">⚙️ Valeurs dimensionnelles générales — NF EN 1176-1</div>
+  <table>
+    <thead><tr><th>Critère</th><th>Valeur</th><th>Référence</th></tr></thead>
+    <tbody>
+      <tr><td>Ouvertures — risque tête (plage dangereuse)</td><td><span class="vd">89–230 mm</span></td><td class="nr">§4.2.7.2</td></tr>
+      <tr><td>Ouvertures — risque doigts</td><td><span class="vd">8–25 mm</span></td><td class="nr">§4.2.7.6</td></tr>
+      <tr><td>Espace mini entre parties mobiles (doigts)</td><td><span class="vr">≥ 12 mm</span></td><td class="nr">§4.2.7.6</td></tr>
+      <tr><td>Tube ouvert accessible — risque coincement doigt</td><td><span class="vd">> 1 200 mm</span></td><td class="nr">§4.2.7.6</td></tr>
+      <tr><td>Ouvertures plancher / passerelle (sens long.)</td><td><span class="vd">≤ 30 mm</span></td><td class="nr">§4.2.7.5</td></tr>
+      <tr><td>Distance sol — partie basse équipement mobile</td><td><span class="vr">≥ 400 mm</span></td><td class="nr">§4.2.6</td></tr>
+      <tr><td>Saillies accessibles (angle 45°, chanfrein)</td><td><span class="vr">≥ 8 mm → chanfrein r=3 mm</span></td><td class="nr">§4.2.5</td></tr>
+      <tr><td>Espace libre depuis partie saillante (protection)</td><td><span class="vr">≤ 25 mm</span></td><td class="nr">§4.2.5</td></tr>
+      <tr><td>HCL maximale absolue</td><td><span class="vd">3 000 mm</span></td><td class="nr">§4.2.8.4</td></tr>
+      <tr><td>Espace de chute minimal (étendue)</td><td><span class="vr">1 500 mm</span></td><td class="nr">§4.2.8.3</td></tr>
+      <tr><td>Étendue surface d'impact (HCL > 1,5 m) formule</td><td><span class="vr">X = 2/3 y + 0,5 m</span></td><td class="nr">§4.2.8.1.3</td></tr>
+      <tr><td>Sections transversales — prise totale</td><td><span class="vr">16–45 mm</span></td><td class="nr">§4.2.4.6</td></tr>
+      <tr><td>Sections transversales — prise partielle (max)</td><td><span class="vr">≤ 60 mm</span></td><td class="nr">§4.2.4.7</td></tr>
+      <tr><td>Ouvertures accessibilité adultes (équip. clos)</td><td><span class="vr">≥ 500 mm</span></td><td class="nr">§4.2.3</td></tr>
+      <tr><td>Ouvertures circulaires (130–230 mm) — non acceptables</td><td><span class="vd">130–230 mm</span></td><td class="nr">§4.2.7.2 CEN</td></tr>
+      <tr><td>Mailles filets cordages (acceptables si 150×150 mm)</td><td><span class="vr">150×150 mm</span></td><td class="nr">§4.2.7.2</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🪜 Escaliers, Échelles & Rampes — §4.2.9</div>
+  <table>
+    <thead><tr><th>Critère</th><th>Valeur</th><th>Référence</th></tr></thead>
+    <tbody>
+      <tr><td>Profondeur marche escalier</td><td><span class="vr">≥ 140 mm</span></td><td class="nr">§4.2.9.2</td></tr>
+      <tr><td>Inclinaison escalier courante</td><td><span class="vr">15°–60°</span></td><td class="nr">§4.2.9.2</td></tr>
+      <tr><td>Inclinaison échelle</td><td><span class="vr">60°–90°</span></td><td class="nr">§4.2.9.1</td></tr>
+      <tr><td>Premier échelon (accès difficile < 36 mois)</td><td><span class="vr">≥ 400 mm du sol</span></td><td class="nr">§4.2.9.1</td></tr>
+      <tr><td>Espace sous degré/barreau (obstacle)</td><td><span class="vr">≥ 90 mm</span></td><td class="nr">§4.2.9.1</td></tr>
+      <tr><td>Inclinaison rampe (nécessite garde-corps)</td><td><span class="vr">≤ 38°</span></td><td class="nr">§4.2.9.3</td></tr>
+      <tr><td>Main courante — hauteur</td><td><span class="vr">600–850 mm</span></td><td class="nr">§4.2.4.2</td></tr>
+      <tr><td>Garde-corps — hauteur bord supérieur</td><td><span class="vr">600–850 mm</span></td><td class="nr">§4.2.4.3</td></tr>
+      <tr><td>Balustrade — hauteur minimale</td><td><span class="vr">≥ 700 mm</span></td><td class="nr">§4.2.4.4</td></tr>
+      <tr><td>Balustrade exigée (accès facile < 36 mois) dès</td><td><span class="vr">HCL ≥ 600 mm</span></td><td class="nr">§4.2.4.4</td></tr>
+      <tr><td>Balustrade exigée (accès difficile < 36 mois) dès</td><td><span class="vr">HCL ≥ 2 000 mm</span></td><td class="nr">§4.2.4.4</td></tr>
+      <tr><td>Garde-corps exigé (accès difficile < 36 mois) dès</td><td><span class="vr">HCL ≥ 1 000 mm</span></td><td class="nr">§4.2.4.3</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<div>
+<div class="card">
+  <div class="ctit">🌱 Sols amortissants — NF EN 1177 Tableau 4</div>
+  <table>
+    <thead><tr><th>Matériau</th><th>Granulométrie</th><th>Épaisseur min.</th><th>HCL max.</th></tr></thead>
+    <tbody>
+      <tr><td>Gazon / terreau naturel</td><td>—</td><td>—</td><td><span class="vr">≤ 1 000 mm</span></td></tr>
+      <tr><td>Fragments d'écorce</td><td><span class="vr">20–80 mm</span></td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td></tr>
+      <tr><td>Copeaux de bois</td><td><span class="vr">5–30 mm</span></td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td></tr>
+      <tr><td>Sable alluvionnaire</td><td><span class="vr">0,2–2 mm</span></td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td></tr>
+      <tr><td>Gravier alluvionnaire</td><td><span class="vr">2–8 mm</span></td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td></tr>
+      <tr><td>Autres matériaux synthétiques</td><td>—</td><td>Selon essai HIC</td><td>Selon essai HIC</td></tr>
+    </tbody>
+  </table>
+  <div class="alert ai" style="margin-top:10px">HIC ≤ 1000 — seuil de sécurité. Le béton, l'asphalte et les surfaces pierreuses sont proscrits dans la zone d'impact dès que la HCL > 60 cm.</div>
+</div>
+
+<div class="card">
+  <div class="ctit">🔄 Balançoires — NF EN 1176-2</div>
+  <table>
+    <thead><tr><th>Critère</th><th>Valeur</th><th>Référence</th></tr></thead>
+    <tbody>
+      <tr><td>Garde au sol h₂ — siège standard</td><td><span class="vr">≥ 350 mm</span></td><td class="nr">§4.2 NF EN 1176-2</td></tr>
+      <tr><td>Garde au sol h₂ — siège pneu / masse import.</td><td><span class="vr">≥ 400 mm</span></td><td class="nr">§4.2</td></tr>
+      <tr><td>Dégagement h₄ balançoire susp. unique</td><td><span class="vr">≥ 400 mm</span></td><td class="nr">§4.3</td></tr>
+      <tr><td>Écartement siège–portique</td><td><span class="vr">≥ 20%L + 200 mm</span></td><td class="nr">§4.4.1</td></tr>
+      <tr><td>Écartement entre deux sièges</td><td><span class="vr">≥ 20%L + 300 mm</span></td><td class="nr">§4.4.1</td></tr>
+      <tr><td>Écartement pivots suspension (stabilité)</td><td><span class="vr">≥ G + 5%L</span></td><td class="nr">§4.4.2</td></tr>
+      <tr><td>Espace de chute balançoire (sol compacts)</td><td><span class="vr">A+B = A + 1,75 m</span></td><td class="nr">§4.10.2</td></tr>
+      <tr><td>Espace de chute balançoire (sols fluents)</td><td><span class="vr">A+C = A + 2,25 m</span></td><td class="nr">§4.10.2</td></tr>
+      <tr><td>HCL balançoire = formule</td><td><span class="vr">½ hauteur susp. (cos60°) + h siège</span></td><td class="nr">§4.10.1</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🛝 Toboggans — NF EN 1176-3</div>
+  <table>
+    <thead><tr><th>Critère</th><th>Valeur</th><th>Référence</th></tr></thead>
+    <tbody>
+      <tr><td>Zone de départ — longueur minimale</td><td><span class="vr">≥ 350 mm</span></td><td class="nr">§4.3.1</td></tr>
+      <tr><td>Toboggan chevalet — accès hauteur max.</td><td><span class="vr">≤ 2 500 mm</span></td><td class="nr">§4.2</td></tr>
+      <tr><td>Angle zone glissade — max en un point</td><td><span class="vr">≤ 60°</span></td><td class="nr">§4.4.1</td></tr>
+      <tr><td>Angle zone glissade — max en moyenne</td><td><span class="vr">≤ 40°</span></td><td class="nr">§4.4.1</td></tr>
+      <tr><td>Largeur toboggan étroit (1 enfant)</td><td><span class="vr">≤ 700 mm</span></td><td class="nr">§4.4.2</td></tr>
+      <tr><td>Largeur toboggan large (front)</td><td><span class="vr">≤ 900 mm</span></td><td class="nr">§4.4.2</td></tr>
+      <tr><td>Inclinaison zone de sortie type 1</td><td><span class="vr">≤ 10°</span></td><td class="nr">§4.5</td></tr>
+      <tr><td>Inclinaison zone de sortie type 2</td><td><span class="vr">≤ 5°</span></td><td class="nr">§4.5</td></tr>
+      <tr><td>Hauteur bordure sortie (zone glissade &lt; 1,5m)</td><td><span class="vr">200 mm</span></td><td class="nr">§4.5</td></tr>
+      <tr><td>Hauteur bordure sortie (zone glissade = 1,5m)</td><td><span class="vr">350 mm</span></td><td class="nr">§4.5</td></tr>
+      <tr><td>Rayon extrémité glissière métallique</td><td><span class="vr">≥ 50 mm</span></td><td class="nr">§4.6</td></tr>
+      <tr><td>Toboggan tubulaire — dim. int. mini</td><td><span class="vr">≥ 750 mm</span></td><td class="nr">§4.9</td></tr>
+      <tr><td>Zone d'impact — distance protections latérales</td><td><span class="vr">≥ 1 000 mm</span></td><td class="nr">§4.8</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🏄 Jeux à bascule — NF EN 1176-6</div>
+  <table>
+    <thead><tr><th>Type</th><th>HCL max</th><th>H siège équilibre max</th><th>Garde sol min</th></tr></thead>
+    <tbody>
+      <tr><td>Type 1 (fléau)</td><td><span class="vr">1 500 mm</span></td><td>1 000 mm</td><td><span class="vr">230 mm</span></td></tr>
+      <tr><td>Type 2A (1 support, direction fixe)</td><td><span class="vr">1 000 mm</span></td><td>550 mm</td><td>—</td></tr>
+      <tr><td>Type 2B (1 support, multidir.)</td><td><span class="vr">1 000 mm</span></td><td>780 mm</td><td><span class="vr">230 mm</span></td></tr>
+      <tr><td>Type 3A (multi-supports, dir. fixe)</td><td><span class="vr">1 000 mm</span></td><td>550 mm</td><td>—</td></tr>
+      <tr><td>Type 3B (multi-supports, multidir.)</td><td><span class="vr">1 000 mm</span></td><td>780 mm</td><td><span class="vr">230 mm</span></td></tr>
+      <tr><td>Type 4 (bascule longitud.)</td><td><span class="vr">1 500 mm</span></td><td>1 000 mm</td><td><span class="vr">230 mm</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🎠 Manèges — NF EN 1176-5</div>
+  <table>
+    <thead><tr><th>Critère</th><th>Valeur</th><th>Référence</th></tr></thead>
+    <tbody>
+      <tr><td>HCL max (tous types)</td><td><span class="vr">≤ 1 000 mm</span></td><td class="nr">§5.2</td></tr>
+      <tr><td>Vitesse périphérie max</td><td><span class="vr">≤ 5 m/s</span></td><td class="nr">§5.7</td></tr>
+      <tr><td>Inclinaison axe max</td><td><span class="vr">≤ 5°</span></td><td class="nr">§5.6</td></tr>
+      <tr><td>Espace libre autour manège</td><td><span class="vr">≥ 2 000 mm</span></td><td class="nr">§5.3</td></tr>
+      <tr><td>Espace libre au-dessus manège (passage tête)</td><td><span class="vr">≥ 2 000 mm</span></td><td class="nr">§5.3</td></tr>
+      <tr><td>Type A (sièges) — diamètre max</td><td><span class="vr">≤ 2 000 mm</span></td><td class="nr">§6.1</td></tr>
+      <tr><td>Type A — garde au sol min</td><td><span class="vr">≥ 400 mm</span></td><td class="nr">§6.1</td></tr>
+      <tr><td>Type B (plateau) — garde au sol &lt;60mm intervalle</td><td><span class="vr">≤ 6 mm</span></td><td class="nr">§6.2</td></tr>
+      <tr><td>Type E (soucoupe) — espace libre/chute</td><td><span class="vr">≥ 3 000 mm</span></td><td class="nr">§6.5</td></tr>
+      <tr><td>Type E — garde au sol (terrain meuble)</td><td><span class="vr">≥ 300 mm</span></td><td class="nr">§6.5.4</td></tr>
+      <tr><td>Type E — garde au sol (synthétique)</td><td><span class="vr">≥ 400 mm</span></td><td class="nr">§6.5.4</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🚡 Téléphériques — NF EN 1176-4</div>
+  <table>
+    <thead><tr><th>Critère</th><th>Valeur</th><th>Référence</th></tr></thead>
+    <tbody>
+      <tr><td>Angle oscillation câble lors essai butoir</td><td><span class="vr">≤ 45°</span></td><td class="nr">§4.4</td></tr>
+      <tr><td>Surface impact poignée de suspension</td><td><span class="vr">≥ 15 cm²</span></td><td class="nr">§4.8</td></tr>
+      <tr><td>Distance câble–poignées (min)</td><td><span class="vr">300 mm</span></td><td class="nr">§4.8 / Tableau 2</td></tr>
+      <tr><td>Garde au sol H₂ — téléphérique à siège (départ)</td><td><span class="vr">≥ 400 mm</span></td><td class="nr">§4.12</td></tr>
+      <tr><td>Garde au sol H₂ — suspension (départ)</td><td><span class="vr">≥ 1 500 mm</span></td><td class="nr">§4.12</td></tr>
+      <tr><td>Garde au sol H₂ — suspension (déplacement max)</td><td><span class="vr">≤ 3 000 mm</span></td><td class="nr">§4.12</td></tr>
+      <tr><td>Garde au sol H₂ — suspension rigide (milieu)</td><td><span class="vr">≥ 2 000 mm</span></td><td class="nr">§4.12</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🔗 Cordages & Chaînes — §4.2.12 / §4.2.13</div>
+  <table>
+    <thead><tr><th>Critère</th><th>Valeur</th><th>Référence</th></tr></thead>
+    <tbody>
+      <tr><td>Corde oscillante — diamètre</td><td><span class="vr">25–45 mm</span></td><td class="nr">§4.2.12.1</td></tr>
+      <tr><td>Corde oscillante L ≥ 2 m — écart parties fixes</td><td><span class="vr">≥ 1 000 mm</span></td><td class="nr">§4.2.12.1</td></tr>
+      <tr><td>Corde oscillante L &lt; 2 m — écart parties fixes</td><td><span class="vr">≥ 600 mm</span></td><td class="nr">§4.2.12.1</td></tr>
+      <tr><td>Corde oscillante — diamètre corde</td><td><span class="vr">25–45 mm</span></td><td class="nr">§4.2.12.1</td></tr>
+      <tr><td>Corde à grimper — diamètre</td><td><span class="vr">18–45 mm</span></td><td class="nr">§4.2.12.2</td></tr>
+      <tr><td>Corde à grimper — amplitude oscillation max</td><td><span class="vr">≤ 20% L fixation</span></td><td class="nr">§4.2.12.2</td></tr>
+      <tr><td>Chaîne — ouverture max maillons</td><td><span class="vr">≤ 8,6 mm</span></td><td class="nr">§4.2.13</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🌊 Tunnels — §4.2.7.4</div>
+  <table>
+    <thead><tr><th>Configuration</th><th>Longueur</th><th>Dim. int. min</th><th>Inclinaison max</th></tr></thead>
+    <tbody>
+      <tr><td>Ouvert 1 extrémité</td><td>≤ 2 m</td><td><span class="vr">750 mm</span></td><td><span class="vr">5°</span></td></tr>
+      <tr><td>Ouvert 2 extrémités</td><td>≤ 1 m</td><td><span class="vr">400 mm</span></td><td><span class="vr">15°</span></td></tr>
+      <tr><td>Ouvert 2 extrémités</td><td>≤ 2 m</td><td><span class="vr">500 mm</span></td><td><span class="vr">15°</span></td></tr>
+      <tr><td>Ouvert 2 extrémités</td><td>Illimité</td><td><span class="vr">750 mm</span></td><td><span class="vr">15°</span></td></tr>
+      <tr><td>Règle générale</td><td colspan="3">Pas de retenue d'eau, tunnel ouvert 1 seule extrémité non descendant</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+</div>
+</div><!-- /panel-val -->
+
+
+
+<div class="panel" id="tab-acc">
+<div class="alert ai">Source : Guide de formation — «Situations d'accidents types évitables par l'application des exigences normatives» (pp. 15–20)</div>
+
+<div class="card">
+  <div class="ctit">💀 Risques INACCEPTABLES — Intervention immédiate obligatoire</div>
+  <table>
+    <thead><tr><th>Situation</th><th>Risque</th><th>Norme</th></tr></thead>
+    <tbody>
+      <tr><td>Blessure au cou/nuque — coincement de la tête avec chute du corps depuis H > 60 cm</td><td><span class="risk ri">INACCEPTABLE</span></td><td class="nr">§4.2.7.2 — Ouvertures 89–230 mm totalement ou partiellement circonscrites</td></tr>
+      <tr><td>Strangulation — coincement cordon d'anorak dans ouverture en V / pivot / partie rotative</td><td><span class="risk ri">INACCEPTABLE</span></td><td class="nr">§4.2.7.3 — Toutes situations de mise en danger du cou par blocage ou étranglement exclues</td></tr>
+      <tr><td>Chute sur élément tubulaire dur</td><td><span class="risk ri">INACCEPTABLE</span></td><td class="nr">§4.2.8.4 — Aucun obstacle dans l'espace de chute pouvant blesser lors de la chute</td></tr>
+      <tr><td>Chute sur rebord ou angle dur et saillant</td><td><span class="risk ri">INACCEPTABLE</span></td><td class="nr">§4.2.8.4</td></tr>
+      <tr><td>Cisaillement possible de parties du corps par parties mobiles (tourniquet, bascule)</td><td><span class="risk ri">INACCEPTABLE</span></td><td class="nr">§4.2.6 Parties mobiles — aucun point d'écrasement ou cisaillement</td></tr>
+      <tr><td>Choc frontal contre une pointe dure</td><td><span class="risk ri">INACCEPTABLE</span></td><td class="nr">§4.2.5 — angles et arêtes protégés (surface adjacente ≤ 25 mm ou arrondi = 3 mm)</td></tr>
+      <tr><td>Écrasement du corps par parties lourdes de l'équipement (bascule, manège)</td><td><span class="risk ri">INACCEPTABLE</span></td><td class="nr">§4.2.6 — espace libre ≥ 400 mm entre sol et partie basse mobile</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">⚠️ Risques IMPORTANTS — Correction à planifier rapidement</div>
+  <table>
+    <thead><tr><th>Situation</th><th>Risque</th><th>Norme</th></tr></thead>
+    <tbody>
+      <tr><td>Coincement corps+vêtements combiné avec chute (toboggan, tourniquet)</td><td><span class="risk rw">IMPORTANT</span></td><td class="nr">§4.2.7.3 / §4.2.8.4</td></tr>
+      <tr><td>Choc frontal contre bord mince et dur</td><td><span class="risk rw">IMPORTANT</span></td><td class="nr">§4.2.5</td></tr>
+      <tr><td>Choc imprévisible de la tête (à la hauteur des yeux) contre parties d'équipement</td><td><span class="risk rw">IMPORTANT</span></td><td class="nr">§4.2.8.5</td></tr>
+      <tr><td>Chute possible du haut d'un toboggan sur les parties dures de l'équipement (accès non protégé)</td><td><span class="risk rw">IMPORTANT</span></td><td class="nr">§4.3.5 — barre de retenue requise dès 1 m HCL</td></tr>
+      <tr><td>Arrachement des membres / coincement des doigts (câble, chaîne)</td><td><span class="risk rw">IMPORTANT</span></td><td class="nr">§4.2.7.6 — ouvertures 8–25 mm à éviter</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">✅ Risques ACCEPTABLES — Surveillance normale</div>
+  <table>
+    <thead><tr><th>Situation</th><th>Risque</th><th>Commentaire</th></tr></thead>
+    <tbody>
+      <tr><td>Chute sur filet ou câble flexible</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Vérifier dimensions des mailles vs HCL et mensuration du corps</td></tr>
+      <tr><td>Chute sur corde ou câble flexible</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Surfaces amortissantes des aires de jeux</td></tr>
+      <tr><td>Chute sur profil de marche arrondi</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Surfaces amortissantes</td></tr>
+      <tr><td>Chute sur le sol amortissant</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Voir §4.2.8.1.3</td></tr>
+      <tr><td>Chute sur rebord flexible mince et élastique (rembourré)</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Éraflures, contusions légères, petites entorses : risque acceptable</td></tr>
+      <tr><td>Choc contre bord épais et arrondi</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Le choc contre des bords épais ou souples est acceptable</td></tr>
+      <tr><td>Choc contre une surface pleine</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Le choc contre des surfaces pleines est acceptable</td></tr>
+      <tr><td>Chute sur bord de fondation arrondi</td><td><span class="risk ro">ACCEPTABLE</span></td><td>Fondation avec arêtes arrondies r ≥ 100 mm, angle 45°</td></tr>
+    </tbody>
+  </table>
+  <div class="alert aw" style="margin-top:10px">Principe général : au lieu des extrémités dures et pointues / à arêtes vives, il faut toujours choisir de préférence des extrémités rondes, arrondies ou souples pour éviter les blessures.</div>
+</div>
+</div><!-- /panel-acc -->
+
+
+
+<div class="panel" id="tab-equip">
+<div class="g2">
+
+<div class="card">
+  <div class="ctit">🔄 Balançoires — Points clés inspection</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Garde au sol h₂ : ≥ 350 mm (standard) / ≥ 400 mm (pneu)</li>
+    <li>Suspension trapézoïdale — vérifier écartement pivots F ≥ G + 5%L</li>
+    <li>Écartement siège–portique : ≥ 20%L + 200 mm</li>
+    <li>Écartement entre sièges : ≥ 20%L + 300 mm</li>
+    <li>Espace de chute non chevauchable avec autre équipement</li>
+    <li>Type 1 (axe fixe) : 2 sièges max par travée — Type 3 (susp. unique) : h₄ ≥ 400 mm</li>
+    <li>Siège nacelle (bébé) : ne pas combiner avec siège standard sur même travée</li>
+    <li>Branche d'arbre dans espace libre = inacceptable</li>
+    <li>Chaînes : ouverture maillons ≤ 8,6 mm</li>
+    <li>HCL balançoire = ½ hauteur suspension × cos 60° + hauteur siège</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="ctit">🛝 Toboggans — Points clés inspection</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Zone de départ ≥ 350 mm — si > 400 mm : exigences plateformes EN 1176-1</li>
+    <li>Barre de retenue obligatoire dès 1 m HCL (en France : toujours)</li>
+    <li>Angle : ≤ 60° en un point / ≤ 40° en moyenne</li>
+    <li>Largeur : étroit ≤ 700 mm, large ≤ 900 mm (10 cm sous bord sup.)</li>
+    <li>Zone de sortie type 1 : inclinaison ≤ 10° / type 2 : ≤ 5°</li>
+    <li>Hauteur bordure sortie : 200 mm (L &lt; 1,5 m) / 350 mm (L = 1,5 m)</li>
+    <li>Extrémité glissière métallique : rayon ≥ 50 mm, recourbée ≥ 100° arrière</li>
+    <li>Toboggan tubulaire : dim. int. ≥ 750 mm</li>
+    <li>Zone d'impact : ≥ 1 m des protections latérales, ≥ 2 m de la sortie (type 1)</li>
+    <li>HCL : max entre H plateforme départ et H sommet glissière</li>
+    <li>Protection latérale zone départ si H > 2 m : balustrade ≥ 700 mm</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="ctit">🏄 Jeux à bascule / Ressorts — Points clés</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Type 1 (fléau) : HCL max 1 500 mm / H siège équilibre ≤ 1 000 mm / garde sol ≥ 230 mm</li>
+    <li>Type 2/3 : HCL max 1 000 mm / garde sol ≥ 230 mm (type B)</li>
+    <li>Type 4 (bascule long.) : HCL max 1 500 mm / course longitudinale ≤ 600 mm</li>
+    <li>Test spires ressort : tige 12 mm — aucun espace d'écrasement en position extrême</li>
+    <li>Poignées : diamètre 16–45 mm (max 30 mm recommandé pour petits enfants)</li>
+    <li>Arêtes : rayon de courbure contour ≥ 20 mm / arêtes bords ≥ 3 mm</li>
+    <li>Espace de chute : ≥ 1 000 mm dans toutes les directions depuis positions extrêmes</li>
+    <li>Repose-pieds exigés si garde sol &lt; 230 mm (types 2A, 3A, 4)</li>
+    <li>Compression élément support ≤ 5% sous charge 695 N</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="ctit">🎠 Manèges / Tourniquets — Points clés</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>HCL max : 1 000 mm (tous types)</li>
+    <li>Vitesse périphérie max : 5 m/s</li>
+    <li>Axe vertical ≤ 5° d'inclinaison</li>
+    <li>Espace libre : ≥ 2 000 mm autour + ≥ 2 000 mm en hauteur (passage tête)</li>
+    <li>Type A : ø ≤ 2 000 mm / garde sol ≥ 400 mm / ≥ 3 places réparties</li>
+    <li>Type B (plateau) : intervalle sol-bord ≤ 6 mm si au niveau du sol</li>
+    <li>Type E (soucoupe) : espace libre/chute ≥ 3 000 mm / HCL max ≤ 1 000 mm</li>
+    <li>France (divergence) : éléments rotatifs en mouvement relatif interdits (décret 94-699)</li>
+    <li>Jupe de protection obligatoire si face inférieure plateau entre 110–400 mm du sol</li>
+    <li>Toutes superstructures doivent tourner ensemble dans la même direction</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="ctit">🚡 Téléphériques — Points clés</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Butoirs : essai conforme annexe A — angle oscillation câble ≤ 45°</li>
+    <li>Poignée : surface impact ≥ 15 cm² (ø ≥ 43,7 mm) — pas de boucle ni nœud coulant</li>
+    <li>Distance câble–poignée ≥ 300 mm</li>
+    <li>Siège type : garde sol H₂ ≥ 400 mm au départ (charge 130 kg sur siège)</li>
+    <li>Suspension type : H₂ ≥ 1 500 mm départ / ≤ 3 000 mm déplacement / ≥ 2 000 mm si rigide</li>
+    <li>HCL = H fixation − H₂ − C (longueur câble suspension)</li>
+    <li>Siège ne doit pas bloquer le corps à l'intérieur</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="ctit">🧗 Équipements d'escalade — Points clés</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Définition : assurage corps en au moins 3 points (2 mains + 1 pied ou 2 pieds + 1 main)</li>
+    <li>HCL > 3 m acceptée uniquement si conditions d'assurage 3 points garanties</li>
+    <li>Écarts barreaux : &lt; 110 mm ou > 230 mm (89 mm pour &lt; 36 mois)</li>
+    <li>Sections prise totale : 16–45 mm / prise partielle : ≤ 60 mm</li>
+    <li>Prises : ne pas tourner sous solicitation</li>
+    <li>Sol amortissant obligatoire sous toute la zone de chute</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="ctit">🏋️ Agrès sportifs EN 16630 — Points clés</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Barre traction : Ø 28–40 mm / hauteur fixation ≤ 2 500 mm</li>
+    <li>Barres parallèles / dips : espacement 500–600 mm entre barres</li>
+    <li>Tout espace 8–25 mm dans mécanisme mobile = coincement doigt/main DANGEREUX</li>
+    <li>Butées de fin de course obligatoires sur appareils guidés</li>
+    <li>Sol amortissant obligatoire si HCL > 1 000 mm</li>
+    <li>Panneau d'instructions avec pictogrammes obligatoire sur chaque appareil</li>
+    <li>Coincements EN 1176-1 § 4.2.7 pleinement applicables</li>
+  </ul>
+</div>
+
+<div class="card">
+  <div class="ctit">💧 Jeux d'eau — Points clés</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Revêtement antidérapant drainant obligatoire sur toute zone humide</li>
+    <li>Eau stagnante profonde : risque noyade — drainage à vérifier</li>
+    <li>Traitement/filtration eau collective : surveillance qualité obligatoire</li>
+    <li>Panneau réglementaire spécifique : âge, règles, interdiction de consommer l'eau</li>
+    <li>Arêtes buses/canalisations : § 4.2.5 EN 1176-1 applicable</li>
+    <li>Sol EN 1177 obligatoire si HCL > 60 cm sur zone adjacente</li>
+  </ul>
+</div>
+
+</div>
+</div><!-- /panel-equip -->
+
+
+
+<div class="panel" id="tab-sol">
+<div class="alert ai">NF EN 1177 — Revêtements amortissants. HIC ≤ 1000 (seuil de sécurité). Test avec fausse tête équipée d'accéléromètres.</div>
+
+<div class="card">
+  <div class="ctit">📊 Tableau complet des matériaux — NF EN 1177 Tableau 4</div>
+  <table>
+    <thead><tr><th>Matériau</th><th>Granulométrie / Description</th><th>Épaisseur minimale</th><th>HCL max. protégée</th><th>Remarques</th></tr></thead>
+    <tbody>
+      <tr><td>Gazon / terreau naturel</td><td>Surface naturelle compactée</td><td>—</td><td><span class="vr">≤ 1 000 mm</span></td><td>Gazon stable = sol naturel. Pas de test obligatoire &lt; 60 cm HCL</td></tr>
+      <tr><td>Fragments d'écorce</td><td>Granulométrie 20–80 mm</td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td><td>Décompactage et remplacement réguliers</td></tr>
+      <tr><td>Copeaux de bois</td><td>Granulométrie 5–30 mm</td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td><td>Granulométrie certifiée — surveiller décomposition</td></tr>
+      <tr><td>Sable alluvionnaire</td><td>Granulométrie 0,2–2 mm (sans argile)</td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td><td>Entretien régulier — décompactage, nettoyage</td></tr>
+      <tr><td>Gravier alluvionnaire</td><td>Granulométrie 2–8 mm (idéal 4/8, max 6/10)</td><td><span class="vr">300 mm</span></td><td><span class="vr">≤ 3 000 mm</span></td><td>Décompactage régulier</td></tr>
+      <tr><td>Revêtements synthétiques / dalles caoutchouc</td><td>Selon essai HIC (EN 1177)</td><td>Selon certification</td><td><span class="vr">Selon essai HIC</span></td><td>Test HIC obligatoire — vérification périodique</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="g2">
+<div class="card">
+  <div class="ctit">📐 Dimensions espace de chute — §4.2.8.1.3</div>
+  <p style="font-size:.78rem;margin-bottom:10px;color:var(--txt)">À partir de 60 cm de HCL, l'étendue de la surface d'impact doit être ≥ 1,5 m. Au-delà de 1,5 m de HCL, la formule suivante s'applique :</p>
+  <div class="alert ai">X = 2/3 y + 0,5 m &nbsp;&nbsp;(y = hauteur de chute libre)</div>
+  <table>
+    <thead><tr><th>HCL (mm)</th><th>Étendue surface d'impact mini (mm)</th></tr></thead>
+    <tbody>
+      <tr><td>1 500</td><td><span class="vr">1 500</span></td></tr>
+      <tr><td>2 000</td><td><span class="vr">1 833</span></td></tr>
+      <tr><td>2 250</td><td><span class="vr">2 000</span></td></tr>
+      <tr><td>2 500</td><td><span class="vr">2 166</span></td></tr>
+      <tr><td>2 750</td><td><span class="vr">2 333</span></td></tr>
+      <tr><td>3 000</td><td><span class="vr">2 500</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="ctit">🏗️ Règles scellements & fondations — §4.2.14 / EN 1177</div>
+  <ul style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Massif béton dans zone de chute : <strong style="color:var(--err)">INTERDIT</strong> (décret 96-1136)</li>
+    <li>Scellement dans zone de chute : ragréage arrondi obligatoire</li>
+    <li>Angle 45° et rayon ≥ 100 mm si massif à −20 cm du sol fini</li>
+    <li>Parties béton et fixations : ≥ 40 cm sous le niveau de sol fini</li>
+    <li>Parties supérieures arrondies sans boulons saillants : acceptable jusqu'à −20 cm</li>
+    <li>Zone critique bois : contact terre/air (départ de la pourriture)</li>
+    <li>Piètements acier recommandés pour surélever le bois</li>
+    <li>Fondation béton : éviter stagnation d'eau — couche drainante (gravier)</li>
+    <li>Point dur (béton, acier, bois dur) dans zone d'impact : distance min 1,50 m de l'équipement</li>
+  </ul>
+</div>
+</div>
+
+<div class="card">
+  <div class="ctit">⚖️ Protection contre les chutes — §4.2.4 (accessibilité &lt; 36 mois)</div>
+  <table>
+    <thead><tr><th>Type d'accès</th><th>HCL</th><th>Protection requise</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="3">Facilement accessible (&lt; 36 mois)</td><td>&lt; 600 mm</td><td>Sol sans béton/acier — propriétés amortissantes recommandées</td></tr>
+      <tr><td>600 mm – 3 000 mm</td><td><span class="vr">Balustrade ≥ 700 mm + sol amortissant NF EN 1177</span></td></tr>
+      <tr><td>—</td><td>Sol amortissant HIC contrôlé obligatoire pour chaque hauteur</td></tr>
+      <tr><td rowspan="3">Difficilement accessible (&lt; 36 mois)</td><td>&lt; 600 mm</td><td>Sol sans béton/acier</td></tr>
+      <tr><td>1 000 mm – 2 000 mm</td><td><span class="vr">Garde-corps requis</span></td></tr>
+      <tr><td>2 000 mm – 3 000 mm max</td><td><span class="vr">Balustrade protectrice</span></td></tr>
+    </tbody>
+  </table>
+</div>
+</div><!-- /panel-sol -->
+
+
+
+<div class="panel" id="tab-ctrl">
+<div class="alert aw">Cet onglet est une aide-mémoire terrain. Il ne se substitue pas au rapport officiel ni au jugement de l'inspecteur qualifié.</div>
+
+<div class="g2">
+<div class="card">
+  <div class="ctit">🔢 Séquence de contrôle recommandée</div>
+  <ol style="font-size:.78rem;line-height:1.9;padding-left:16px;color:var(--txt)">
+    <li>Identifier l'équipement (plaque fabricant, âge de l'équipement, norme)</li>
+    <li>Vérifier la signalétique (panneau réglementaire, tranche d'âge)</li>
+    <li>Contrôler les fondations / ancrages (sondage à la tige si bois)</li>
+    <li>Inspecter la structure (corrosion, pourriture, fissures, déformation)</li>
+    <li>Contrôler les assemblages (visserie, caches, soudures)</li>
+    <li>Vérifier les ouvertures (gabarits 8/25 mm doigts, 89/230 mm tête)</li>
+    <li>Contrôler les parties mobiles (chaînes, câbles, cordes, roulements)</li>
+    <li>Mesurer la HCL et vérifier les gardes au sol</li>
+    <li>Contrôler le sol amortissant (profondeur, granulométrie, propreté)</li>
+    <li>Vérifier les espaces de chute (obstacles, chevauchements)</li>
+    <li>Tester la stabilité générale (poussée latérale sur garde-corps, portique)</li>
+    <li>Conclure : conforme / sous réserve / mise hors service</li>
+  </ol>
+</div>
+
+<div class="card">
+  <div class="ctit">📋 Fréquences de contrôle — NF EN 1176-7</div>
+  <table>
+    <thead><tr><th>Type</th><th>Fréquence</th><th>Objet principal</th></tr></thead>
+    <tbody>
+      <tr><td>Visuel de routine</td><td><span class="vr">Mensuel</span></td><td>Dangers évidents, vandalisme, corps étrangers, bris</td></tr>
+      <tr><td>Opérationnel / fonctionnel</td><td><span class="vr">Trimestriel</span></td><td>Usure, stabilité, jeu, assemblages, surfaces</td></tr>
+      <tr><td>Annuel principal</td><td><span class="vr">Annuel</span></td><td>Inspection complète — niveau de sécurité global — personne compétente indépendante</td></tr>
+      <tr><td>HIC / Gmax sol</td><td>Selon besoin</td><td>Après remplacement sol, incident, ou doute sur capacité amortissante</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<div class="card">
+  <div class="ctit">🔴 Critères de mise hors service immédiate</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.25);border-radius:6px;padding:10px;font-size:.76rem;line-height:1.6;color:var(--txt)">
+      <strong style="color:var(--err)">Structure</strong><br>
+      • Pourriture ou corrosion perforante sur poteau porteur<br>
+      • Soudure fissurée sur assemblage structurel<br>
+      • Déformation majeure d'un montant/traverse<br>
+      • Effondrement / basculement imminent
+    </div>
+    <div style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.25);border-radius:6px;padding:10px;font-size:.76rem;line-height:1.6;color:var(--txt)">
+      <strong style="color:var(--err)">Coincements</strong><br>
+      • Ouverture 89–230 mm accessible à plus de 60 cm<br>
+      • Tube ouvert à plus de 1 200 mm<br>
+      • Ouverture en V avec risque de strangulation<br>
+      • Assemblage démontable sans outil
+    </div>
+    <div style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.25);border-radius:6px;padding:10px;font-size:.76rem;line-height:1.6;color:var(--txt)">
+      <strong style="color:var(--err)">Sol</strong><br>
+      • Béton, asphalte, acier dans zone d'impact (HCL > 60 cm)<br>
+      • Point dur à moins de 1,50 m de l'équipement<br>
+      • Scellement saillant non arrondi dans zone de chute
+    </div>
+    <div style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.25);border-radius:6px;padding:10px;font-size:.76rem;line-height:1.6;color:var(--txt)">
+      <strong style="color:var(--err)">Équipements mobiles</strong><br>
+      • Prise / siège cassé(e) ou manquant(e)<br>
+      • Maillon de chaîne ouvert (risque de décrochage)<br>
+      • Espace de chute de balançoire / manège chevauché<br>
+      • Branche d'arbre dans espace libre balançoire
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ctit">📝 Niveaux de conclusion d'inspection</div>
+  <table>
+    <thead><tr><th>Conclusion</th><th>Signification</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><span style="color:var(--ok)">✅ CONFORME</span></td><td>Aucune anomalie significative</td><td>Usage libre — prochaine inspection selon planning</td></tr>
+      <tr><td><span style="color:var(--warn)">⚠️ SOUS RÉSERVE</span></td><td>Défauts mineurs identifiés sans danger immédiat</td><td>Surveillance accrue — planifier la correction</td></tr>
+      <tr><td><span style="color:var(--err)">🚫 MISE HORS SERVICE</span></td><td>Danger immédiat pour les utilisateurs</td><td>Fermeture et balisage immédiats — intervention urgente</td></tr>
+    </tbody>
+  </table>
+</div>
+</div><!-- /panel-ctrl -->
+
+
+</div>
+
+<script>
+
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('on'));
+  document.getElementById('tab-' + id).classList.add('on');
+  btn.classList.add('on');
+  document.getElementById('si').value = '';
+  document.getElementById('sc').textContent = '';
+  document.querySelectorAll('.oi,.sec,.ss').forEach(e => e.classList.remove('hidden'));
+  clearNormHighlights();
+  if (id === 'obs') updateObsCount();
+}
+
+/* ── Filtre criticité ── */
+function filterCrit(level) {
+  document.querySelectorAll('#fb-all,#fb-urgent,#fb-mod,#fb-min').forEach(b => b.style.opacity = '0.5');
+  document.getElementById('fb-' + level).style.opacity = '1';
+  document.querySelectorAll('.oi').forEach(item => {
+    const hasUrgent = item.querySelector('.prio') !== null;
+    const txt = item.querySelector('.ot').innerText.toLowerCase();
+    const hasAction = item.querySelector('.a') !== null;
+    if (level === 'all') { item.classList.remove('hidden'); return; }
+    if (level === 'urgent') { item.classList.toggle('hidden', !hasUrgent); return; }
+    if (level === 'mod') { item.classList.toggle('hidden', hasUrgent || txt.includes('urgente') || txt.includes('immédiat')); return; }
+    if (level === 'min') { item.classList.toggle('hidden', hasUrgent || txt.includes('remplac') || txt.includes('intervent')); return; }
+  });
+  document.querySelectorAll('.sec').forEach(sec => {
+    const hasVis = [...sec.querySelectorAll('.oi')].some(i => !i.classList.contains('hidden'));
+    sec.classList.toggle('hidden', !hasVis);
+    if (hasVis) { sec.classList.add('open'); sec.querySelectorAll('.ss').forEach(ss => { const hv=[...ss.querySelectorAll('.oi')].some(i=>!i.classList.contains('hidden'));if(hv)ss.classList.add('open'); }); }
+  });
+  updateObsCount();
+}
+
+function updateObsCount() {
+  const vis = [...document.querySelectorAll('#tab-obs .oi')].filter(i => !i.classList.contains('hidden')).length;
+  const el = document.getElementById('obs-count');
+  if (el) el.textContent = vis + ' observation' + (vis > 1 ? 's' : '');
+}
+
+/* ── Sections normatifs (nouveau style) ── */
+function toggleNSection(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+/* ── Sections terrain (ancien style) ── */
+function tog(h) { h.closest('.sec').classList.toggle('open'); }
+function togS(h) { h.closest('.ss').classList.toggle('open'); }
+
+/* ── Copier observation ── */
+function cp(item) {
+  let txt = item.querySelector('.ot').innerText;
+  const date = document.getElementById('insp-date') ? document.getElementById('insp-date').value : '';
+  const nom = document.getElementById('insp-nom') ? document.getElementById('insp-nom').value.trim() : '';
+  if (date || nom) {
+    const meta = [date ? '📅 ' + date : '', nom ? '👤 ' + nom : ''].filter(Boolean).join(' — ');
+    txt = txt + '\n[' + meta + ']';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(toast);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast();
+  }
+}
+function toast() {
+  const t = document.getElementById('toast');
+  t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 1800);
+}
+
+/* ── Recherche unifiée ── */
+function filterAll(q) {
+  const ql = q.toLowerCase().trim();
+  let vis = 0;
+  clearNormHighlights();
+  if (!ql) {
+    document.querySelectorAll('.oi,.sec,.ss').forEach(e => e.classList.remove('hidden'));
+    document.getElementById('sc').textContent = '';
+    return;
+  }
+  // Recherche dans les observations (panels terrain)
+  document.querySelectorAll('.oi').forEach(item => {
+    const txt = item.querySelector('.ot').innerText.toLowerCase();
+    const m = txt.includes(ql);
+    item.classList.toggle('hidden', !m);
+    if (m) vis++;
+  });
+  document.querySelectorAll('.sec').forEach(sec => {
+    const hasVis = [...sec.querySelectorAll('.oi')].some(i => !i.classList.contains('hidden'));
+    sec.classList.toggle('hidden', !hasVis);
+    if (hasVis) {
+      sec.classList.add('open');
+      sec.querySelectorAll('.ss').forEach(ss => {
+        const hv = [...ss.querySelectorAll('.oi')].some(i => !i.classList.contains('hidden'));
+        if (hv) ss.classList.add('open');
+      });
+    }
+  });
+  // Recherche dans les panels normatifs
+  document.querySelectorAll('.n-section').forEach(sec => {
+    const txt = sec.innerText.toLowerCase();
+    if (txt.includes(ql)) {
+      sec.querySelector('.n-section-body').classList.add('open');
+      sec.querySelector('.n-section-header').classList.add('open');
+      vis++;
+    }
+  });
+  document.getElementById('sc').textContent = vis + ' résultat' + (vis > 1 ? 's' : '');
+}
+function clearNormHighlights() {
+  document.querySelectorAll('mark').forEach(m => {
+    const p = m.parentNode;
+    if (p) p.replaceWith(p.textContent);
+  });
+}
+
+// Init : ouvrir les n-sections déjà marquées "open"
+document.querySelectorAll('.n-section-body.open').forEach(b => {
+  b.previousElementSibling && b.previousElementSibling.classList.add('open');
+});
+</script>
+</body>
+</html>

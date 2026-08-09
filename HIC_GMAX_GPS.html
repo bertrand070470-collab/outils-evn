@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a3a2a">
+<title>HIC/GMAX Terrain — EVN</title>
+<style>
+:root {
+  --green-dark: #1a3a2a;
+  --green-mid: #2d6a4f;
+  --green-light: #52b788;
+  --green-pale: #d8f3dc;
+  --amber: #e9c46a;
+  --amber-dark: #c77d14;
+  --red: #e63946;
+  --red-pale: #ffd6d8;
+  --gray-bg: #f4f4f0;
+  --gray-line: #ddd;
+  --text: #1b1b1b;
+  --text-muted: #666;
+  --radius: 10px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--gray-bg);
+  color: var(--text);
+  font-size: 15px;
+  min-height: 100vh;
+}
+header {
+  background: var(--green-dark);
+  color: white;
+  padding: 14px 16px 10px;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+}
+header h1 { font-size: 17px; font-weight: 600; letter-spacing: 0.3px; }
+header span { font-size: 12px; opacity: 0.7; }
+.tabs {
+  display: flex;
+  background: var(--green-dark);
+  padding: 0 16px 10px;
+  gap: 8px;
+}
+.tab {
+  flex: 1; text-align: center;
+  padding: 7px 0;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.tab.active {
+  background: var(--green-light);
+  color: white;
+  border-color: var(--green-light);
+}
+.page { display: none; padding: 16px; }
+.page.active { display: block; }
+
+/* SAISIE */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+}
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  margin-top: 10px;
+}
+label:first-of-type { margin-top: 0; }
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--gray-line);
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--text);
+  background: white;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--green-light);
+  box-shadow: 0 0 0 2px rgba(82,183,136,0.2);
+}
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.row6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.row6 input { min-width: 0; }
+.impact-label { text-align:center;font-size:12px;color:var(--text-muted);padding:4px 0; }
+.field-group { }
+.hic-result {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+.hic-ok { background: #d8f3dc; color: #1a3a2a; }
+.hic-warn { background: #fff3cd; color: #856404; }
+.hic-fail { background: var(--red-pale); color: #842029; }
+.btn {
+  display: block; width: 100%;
+  padding: 13px;
+  background: var(--green-mid);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+}
+.btn:active { opacity: 0.8; transform: scale(0.98); }
+.btn-secondary {
+  background: white;
+  color: var(--green-mid);
+  border: 1px solid var(--green-mid);
+}
+.btn-danger { background: var(--red); margin-top: 6px; }
+.btn-small {
+  display: inline-block; width: auto;
+  padding: 6px 14px;
+  font-size: 13px; font-weight: 500;
+  border-radius: 6px;
+  margin: 0;
+}
+
+/* SEUILS */
+.seuil-box {
+  background: #eaf4f0;
+  border-left: 4px solid var(--green-light);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.seuil-box .val { font-size: 20px; font-weight: 700; color: var(--green-dark); }
+.seuil-box .norm { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+
+/* HISTORIQUE */
+.entry {
+  background: white;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.entry-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 6px;
+}
+.entry-site { font-weight: 600; font-size: 15px; }
+.entry-date { font-size: 12px; color: var(--text-muted); }
+.entry-equip { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.chip-ok { background: #d8f3dc; color: #1a3a2a; }
+.chip-warn { background: #fff3cd; color: #664d03; }
+.chip-fail { background: var(--red-pale); color: #842029; }
+.chip-info { background: #e8f4fd; color: #0a4a6e; }
+.entry-obs { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-style: italic; }
+.del-btn {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: none;
+  color: #ccc; font-size: 20px; cursor: pointer;
+  padding: 2px 6px; line-height: 1;
+}
+.del-btn:active { color: var(--red); }
+.empty-msg {
+  text-align: center; color: var(--text-muted);
+  padding: 40px 20px; font-size: 14px;
+}
+.filter-row {
+  display: flex; gap: 8px; margin-bottom: 12px;
+}
+.filter-row input {
+  flex: 1; padding: 9px 12px; font-size: 14px;
+}
+.export-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.export-row .btn { flex: 1; font-size: 13px; padding: 10px; }
+select option { background: white; }
+
+/* RÉSUMÉ */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat { background: white; border-radius: 10px; padding: 14px; text-align: center; box-shadow: var(--shadow); }
+.stat .n { font-size: 28px; font-weight: 700; color: var(--green-mid); }
+.stat .lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.badge-red .n { color: var(--red); }
+.badge-amber .n { color: var(--amber-dark); }
+
+/* GPS */
+.gps-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #eaf4f0;
+  border: 1px solid var(--green-light);
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.gps-bar .gps-icon { font-size: 18px; flex-shrink: 0; }
+.gps-bar .gps-text { flex: 1; color: var(--text-muted); line-height: 1.4; }
+.gps-bar .gps-text strong { color: var(--text); display: block; font-size: 13px; }
+.gps-bar .gps-text small { font-size: 11px; font-family: monospace; }
+.gps-bar.gps-loading { border-color: var(--amber); background: #fffbea; }
+.gps-bar.gps-error { border-color: var(--red); background: var(--red-pale); }
+.gps-bar.gps-ok { border-color: var(--green-light); background: #eaf4f0; }
+.gps-btn {
+  background: var(--green-mid); color: white; border: none;
+  border-radius: 6px; padding: 5px 10px; font-size: 12px;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
+.gps-btn:active { opacity: 0.8; }
+
+/* PRINT */
+@media print {
+  header, .tabs, #tab-saisie, #tab-resume { display: none !important; }
+  #tab-histo { display: block !important; }
+  .del-btn { display: none; }
+  body { background: white; }
+  .entry { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+  .page { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏗 HIC / GMAX — Terrain</h1>
+  <span id="dateHeader"></span>
+</header>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('saisie')">Saisie</div>
+  <div class="tab" onclick="showTab('histo')">Historique</div>
+  <div class="tab" onclick="showTab('resume')">Résumé</div>
+</div>
+
+<!-- ===== SAISIE ===== -->
+<div id="tab-saisie" class="page active">
+
+  <div class="card">
+    <h2>Localisation</h2>
+
+    <!-- GPS automatique -->
+    <div class="gps-bar gps-loading" id="gpsBar">
+      <span class="gps-icon">📡</span>
+      <div class="gps-text">
+        <strong id="gpsAdresse">Recherche de position…</strong>
+        <small id="gpsCoords"></small>
+      </div>
+      <button class="gps-btn" onclick="locateMe()">↺ Actualiser</button>
+    </div>
+    <!-- Champs GPS cachés (enregistrés avec la mesure) -->
+    <input type="hidden" id="gpsLat">
+    <input type="hidden" id="gpsLon">
+    <input type="hidden" id="gpsAdresseVal">
+
+    <label>Site / Lieu</label>
+    <input type="text" id="site" placeholder="ex : Square Ilse Totzke" autocomplete="off">
+    <label>Équipement</label>
+    <input type="text" id="equip" placeholder="ex : Toboggan inox, réf. XX-123" autocomplete="off">
+    <div class="row2">
+      <div class="field-group">
+        <label>Type sol amortissant</label>
+        <select id="sol">
+          <option value="Sable</option>">Sable</option>
+          <option value="EPDM">EPDM</option>
+          <option value="SBR">SBR</option>
+          <option value="Copeaux de bois">Copeaux de bois</option>
+          <option value="Gazon synthétique">Gazon synthétique</option>
+          <option value="Autre">Autre</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Date</label>
+        <input type="text" id="dateTest" placeholder="JJ/MM/AAAA">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Hauteur de lâcher</h2>
+    <div class="seuil-box">
+      <div class="val" id="hLimiteDisplay">—</div>
+      <div class="norm">Hauteur limite de chute libre (NF EN 1176-1 §4.2.8.4)</div>
+    </div>
+    <label>Hauteur limite équipement (m)</label>
+    <input type="number" id="hLimite" placeholder="ex : 2.00" step="0.05" min="0" max="3"
+           oninput="updateHLimite()">
+    <label>Hauteur de lâcher testée (m)</label>
+    <input type="number" id="hLachee" placeholder="ex : 1.80" step="0.05" min="0" max="3"
+           oninput="checkConformite()">
+    <div id="hConf" class="hic-result" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <h2>Mesures</h2>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">
+      Saisir les résultats des 6 impacts. Seuils : HIC &lt; 1000 | G<sub>MAX</sub> &lt; 200 g (NF EN 1177)
+    </p>
+    <div class="row6">
+      <div class="impact-label">Impact 1</div>
+      <div class="impact-label">Impact 2</div>
+      <div class="impact-label">Impact 3</div>
+      <div class="impact-label">Impact 4</div>
+      <div class="impact-label">Impact 5</div>
+      <div class="impact-label">Impact 6</div>
+    </div>
+    <label>HIC</label>
+    <div class="row6">
+      <input type="number" id="hic1" placeholder="—" min="0" max="2000" oninput="calcResults()">
+      <input type="number" id="hic2" placeholder="—" min="0" max="2000" oninput="calcResults()">
+      <input type="number" id="hic3" placeholder="—" min="0" max="2000" oninput="calcResults()">
+      <input type="number" id="hic4" placeholder="—" min="0" max="2000" oninput="calcResults()">
+      <input type="number" id="hic5" placeholder="—" min="0" max="2000" oninput="calcResults()">
+      <input type="number" id="hic6" placeholder="—" min="0" max="2000" oninput="calcResults()">
+    </div>
+    <label>GMAX (g)</label>
+    <div class="row6">
+      <input type="number" id="gmax1" placeholder="—" min="0" max="400" oninput="calcResults()">
+      <input type="number" id="gmax2" placeholder="—" min="0" max="400" oninput="calcResults()">
+      <input type="number" id="gmax3" placeholder="—" min="0" max="400" oninput="calcResults()">
+      <input type="number" id="gmax4" placeholder="—" min="0" max="400" oninput="calcResults()">
+      <input type="number" id="gmax5" placeholder="—" min="0" max="400" oninput="calcResults()">
+      <input type="number" id="gmax6" placeholder="—" min="0" max="400" oninput="calcResults()">
+    </div>
+
+    <div id="results" style="margin-top:12px;display:none">
+      <div id="hicResult" class="hic-result"></div>
+      <div id="gmaxResult" class="hic-result" style="margin-top:6px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Observations</h2>
+    <textarea id="obs" rows="3" placeholder="État du sol, anomalies, conditions météo…" style="resize:none;width:100%;padding:10px 12px;border:1px solid var(--gray-line);border-radius:8px;font-size:15px;"></textarea>
+    <label>Opérateur</label>
+    <input type="text" id="operateur" placeholder="Prénom NOM" autocomplete="off">
+  </div>
+
+  <button class="btn" onclick="saveEntry()">💾 Enregistrer la mesure</button>
+  <button class="btn btn-secondary" style="margin-top:8px" onclick="clearForm()">🔄 Nouvelle saisie</button>
+</div>
+
+<!-- ===== HISTORIQUE ===== -->
+<div id="tab-histo" class="page">
+  <div class="filter-row">
+    <input type="text" id="filterInput" placeholder="🔍 Filtrer par site ou équipement…" oninput="renderHisto()">
+  </div>
+  <div class="export-row">
+    <button class="btn btn-secondary btn-small" onclick="exportCSV()">📤 Exporter CSV</button>
+    <button class="btn btn-secondary btn-small" onclick="printHisto()">🖨 Imprimer</button>
+  </div>
+  <div id="histoList"></div>
+</div>
+
+<!-- ===== RÉSUMÉ ===== -->
+<div id="tab-resume" class="page">
+  <div class="stat-grid">
+    <div class="stat"><div class="n" id="statTotal">0</div><div class="lbl">Mesures totales</div></div>
+    <div class="stat"><div class="n" id="statSites">0</div><div class="lbl">Sites testés</div></div>
+    <div class="stat badge-red"><div class="n" id="statFail">0</div><div class="lbl">Non conformes</div></div>
+    <div class="stat badge-amber"><div class="n" id="statWarn">0</div><div class="lbl">Hors seuil H lâcher</div></div>
+  </div>
+  <div id="resumeList"></div>
+  <button class="btn btn-danger" style="margin-top:16px" onclick="clearAll()">🗑 Effacer toutes les données</button>
+</div>
+
+<script>
+const HIC_MAX = 1000;
+const GMAX_MAX = 200;
+let data = [];
+
+function load() {
+  try { data = JSON.parse(localStorage.getItem('evn_hic') || '[]'); } catch(e) { data = []; }
+}
+function save() {
+  localStorage.setItem('evn_hic', JSON.stringify(data));
+}
+
+function today() {
+  const d = new Date();
+  return d.toLocaleDateString('fr-FR');
+}
+
+function init() {
+  document.getElementById('dateHeader').textContent = today();
+  document.getElementById('dateTest').value = today();
+  load();
+  renderHisto();
+  renderResume();
+  // Restore operator
+  const op = localStorage.getItem('evn_operateur');
+  if (op) document.getElementById('operateur').value = op;
+  // Géolocalisation automatique au chargement
+  locateMe();
+}
+
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    const tabs = ['saisie','histo','resume'];
+    el.classList.toggle('active', tabs[i] === t);
+  });
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if (t === 'histo') renderHisto();
+  if (t === 'resume') renderResume();
+}
+
+function updateHLimite() {
+  const v = parseFloat(document.getElementById('hLimite').value);
+  document.getElementById('hLimiteDisplay').textContent = isNaN(v) ? '—' : v.toFixed(2) + ' m';
+  checkConformite();
+}
+
+function checkConformite() {
+  const hl = parseFloat(document.getElementById('hLimite').value);
+  const hlach = parseFloat(document.getElementById('hLachee').value);
+  const box = document.getElementById('hConf');
+  if (isNaN(hl) || isNaN(hlach)) { box.style.display = 'none'; return; }
+  box.style.display = 'flex';
+  if (hlach > hl) {
+    box.className = 'hic-result hic-fail';
+    box.innerHTML = '⚠️ Hauteur lâchée (' + hlach.toFixed(2) + ' m) > hauteur limite (' + hl.toFixed(2) + ' m) — Test non valide';
+  } else {
+    box.className = 'hic-result hic-ok';
+    box.innerHTML = '✓ Hauteur lâchée (' + hlach.toFixed(2) + ' m) ≤ hauteur limite (' + hl.toFixed(2) + ' m)';
+  }
+}
+
+function vals(prefix) {
+  return [1,2,3,4,5,6].map(i => {
+    const v = parseFloat(document.getElementById(prefix+i).value);
+    return isNaN(v) ? null : v;
+  }).filter(v => v !== null);
+}
+
+function calcResults() {
+  const hicVals = vals('hic');
+  const gmaxVals = vals('gmax');
+  const res = document.getElementById('results');
+  if (hicVals.length === 0 && gmaxVals.length === 0) { res.style.display = 'none'; return; }
+  res.style.display = 'block';
+
+  const hicR = document.getElementById('hicResult');
+  if (hicVals.length > 0) {
+    const max = Math.max(...hicVals);
+    const ok = max < HIC_MAX;
+    hicR.className = 'hic-result ' + (ok ? 'hic-ok' : 'hic-fail');
+    hicR.innerHTML = 'HIC max = <strong>' + max + '</strong> ' + (ok ? '✓ Conforme (< 1000)' : '✗ NON CONFORME (≥ 1000)');
+  } else { hicR.innerHTML = ''; }
+
+  const gmaxR = document.getElementById('gmaxResult');
+  if (gmaxVals.length > 0) {
+    const max = Math.max(...gmaxVals);
+    const ok = max < GMAX_MAX;
+    gmaxR.className = 'hic-result ' + (ok ? 'hic-ok' : 'hic-fail');
+    gmaxR.innerHTML = 'GMAX max = <strong>' + max + ' g</strong> ' + (ok ? '✓ Conforme (< 200 g)' : '✗ NON CONFORME (≥ 200 g)');
+  } else { gmaxR.innerHTML = ''; }
+}
+
+function saveEntry() {
+  const site = document.getElementById('site').value.trim();
+  const equip = document.getElementById('equip').value.trim();
+  if (!site) { alert('Veuillez indiquer le site.'); return; }
+
+  const hicVals = vals('hic');
+  const gmaxVals = vals('gmax');
+  if (hicVals.length === 0 && gmaxVals.length === 0) {
+    alert('Saisir au moins une valeur HIC ou GMAX.'); return;
+  }
+
+  const hicMax = hicVals.length ? Math.max(...hicVals) : null;
+  const gmaxMax = gmaxVals.length ? Math.max(...gmaxVals) : null;
+  const hl = parseFloat(document.getElementById('hLimite').value) || null;
+  const hlach = parseFloat(document.getElementById('hLachee').value) || null;
+
+  const op = document.getElementById('operateur').value.trim();
+  if (op) localStorage.setItem('evn_operateur', op);
+
+  const entry = {
+    id: Date.now(),
+    date: document.getElementById('dateTest').value || today(),
+    site, equip,
+    sol: document.getElementById('sol').value,
+    hLimite: hl, hLachee: hlach,
+    hic: [1,2,3,4,5,6].map(i => parseFloat(document.getElementById('hic'+i).value)||null),
+    gmax: [1,2,3,4,5,6].map(i => parseFloat(document.getElementById('gmax'+i).value)||null),
+    hicMax, gmaxMax,
+    obs: document.getElementById('obs').value.trim(),
+    operateur: op,
+    lat: document.getElementById('gpsLat').value || null,
+    lon: document.getElementById('gpsLon').value || null,
+    adresseGPS: document.getElementById('gpsAdresseVal').value || null
+  };
+
+  data.push(entry);
+  save();
+  alert('✓ Mesure enregistrée pour ' + site);
+  clearForm();
+  showTab('histo');
+}
+
+function clearForm() {
+  ['site','equip','hLimite','hLachee','hic1','hic2','hic3','hic4','hic5','hic6','gmax1','gmax2','gmax3','gmax4','gmax5','gmax6','obs'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('dateTest').value = today();
+  document.getElementById('hLimiteDisplay').textContent = '—';
+  document.getElementById('hConf').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  // Ne pas effacer le GPS — la position reste valide pour la saisie suivante
+}
+
+// ===== GPS =====
+let gpsReady = false;
+
+function setGpsBar(state, adresse, lat, lon) {
+  const bar = document.getElementById('gpsBar');
+  const txt = document.getElementById('gpsAdresse');
+  const coords = document.getElementById('gpsCoords');
+  bar.className = 'gps-bar gps-' + state;
+  if (state === 'loading') {
+    txt.textContent = 'Recherche de position…';
+    coords.textContent = '';
+    document.getElementById('gps-icon-el') && (document.getElementById('gps-icon-el').textContent = '📡');
+  } else if (state === 'ok') {
+    txt.textContent = adresse || 'Position obtenue';
+    coords.textContent = `${parseFloat(lat).toFixed(6)}, ${parseFloat(lon).toFixed(6)}`;
+    document.getElementById('gpsLat').value = lat;
+    document.getElementById('gpsLon').value = lon;
+    document.getElementById('gpsAdresseVal').value = adresse || '';
+    gpsReady = true;
+  } else if (state === 'error') {
+    txt.textContent = adresse; // message d'erreur
+    coords.textContent = '';
+    gpsReady = false;
+  }
+}
+
+async function reverseGeocode(lat, lon) {
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=fr`,
+      { headers: { 'Accept-Language': 'fr' } }
+    );
+    const j = await r.json();
+    const a = j.address || {};
+    // Compose une adresse lisible
+    const parts = [
+      a.road ? (a.house_number ? a.house_number + ' ' + a.road : a.road) : null,
+      a.postcode && a.city ? a.postcode + ' ' + (a.city || a.town || a.village || '') :
+        a.city || a.town || a.village || a.municipality || null
+    ].filter(Boolean);
+    return parts.join(', ') || j.display_name || 'Adresse inconnue';
+  } catch(e) {
+    return null;
+  }
+}
+
+function locateMe() {
+  if (!navigator.geolocation) {
+    setGpsBar('error', '⚠️ Géolocalisation non supportée par ce navigateur');
+    return;
+  }
+  setGpsBar('loading');
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude.toFixed(7);
+      const lon = pos.coords.longitude.toFixed(7);
+      // Affiche coords provisoires pendant le géocodage inverse
+      document.getElementById('gpsAdresse').textContent = 'Résolution de l\'adresse…';
+      document.getElementById('gpsCoords').textContent = `${lat}, ${lon}`;
+      document.getElementById('gpsLat').value = lat;
+      document.getElementById('gpsLon').value = lon;
+      document.getElementById('gpsBar').className = 'gps-bar gps-loading';
+      const adresse = await reverseGeocode(lat, lon);
+      setGpsBar('ok', adresse || `${lat}, ${lon}`, lat, lon);
+    },
+    (err) => {
+      const msgs = {
+        1: '⚠️ Accès refusé — autorisez la localisation dans le navigateur',
+        2: '⚠️ Position indisponible',
+        3: '⚠️ Délai dépassé — réessayez'
+      };
+      setGpsBar('error', msgs[err.code] || '⚠️ Erreur de géolocalisation');
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+  );
+}
+
+
+function conformClass(entry) {
+  if (entry.hicMax !== null && entry.hicMax >= HIC_MAX) return 'fail';
+  if (entry.gmaxMax !== null && entry.gmaxMax >= GMAX_MAX) return 'fail';
+  return 'ok';
+}
+
+function renderHisto() {
+  load();
+  const filter = (document.getElementById('filterInput')?.value || '').toLowerCase();
+  const list = document.getElementById('histoList');
+  const filtered = data.filter(e =>
+    (!filter || e.site.toLowerCase().includes(filter) || (e.equip||'').toLowerCase().includes(filter))
+  ).slice().reverse();
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-msg">Aucune mesure enregistrée.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(e => {
+    const hicOk = e.hicMax === null ? null : e.hicMax < HIC_MAX;
+    const gmaxOk = e.gmaxMax === null ? null : e.gmaxMax < GMAX_MAX;
+    const hOk = (e.hLimite && e.hLachee) ? e.hLachee <= e.hLimite : null;
+    const hicChip = e.hicMax !== null ? `<span class="chip ${hicOk?'chip-ok':'chip-fail'}">HIC ${e.hicMax}</span>` : '';
+    const gmaxChip = e.gmaxMax !== null ? `<span class="chip ${gmaxOk?'chip-ok':'chip-fail'}">GMAX ${e.gmaxMax} g</span>` : '';
+    const hChip = e.hLachee ? `<span class="chip ${hOk===false?'chip-warn':'chip-info'}">H=${e.hLachee}m</span>` : '';
+    const solChip = `<span class="chip chip-info">${e.sol||'Sol ?'}</span>`;
+    const obs = e.obs ? `<div class="entry-obs">${e.obs}</div>` : '';
+    const op = e.operateur ? ` · ${e.operateur}` : '';
+    const gpsChip = e.lat ? `<span class="chip chip-info" title="${e.adresseGPS||''}">📍 GPS</span>` : '';
+    return `<div class="entry" id="e${e.id}">
+      <button class="del-btn" onclick="deleteEntry(${e.id})">×</button>
+      <div class="entry-header">
+        <div class="entry-site">${e.site}</div>
+        <div class="entry-date">${e.date}${op}</div>
+      </div>
+      ${e.equip ? `<div class="entry-equip">${e.equip}</div>` : ''}
+      ${e.adresseGPS ? `<div class="entry-obs" style="margin-bottom:4px">📍 ${e.adresseGPS}</div>` : ''}
+      <div class="chips">${hicChip}${gmaxChip}${hChip}${solChip}${gpsChip}</div>
+      ${obs}
+    </div>`;
+  }).join('');
+}
+
+function deleteEntry(id) {
+  if (!confirm('Supprimer cette mesure ?')) return;
+  data = data.filter(e => e.id !== id);
+  save();
+  renderHisto();
+  renderResume();
+}
+
+function renderResume() {
+  load();
+  document.getElementById('statTotal').textContent = data.length;
+  const sites = new Set(data.map(e => e.site));
+  document.getElementById('statSites').textContent = sites.size;
+  const fails = data.filter(e => conformClass(e) === 'fail');
+  document.getElementById('statFail').textContent = fails.length;
+  const warns = data.filter(e => e.hLimite && e.hLachee && e.hLachee > e.hLimite);
+  document.getElementById('statWarn').textContent = warns.length;
+
+  // Sites with failures
+  const rl = document.getElementById('resumeList');
+  if (!fails.length) { rl.innerHTML = '<div class="empty-msg" style="padding:20px 0">✓ Aucune non-conformité enregistrée.</div>'; return; }
+  rl.innerHTML = '<div class="card"><h2>Non-conformités</h2>' +
+    fails.map(e => `<div style="padding:8px 0;border-bottom:1px solid var(--gray-line);">
+      <strong>${e.site}</strong> — ${e.equip||'?'}<br>
+      <span style="font-size:13px;color:var(--red)">
+        ${e.hicMax>=HIC_MAX?'HIC '+e.hicMax+' ≥ 1000  ':''}
+        ${e.gmaxMax>=GMAX_MAX?'GMAX '+e.gmaxMax+' ≥ 200 g':''}
+      </span>
+    </div>`).join('') + '</div>';
+}
+
+function clearAll() {
+  if (!confirm('Effacer TOUTES les mesures ? Cette action est irréversible.')) return;
+  data = [];
+  save();
+  renderHisto();
+  renderResume();
+}
+
+function exportCSV() {
+  load();
+  if (!data.length) { alert('Aucune donnée à exporter.'); return; }
+  const headers = ['Date','Site','Equipement','Sol','H_limite_m','H_lachee_m','HIC_1','HIC_2','HIC_3','HIC_4','HIC_5','HIC_6','HIC_max','GMAX_1','GMAX_2','GMAX_3','GMAX_4','GMAX_5','GMAX_6','GMAX_max','Observations','Operateur','Latitude','Longitude','Adresse_GPS'];
+  const rows = data.map(e => [
+    e.date, `"${e.site}"`, `"${e.equip||''}"`, e.sol||'',
+    e.hLimite||'', e.hLachee||'',
+    e.hic[0]||'', e.hic[1]||'', e.hic[2]||'', e.hic[3]||'', e.hic[4]||'', e.hic[5]||'', e.hicMax||'',
+    e.gmax[0]||'', e.gmax[1]||'', e.gmax[2]||'', e.gmax[3]||'', e.gmax[4]||'', e.gmax[5]||'', e.gmaxMax||'',
+    `"${(e.obs||'').replace(/"/g,'""')}"`, `"${e.operateur||''}"`,
+    e.lat||'', e.lon||'', `"${(e.adresseGPS||'').replace(/"/g,'""')}"`
+  ].join(';'));
+  const csv = '\uFEFF' + [headers.join(';'), ...rows].join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'HIC_GMAX_EVN_' + today().replace(/\//g,'-') + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function printHisto() { window.print(); }
+
+init();
+</script>
+</body>
+</html>

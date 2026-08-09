@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#2d5a1b">
+<title>Guide Inspection — EVN EMS 2026</title>
+<style>
+  :root {
+    --vert:       #3a7d1e;
+    --vert-fonce: #2d5a1b;
+    --vert-clair: #7ab51d;
+    --vert-bg:    #f0f7e8;
+    --vert-border:#b8dba0;
+    --rouge:      #c0392b;
+    --rouge-bg:   #fdf2f2;
+    --orange:     #d35400;
+    --orange-bg:  #fef5ed;
+    --jaune:      #f39c12;
+    --jaune-bg:   #fefbe8;
+    --gris:       #4a4a4a;
+    --gris-clair: #f5f5f5;
+    --gris-bord:  #ddd;
+    --blanc:      #ffffff;
+    --bleu-info:  #1a5276;
+    --bleu-bg:    #eaf2fb;
+    --font-main:  'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --radius:     8px;
+    --shadow:     0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-main);
+    background: #f2f2f0;
+    color: var(--gris);
+    line-height: 1.55;
+    padding-bottom: 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--vert-fonce) 0%, var(--vert) 60%, var(--vert-clair) 100%);
+    color: #fff;
+    padding: 14px 16px 10px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  }
+  header h1 {
+    font-size: 1.1rem; font-weight: 700; letter-spacing: 0.02em;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  header p { font-size: 0.72rem; opacity: 0.85; margin-top: 2px; }
+  .header-badges {
+    display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px;
+  }
+  .badge {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 20px;
+    font-size: 0.65rem; font-weight: 600;
+    padding: 2px 8px; color: #fff;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    background: var(--vert-fonce);
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    position: sticky; top: 76px; z-index: 99;
+    border-bottom: 2px solid var(--vert-clair);
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav button {
+    display: inline-block;
+    background: none; border: none;
+    color: rgba(255,255,255,0.75);
+    font-size: 0.72rem; font-weight: 600;
+    padding: 9px 12px;
+    cursor: pointer;
+    transition: color .2s, border-bottom .2s;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    font-family: var(--font-main);
+    letter-spacing: 0.02em;
+  }
+  nav button.active, nav button:hover {
+    color: #fff;
+    border-bottom-color: var(--vert-clair);
+  }
+  nav button.active { background: rgba(255,255,255,0.08); }
+
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 14px 12px;
+  }
+
+  h2 {
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--vert-fonce);
+    border-left: 4px solid var(--vert-clair);
+    padding-left: 10px;
+    margin: 18px 0 10px;
+  }
+  h2:first-child { margin-top: 4px; }
+  h3 {
+    font-size: 0.9rem; font-weight: 700;
+    color: var(--vert);
+    margin: 14px 0 7px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  h3::before { content: '▸'; font-size: 0.8rem; color: var(--vert-clair); }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin: 8px 0 14px;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.78rem; background: var(--blanc);
+    min-width: 320px;
+  }
+  thead { background: var(--vert-fonce); color: #fff; }
+  thead th {
+    padding: 8px 10px; text-align: left;
+    font-weight: 600; font-size: 0.73rem;
+    letter-spacing: 0.03em;
+  }
+  tbody tr:nth-child(even) { background: var(--vert-bg); }
+  tbody tr:hover { background: #dff0c8; }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--vert-border);
+    vertical-align: top;
+  }
+  td:first-child { font-weight: 600; color: var(--vert-fonce); }
+
+  /* ── ALERT BOXES ── */
+  .alert {
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-size: 0.8rem;
+    border-left: 4px solid;
+    line-height: 1.5;
+  }
+  .alert strong { display: block; margin-bottom: 3px; font-size: 0.82rem; }
+  .alert-danger  { background: var(--rouge-bg); border-color: var(--rouge); color: #6b1a14; }
+  .alert-warn    { background: var(--orange-bg); border-color: var(--orange); color: #7a3200; }
+  .alert-info    { background: var(--bleu-bg); border-color: var(--bleu-info); color: #1a3a52; }
+  .alert-success { background: var(--vert-bg); border-color: var(--vert); color: var(--vert-fonce); }
+  .alert-yellow  { background: var(--jaune-bg); border-color: var(--jaune); color: #7a5800; }
+
+  /* ── RISK LEVEL CARDS ── */
+  .risk-grid { display: grid; gap: 10px; margin: 10px 0; }
+  .risk-card {
+    border-radius: var(--radius); padding: 12px 14px;
+    border-left: 5px solid;
+    box-shadow: var(--shadow);
+  }
+  .risk-card .risk-title {
+    font-size: 0.88rem; font-weight: 700; margin-bottom: 4px;
+  }
+  .risk-card .risk-delay {
+    display: inline-block;
+    font-size: 0.72rem; font-weight: 700;
+    border-radius: 20px; padding: 2px 10px;
+    margin-top: 5px;
+  }
+  .risk-card p { font-size: 0.78rem; color: #555; }
+  .risk-1 { background: #fdf2f2; border-color: #c0392b; }
+  .risk-1 .risk-title { color: #c0392b; }
+  .risk-1 .risk-delay { background: #c0392b; color: #fff; }
+  .risk-2 { background: #fef5ed; border-color: #d35400; }
+  .risk-2 .risk-title { color: #d35400; }
+  .risk-2 .risk-delay { background: #d35400; color: #fff; }
+  .risk-3 { background: #fefbe8; border-color: #f39c12; }
+  .risk-3 .risk-title { color: #b7770d; }
+  .risk-3 .risk-delay { background: #f39c12; color: #fff; }
+  .risk-4 { background: var(--vert-bg); border-color: var(--vert); }
+  .risk-4 .risk-title { color: var(--vert); }
+  .risk-4 .risk-delay { background: var(--vert); color: #fff; }
+
+  /* ── CHECKLIST ── */
+  .checklist-group { margin: 10px 0; }
+  .checklist-group-title {
+    background: var(--vert-fonce);
+    color: #fff;
+    font-size: 0.75rem; font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .checklist-items { background: var(--blanc); border-radius: 0 0 var(--radius) var(--radius); border: 1px solid var(--vert-border); border-top: none; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 12px;
+    border-bottom: 1px solid #ececec;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { background: var(--vert-bg); }
+  .check-item input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    margin-top: 2px;
+    accent-color: var(--vert);
+    cursor: pointer;
+  }
+  .check-item label {
+    font-size: 0.8rem;
+    cursor: pointer;
+    line-height: 1.4;
+  }
+  .check-item.done label { text-decoration: line-through; color: #aaa; }
+
+  /* ── COINCEMENT VISUAL ── */
+  .coinc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px; margin: 10px 0;
+  }
+  .coinc-card {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    border: 2px solid;
+  }
+  .coinc-card .dim {
+    font-size: 1.2rem; font-weight: 800;
+    line-height: 1.1;
+  }
+  .coinc-card .label { font-size: 0.72rem; margin-top: 3px; color: #555; }
+  .coinc-card .status { font-size: 0.68rem; font-weight: 700; margin-top: 4px; border-radius: 10px; padding: 2px 8px; display: inline-block; }
+  .coinc-tete  { border-color: var(--rouge); }
+  .coinc-tete .dim { color: var(--rouge); }
+  .coinc-tete .status { background: var(--rouge); color: #fff; }
+  .coinc-doigt { border-color: var(--orange); }
+  .coinc-doigt .dim { color: var(--orange); }
+  .coinc-doigt .status { background: var(--orange); color: #fff; }
+  .coinc-bras  { border-color: var(--jaune); }
+  .coinc-bras .dim { color: var(--jaune); }
+  .coinc-bras .status { background: var(--jaune); color: #fff; }
+  .coinc-corde { border-color: var(--vert); }
+  .coinc-corde .dim { color: var(--vert); }
+  .coinc-corde .status { background: var(--vert); color: #fff; }
+
+  /* ── HCL CALC ── */
+  .calc-box {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 14px;
+    margin: 10px 0;
+    border: 1px solid var(--vert-border);
+  }
+  .calc-box label { font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px; color: var(--vert-fonce); }
+  .calc-box select, .calc-box input[type="number"] {
+    width: 100%; padding: 8px 10px;
+    border: 1.5px solid var(--vert-border);
+    border-radius: 6px; font-size: 0.85rem;
+    margin-bottom: 10px;
+    background: var(--blanc);
+    color: var(--gris);
+    font-family: var(--font-main);
+  }
+  .calc-box select:focus, .calc-box input:focus {
+    outline: none; border-color: var(--vert);
+  }
+  .calc-result {
+    background: var(--vert-fonce);
+    color: #fff;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-top: 6px;
+    min-height: 38px;
+  }
+  .calc-result.warn { background: var(--orange); }
+  .calc-result.danger { background: var(--rouge); }
+
+  /* ── FORMULE HCL ── */
+  .formule-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin: 10px 0;
+  }
+  .formule-card {
+    background: var(--blanc);
+    border: 1.5px solid var(--vert-border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    box-shadow: var(--shadow);
+  }
+  .formule-card strong { display: block; color: var(--vert-fonce); margin-bottom: 4px; font-size: 0.8rem; }
+  .formule-card .formula { font-size: 0.82rem; font-weight: 700; color: var(--vert); font-family: 'Courier New', monospace; }
+  .formule-card em { color: #888; font-size: 0.72rem; }
+
+  /* ── CARDS ÉQUIPEMENTS ── */
+  .eq-card {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin: 10px 0;
+    overflow: hidden;
+  }
+  .eq-card-head {
+    background: var(--vert);
+    color: #fff;
+    padding: 8px 14px;
+    font-size: 0.85rem; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .eq-card-head span { font-size: 0.7rem; opacity: 0.85; font-weight: 400; }
+
+  /* ── PROTOCOLES ── */
+  .proto-card {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin: 10px 0;
+    border-left: 5px solid;
+    overflow: hidden;
+  }
+  .proto-card-head {
+    padding: 9px 14px;
+    font-size: 0.85rem; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .proto-card .freq { font-size: 0.7rem; font-weight: 400; }
+  .proto-routine { border-color: var(--vert-clair); }
+  .proto-routine .proto-card-head { background: var(--vert-bg); color: var(--vert-fonce); }
+  .proto-op { border-color: var(--jaune); }
+  .proto-op .proto-card-head { background: var(--jaune-bg); color: #7a5800; }
+  .proto-annual { border-color: var(--vert-fonce); }
+  .proto-annual .proto-card-head { background: #e8f0e0; color: var(--vert-fonce); }
+  .proto-chantier { border-color: var(--bleu-info); }
+  .proto-chantier .proto-card-head { background: var(--bleu-bg); color: var(--bleu-info); }
+
+  /* ── STEP LIST ── */
+  .step-list { padding: 8px 14px 12px; }
+  .step-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 5px 0; font-size: 0.79rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .step-item:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    background: var(--vert);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.68rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .step-item .step-doc { font-size: 0.68rem; color: var(--vert-clair); font-weight: 600; }
+
+  /* ── DOSSIER ITEMS ── */
+  .dossier-item {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+    padding: 10px 13px;
+    margin: 6px 0;
+    border-left: 4px solid var(--vert-clair);
+    font-size: 0.8rem;
+  }
+  .dossier-item strong { color: var(--vert-fonce); display: block; margin-bottom: 2px; font-size: 0.82rem; }
+
+  /* ── MATÉRIAUX GRID ── */
+  .mat-section { margin: 10px 0; }
+  .mat-title {
+    background: var(--vert);
+    color: #fff;
+    font-size: 0.78rem; font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── PLANTES GRID ── */
+  .plantes-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; margin: 8px 0;
+  }
+  .plante-item {
+    background: var(--rouge-bg);
+    border: 1px solid #f5c6c2;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    color: #6b1a14;
+    font-weight: 600;
+  }
+  .plante-item em { font-style: italic; font-weight: 400; font-size: 0.72rem; display: block; }
+
+  /* ── FOOTER PROGRESS (checklist) ── */
+  #checklist-progress {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--vert-fonce);
+    color: #fff;
+    padding: 8px 14px;
+    font-size: 0.75rem; font-weight: 600;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 200;
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+  }
+  #checklist-progress .bar-wrap {
+    flex: 1; margin: 0 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px; height: 8px; overflow: hidden;
+  }
+  #checklist-progress .bar-fill {
+    height: 100%; background: var(--vert-clair);
+    border-radius: 10px; transition: width 0.3s;
+  }
+  #reset-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 4px;
+    color: #fff; font-size: 0.7rem;
+    padding: 3px 8px; cursor: pointer;
+    font-family: var(--font-main);
+  }
+
+  /* ── PILL TAGS ── */
+  .pill {
+    display: inline-block;
+    background: var(--vert-bg);
+    color: var(--vert-fonce);
+    border: 1px solid var(--vert-border);
+    border-radius: 12px;
+    font-size: 0.65rem; font-weight: 600;
+    padding: 2px 7px;
+    margin: 1px 2px;
+  }
+  .pill-red { background: var(--rouge-bg); color: var(--rouge); border-color: #f5c6c2; }
+  .pill-orange { background: var(--orange-bg); color: var(--orange); border-color: #f8c99a; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 400px) {
+    .coinc-grid { grid-template-columns: 1fr 1fr; }
+    .formule-grid { grid-template-columns: 1fr; }
+    .plantes-grid { grid-template-columns: 1fr 1fr; }
+    thead th { font-size: 0.68rem; padding: 6px 7px; }
+    td { font-size: 0.74rem; padding: 5px 7px; }
+  }
+
+  @media (min-width: 600px) {
+    .risk-grid { grid-template-columns: 1fr 1fr; }
+    .coinc-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .text-sm { font-size: 0.78rem; }
+  .mb-0 { margin-bottom: 0 !important; }
+  .mt-6 { margin-top: 6px; }
+  .separator { border: none; border-top: 1px solid var(--vert-border); margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏗 Guide Technique d'Inspection</h1>
+  <p>Eurométropole de Strasbourg · Service Espaces Verts et de Nature · 2026</p>
+  <div class="header-badges">
+    <span class="badge">NF EN 1176-1→11</span>
+    <span class="badge">NF EN 1177</span>
+    <span class="badge">NF EN 16630</span>
+    <span class="badge">Décret 96-1136</span>
+  </div>
+</header>
+
+<nav id="main-nav">
+  <button class="active" onclick="showSection('s01',this)">📋 Réglementaire</button>
+  <button onclick="showSection('s02',this)">📁 Dossier</button>
+  <button onclick="showSection('s03',this)">⚠️ Panneau</button>
+  <button onclick="showSection('s04',this)">🏖 Sols</button>
+  <button onclick="showSection('s05',this)">📐 HCL/HCC/HIC</button>
+  <button onclick="showSection('s06',this)">🎯 Zones impact</button>
+  <button onclick="showSection('s07',this)">🔒 Coincements</button>
+  <button onclick="showSection('s08',this)">🪜 Garde-corps</button>
+  <button onclick="showSection('s09',this)">🎠 Équipements</button>
+  <button onclick="showSection('s10',this)">💪 Agrès/Fitness</button>
+  <button onclick="showSection('s11',this)">🔩 Matériaux</button>
+  <button onclick="showSection('s12',this)">🔍 Protocoles</button>
+  <button onclick="showSection('s13',this)">🌿 Environnement</button>
+  <button onclick="showSection('s14',this)">🚦 Risques</button>
+  <button onclick="showSection('s15',this)">✅ Checklist</button>
+</nav>
+
+<!-- ==================== S01 RÉGLEMENTAIRE ==================== -->
+<div id="s01" class="section active">
+<div class="section-wrap">
+
+<h2>1. Cadre réglementaire et références normatives</h2>
+
+<div class="alert alert-danger">
+  <strong>⚖️ SANCTION — Contravention 5ème classe</strong>
+  Tout gestionnaire ne pouvant présenter le dossier de contrôle ou n'ayant pas satisfait à l'obligation d'affichage est passible d'une contravention de 5ème classe. Personnes morales responsables pénalement. <em>(Décret 96-1136, Art. 5)</em>
+</div>
+
+<h3>Textes et normes applicables</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Texte / Norme</th><th>Objet</th><th>Statut</th></tr></thead>
+  <tbody>
+    <tr><td>Décret 96-1136 (18/12/1996)</td><td>Prescriptions de sécurité des aires collectives de jeux</td><td><span class="pill-red pill">OBLIGATOIRE</span></td></tr>
+    <tr><td>Décret 94-699 (10/08/1994)</td><td>Exigences de sécurité des équipements — marquage CE</td><td><span class="pill-red pill">OBLIGATOIRE</span></td></tr>
+    <tr><td>NF EN 1176-1 (2017)</td><td>Exigences générales : coincements, chutes, matériaux</td><td><span class="pill pill">NORME PRINCIPALE</span></td></tr>
+    <tr><td>NF EN 1176-2 (2017)</td><td>Balançoires</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 1176-3 (2017)</td><td>Toboggans</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 1176-4 (2017)</td><td>Téléphériques / Tyroliennes</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 1176-5 (2019)</td><td>Manèges / Tourniquets</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 1176-6 (2019)</td><td>Bascules à ressort et oscillants</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 1176-7 (2020)</td><td>Guide installation, contrôle, maintenance</td><td><span class="pill pill">Guide technique</span></td></tr>
+    <tr><td>NF EN 1176-10 (2008)</td><td>Équipements totalement fermés (tunnels)</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 1176-11 (2014)</td><td>Filets à grimper tridimensionnels</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 1177 (2018)</td><td>Sols absorbant l'impact — HCC / HIC / GMAX</td><td><span class="pill-red pill">TEST LABO</span></td></tr>
+    <tr><td>NF EN 16630 (2015)</td><td>Agrès sportifs de plein air permanents — Fitness</td><td><span class="pill pill">Complémentaire</span></td></tr>
+    <tr><td>NF EN 15312 (2007)</td><td>Équipements multisports librement accessibles</td><td><span class="pill pill">Complémentaire</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Types d'inspection requis</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Type d'inspection</th><th>Fréquence</th><th>Référence</th></tr></thead>
+  <tbody>
+    <tr><td>Contrôle visuel de routine</td><td>Hebdomadaire à mensuel</td><td>EN 1176-7 §4.2</td></tr>
+    <tr><td>Contrôle opérationnel</td><td>Trimestriel (ou mensuel)</td><td>EN 1176-7 §4.3</td></tr>
+    <tr><td>Contrôle annuel principal</td><td>1 fois par an minimum</td><td>EN 1176-7 §4.4</td></tr>
+    <tr><td>Test HIC / GMAX (EN 1177)</td><td>Selon laboratoire / périodique</td><td>NF EN 1177</td></tr>
+    <tr><td>Réception après chantier</td><td>À chaque ouverture après travaux</td><td>Décret 96-1136 + EN 1176-7</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S02 DOSSIER ==================== -->
+<div id="s02" class="section">
+<div class="section-wrap">
+
+<h2>2. Dossier réglementaire obligatoire</h2>
+<div class="alert alert-info">
+  <strong>📌 Art. 3 — Décret 96-1136</strong>
+  Le gestionnaire doit tenir à disposition des agents de contrôle un dossier complet à tout moment.
+</div>
+
+<div class="dossier-item"><strong>1 · Plan de situation</strong>Implantation de l'aire, structure générale, position de chaque équipement (côté, repère)</div>
+<div class="dossier-item"><strong>2 · Plans d'entretien et de maintenance</strong>Nature des contrôles, périodicité, organisme responsable (nom/adresse)</div>
+<div class="dossier-item"><strong>3 · Rapports d'inspection</strong>Preuve des contrôles routine, opérationnels et annuels réalisés + dates + signataire</div>
+<div class="dossier-item"><strong>4 · Fournisseurs des équipements</strong>Nom, raison sociale, adresse de chaque fournisseur d'équipement installé</div>
+<div class="dossier-item"><strong>5 · Notices d'emploi et d'entretien</strong>Notice fabricant pour chaque équipement — conservation à vie</div>
+<div class="dossier-item"><strong>6 · Dossier de base d'installation</strong>Notices de montage, rapports de réception sur site, plans d'ancrage</div>
+<div class="dossier-item"><strong>7 · Conformité CE</strong>Documents justifiant la conformité EN 1176 des équipements installés après 01/01/1995</div>
+<div class="dossier-item"><strong>8 · Rapports tests HIC/GMAX</strong>Résultats des tests EN 1177 par laboratoire accrédité ISO 17025 (MIRAJ, APAVE…)</div>
+<div class="dossier-item"><strong>9 · Rapports essais de charge</strong>Tests de charge périodiques pour équipements sollicités (balançoires, tyroliennes)</div>
+<div class="dossier-item"><strong>10 · Registre des anomalies</strong>Toutes anomalies constatées, mesures prises, dates, intervenants</div>
+
+</div></div>
+
+<!-- ==================== S03 PANNEAU ==================== -->
+<div id="s03" class="section">
+<div class="section-wrap">
+
+<h2>3. Panneau d'information obligatoire</h2>
+<div class="alert alert-warn">
+  <strong>⚠️ À VÉRIFIER EN INSPECTION</strong>
+  Panneau présent et lisible ? Coordonnées gestionnaire à jour ? Plaque fabricant sur chaque équipement ? Pictogrammes âge visibles ?
+</div>
+<div class="alert alert-yellow">
+  <strong>📋 À INSPECTER</strong>
+  État physique du panneau : décoloré, illisible, vandalisé → remplacement obligatoire. Plaque équipement : corrodée, illisible → signalement.
+</div>
+
+<div class="alert alert-info">
+  <strong>Base légale</strong>
+  Obligation issue du Décret 96-1136, Art. 4 & Annexe §II-2 — Visible, lisible, indélébile, à chaque entrée de l'aire ou sur/à proximité de chaque équipement.
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Information obligatoire</th><th>Détail / Contenu requis</th><th>Base légale</th></tr></thead>
+  <tbody>
+    <tr><td>Identité du gestionnaire</td><td>Nom ou raison sociale + adresse complète de l'exploitant</td><td>Art. 4 Décret 96-1136</td></tr>
+    <tr><td>Numéros d'urgence</td><td>15 (SAMU) · 18 (Pompiers) · 112 (Européen) · 17 (Police)</td><td>Annexe §II-2a</td></tr>
+    <tr><td>Tranche(s) d'âge recommandée(s)</td><td>Par équipement ou pour l'ensemble — pictogramme accepté</td><td>Annexe §II-2a</td></tr>
+    <tr><td>Nombre maximum d'utilisateurs</td><td>Par équipement si précisé par le fabricant</td><td>Notice fabricant</td></tr>
+    <tr><td>Règlement d'utilisation</td><td>Comportements autorisés/interdits, consignes de surveillance</td><td>Bonne pratique obligatoire</td></tr>
+    <tr><td>Avertissements spécifiques</td><td>Risques particuliers liés à l'utilisation (chutes, vitesse…)</td><td>Annexe §II-2a</td></tr>
+    <tr><td>Interdictions éventuelles</td><td>Ex : chiens interdits, vélos interdits dans l'enceinte</td><td>Arrêté municipal</td></tr>
+    <tr><td>Horaires d'ouverture</td><td>Si l'aire est fermée la nuit ou certaines heures</td><td>Gestion locale</td></tr>
+    <tr><td>Plaque fabricant (chaque équipement)</td><td>Marque, modèle, année, n° de série, marquage CE</td><td>Décret 94-699</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S04 SOLS ==================== -->
+<div id="s04" class="section">
+<div class="section-wrap">
+
+<h2>4. Sols — Revêtements et amortissement</h2>
+<p class="text-sm">Référence : NF EN 1177 (2018) + NF EN 1176-1 §4.2.8.5 + Décret 96-1136 Annexe §II-3</p>
+
+<div class="alert alert-danger">
+  <strong>🚫 INTERDIT EN ZONE D'IMPACT</strong>
+  Béton, asphalte, pavés, dalle pierre, bois dur non amortissant dans toute zone d'impact où une chute est possible. Fondations/massifs béton exposés dans la zone d'impact = <strong>NON-CONFORMITÉ MAJEURE</strong>.
+</div>
+
+<h3>Types de revêtements amortissants reconnus</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Type de sol</th><th>Épaisseur min. selon HCC</th><th>Points de contrôle</th></tr></thead>
+  <tbody>
+    <tr><td>Sable de jeux (Ø 0,2–2 mm)</td><td>Variable (voir tableau HCC)</td><td>Compaction, niveau, propreté, corps étrangers</td></tr>
+    <tr><td>Copeaux de bois / Écorces</td><td>Variable (voir tableau HCC)</td><td>Compaction, présence de bois pourri, parasites</td></tr>
+    <tr><td>Gravier roulé (Ø 2–8 mm)</td><td>Variable (voir tableau HCC)</td><td>Niveau, absence de bords tranchants, compaction</td></tr>
+    <tr><td>Dalle caoutchouc coulée (EPDM)</td><td>Selon certification EN 1177</td><td>Fissures, décollements, joints, dureté (test HIC)</td></tr>
+    <tr><td>Dalle caoutchouc préfabriquée</td><td>Selon certification EN 1177</td><td>Joints, soulèvements, déchirures, coins décollés</td></tr>
+    <tr><td>Gazon synthétique + sous-couche</td><td>Selon certification EN 1177</td><td>Sous-couche intacte, gazon non usé, rembourrage correct</td></tr>
+    <tr><td>Gazon naturel (HCC ≤ 1,0 m)</td><td>Accepté jusqu'à 1,0 m de hauteur</td><td>Sol meuble, non bétonné, entretien régulier requis</td></tr>
+    <tr><td>Sable stabilisé (HCC &lt; 0,6 m)</td><td>Toléré si H &lt; 0,60 m seulement</td><td>Non recommandé au-delà de 60 cm de hauteur de chute</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Épaisseur minimale HCC vs HCL (NF EN 1177)</h3>
+<div class="alert alert-warn">
+  <strong>📐 RÈGLE FONDATION</strong>
+  Si la fondation présente des arêtes vives (pas de rayon ≥ 100 mm ni d'angle à 45°) : l'épaisseur minimale est portée à <strong>400 mm</strong> pour toute HCL &gt; 2 m.
+</div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>HCL</th><th>Épaisseur min.</th><th>Fondation NON arrondie</th><th>Fondation arrondie (R≥100mm, 45°)</th></tr></thead>
+  <tbody>
+    <tr><td>≤ 1,00 m</td><td>100 mm</td><td>100 mm</td><td>100 mm</td></tr>
+    <tr><td>≤ 1,50 m</td><td>150 mm</td><td>150 mm</td><td>150 mm</td></tr>
+    <tr><td>≤ 2,00 m</td><td>200 mm</td><td>200 mm</td><td>200 mm</td></tr>
+    <tr><td>≤ 3,00 m</td><td>300 mm</td><td><span class="pill-orange pill">400 mm ⚠️</span></td><td>300 mm</td></tr>
+    <tr><td>&gt; 3,00 m</td><td>400 mm</td><td><span class="pill-red pill">NON AUTORISÉ</span></td><td>400 mm</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Contrôle niveau et état des sols</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Point de contrôle</th><th>Méthode</th><th>Action si anomalie</th></tr></thead>
+  <tbody>
+    <tr><td>Niveau du matériau meuble (tassement)</td><td>Règle + jauge de profondeur, mesurer en plusieurs points sous l'équipement</td><td>Décompactage + apport de matériaux si &lt; épaisseur minimale</td></tr>
+    <tr><td>Compaction excessive (croûte)</td><td>Sondage manuel + test enfoncement &gt; 50 mm requis</td><td>Décompactage impératif avant réouverture</td></tr>
+    <tr><td>Uniformité du niveau</td><td>Vérifier absence de zones creuses (sous balançoires, devant toboggans)</td><td>Régalage immédiat des zones creuses</td></tr>
+    <tr><td>Propreté (corps étrangers)</td><td>Inspection visuelle et manuelle : verre, métal, objets tranchants</td><td>Nettoyage immédiat + fermeture temporaire si dangereux</td></tr>
+    <tr><td>Parasites/champignons (copeaux)</td><td>Inspection visuelle et olfactive</td><td>Remplacement partiel ou total selon étendue</td></tr>
+    <tr><td>Retrait périphérique (sol coulé EPDM)</td><td>Mesure jeu entre dalle et bordure</td><td>Rebouchage à la résine ou remplacement section</td></tr>
+    <tr><td>Décollements / joints ouverts (dalle)</td><td>Inspection des joints, test au pied</td><td>Recoller ou remplacer dalle concernée</td></tr>
+    <tr><td>Soulèvements (gel/dégel)</td><td>Vérification planéité par règle 2 m</td><td>Dépose, correction sous-couche, repose</td></tr>
+    <tr><td>Bordures / cadres de rétention</td><td>Vérifier maintien, absence de soulèvement, bords tranchants</td><td>Remplacer ou sécuriser les bordures dégradées</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S05 HCL/HCC/HIC ==================== -->
+<div id="s05" class="section">
+<div class="section-wrap">
+
+<h2>5. HCL — HCC — HIC / GMAX : définitions et calculs</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Sigle</th><th>Définition et seuil</th></tr></thead>
+  <tbody>
+    <tr><td>HCL — Hauteur de Chute Libre</td><td>Distance verticale maximale entre la surface accessible la plus haute et le sol sous-jacent. <strong>Détermine le sol requis.</strong></td></tr>
+    <tr><td>HCC — Hauteur de Chute Critique</td><td>Hauteur maximale certifiée par essai EN 1177. <strong>HCC doit être ≥ HCL</strong> en toutes circonstances.</td></tr>
+    <tr><td>HIC — Head Injury Criterion</td><td>Tête instrumentée larguée sur le sol. <strong>Seuil : HIC ≤ 1 000</strong>. Au-delà = NON-CONFORME.</td></tr>
+    <tr><td>GMAX — Accélération maximale</td><td>En g, lors de l'impact. <strong>Seuil : GMAX ≤ 200 g</strong>. Complémentaire au HIC.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>HCL selon type d'équipement</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Équipement</th><th>HCL — mesure</th><th>Remarques</th></tr></thead>
+  <tbody>
+    <tr><td>Tour / Module de jeux</td><td>Hauteur de la plateforme la plus haute accessible</td><td>Mesurer depuis la plateforme jusqu'au sol</td></tr>
+    <tr><td>Toboggan</td><td>Hauteur du départ de glissade</td><td>⚠️ Plateforme de départ, pas le sommet de l'arche</td></tr>
+    <tr><td>Balançoire siège simple</td><td>H pivot + 0,75 m (position haute)</td><td>Calculer selon formule EN 1176-2</td></tr>
+    <tr><td>Balançoire nid d'hirondelle</td><td>H pivot + 0,75 m (position haute)</td><td>Zone d'impact ± 2×HCC autour du pivot</td></tr>
+    <tr><td>Tyrolienne / Téléphérique</td><td>H pivot → sol + HCC séparée pour zone atterrissage</td><td>HCC min. 2,00 m dans les zones d'atterrissage</td></tr>
+    <tr><td>Tourniquet / Manège</td><td>Variable — hauteur max. surface utilisateur</td><td>Max. 1,0 m en général</td></tr>
+    <tr><td>Bascule à ressort</td><td>Hauteur siège en position de repos</td><td>HCC min. généralement 1,00 m</td></tr>
+    <tr><td>Équipements à grimper</td><td>Hauteur du point de maintien le plus élevé</td><td>Maximum absolu : 3,00 m (EN 1176-1)</td></tr>
+    <tr><td>Filet à grimper 3D (EN 1176-11)</td><td>Hauteur du point d'accroche le plus élevé</td><td>Max. 3,00 m, HCC ≥ hauteur mesurée</td></tr>
+    <tr><td>Agrès sportifs (EN 16630)</td><td>Hauteur de la barre/poignée la plus haute</td><td>HCC si H &gt; 1,00 m selon EN 16630</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Formules HCL balançoires (EN 1176-2:2017)</h3>
+<div class="formule-grid">
+  <div class="formule-card">
+    <strong>🔴 EPDM coulé</strong>
+    <div class="formula">HCL = (chaîne × 0,867) + 1,75 m</div>
+    <em>Ex : chaîne 2,0 m ⟹ HCL = 3,48 m</em>
+  </div>
+  <div class="formule-card">
+    <strong>🟢 Matériau meuble (sable, copeaux…)</strong>
+    <div class="formula">HCL = (chaîne × 0,867) + 2,25 m</div>
+    <em>Ex : chaîne 2,0 m ⟹ HCL = 3,98 m</em>
+  </div>
+</div>
+
+<div class="alert alert-danger">
+  <strong>📐 RÈGLE ABSOLUE</strong>
+  La HCC certifiée du sol (rapport EN 1177 du labo) doit toujours être ≥ HCL calculée. <strong>HCL &gt; 3,00 m = NON-CONFORME</strong> quelle que soit la surface (EN 1176-1 §4.2.8.1).
+</div>
+
+<h3>Calculateur HCL balançoires</h3>
+<div class="calc-box">
+  <label for="calc-sol">Type de sol</label>
+  <select id="calc-sol" onchange="calcHCL()">
+    <option value="1.75">EPDM coulé (+1,75 m)</option>
+    <option value="2.25">Matériau meuble — sable, copeaux (+2,25 m)</option>
+  </select>
+  <label for="calc-chaine">Longueur de chaîne (m)</label>
+  <input type="number" id="calc-chaine" min="0.5" max="3.5" step="0.05" value="2.0" oninput="calcHCL()">
+  <div id="calc-result" class="calc-result">HCL = —</div>
+</div>
+
+<h3>Déroulement du test HIC sur le terrain (EN 1177)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Étape</th><th>Action</th><th>Condition / Critère</th></tr></thead>
+  <tbody>
+    <tr><td>1 — Préparation</td><td>Vérifier que le sol est représentatif de l'état habituel</td><td>Conditions météo normales, sol non saturé d'eau</td></tr>
+    <tr><td>2 — Choix des points</td><td>Tester a minima : sous balançoires, devant toboggan, zones de réception tyroliennes</td><td>Points les plus sollicités = les plus tassés</td></tr>
+    <tr><td>3 — Étalonnage tête</td><td>Vérifier calibration de la tête instrumentée avant chaque campagne</td><td>Certificat d'étalonnage laboratoire accrédité</td></tr>
+    <tr><td>4 — Hauteurs de lâcher</td><td>Lâcher depuis la HCL de l'équipement (+ points intermédiaires)</td><td>Minimum 3 lâchers par point, retenir le plus défavorable</td></tr>
+    <tr><td>5 — Lecture HIC</td><td>HIC ≤ 1 000 = CONFORME / HIC &gt; 1 000 = NON-CONFORME</td><td>Seuil absolu EN 1177</td></tr>
+    <tr><td>6 — Lecture GMAX</td><td>GMAX ≤ 200 g = CONFORME / GMAX &gt; 200 g = NON-CONFORME</td><td>Seuil absolu EN 1177</td></tr>
+    <tr><td>7 — Rapport</td><td>Rapport signé par labo accrédité ISO 17025 (MIRAJ, APAVE…)</td><td>Archive au dossier réglementaire</td></tr>
+    <tr><td>8 — Action corrective</td><td>Si non-conforme : décompactage/apport matériaux + nouveau test avant réouverture</td><td>Interdire l'équipement entre test et correction</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S06 ZONES IMPACT ==================== -->
+<div id="s06" class="section">
+<div class="section-wrap">
+
+<h2>6. Zones d'impact et chevauchement</h2>
+<p class="text-sm">Référence : NF EN 1176-1 §4.2.8</p>
+
+<div class="alert alert-danger">
+  <strong>🔴 RÈGLE ABSOLUE — CHEVAUCHEMENT</strong>
+  Les zones d'impact d'équipements MOBILES (balançoires, manèges, bascules) NE PEUVENT PAS SE CHEVAUCHER entre elles ni avec celles d'équipements fixes. Un utilisateur en mouvement sur l'un ne doit jamais pouvoir percuter l'autre.
+</div>
+
+<h3>Dimensions des zones d'impact</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Équipement</th><th>Zone d'impact</th><th>Précisions</th></tr></thead>
+  <tbody>
+    <tr><td>Tour / Structure fixe</td><td>1,50 m autour de toutes les parties accessibles</td><td>Aucun point dur dans ce périmètre</td></tr>
+    <tr><td>Toboggan sortie ≤ 1,50 m HCL</td><td>1,50 m au-delà de la sortie + 1,50 m latéral</td><td>Mesurer depuis le bord de sortie</td></tr>
+    <tr><td>Toboggan sortie &gt; 1,50 m HCL</td><td>2,00 m au-delà + 1,50 m latéral</td><td>H ≥ 52,5 cm devant sortie</td></tr>
+    <tr><td>Balançoire siège simple</td><td>Avant/arrière : 2×H + H · Côtés : H minimum (H = hauteur pivot)</td><td>Zones avant/arrière = zones de réception de chute</td></tr>
+    <tr><td>Balançoire nid d'hirondelle</td><td>Rayon = H pivot + HCC dans toutes les directions</td><td>Zone circulaire complète</td></tr>
+    <tr><td>Balançoire bébé / corbeille</td><td>Avant/arrière : 2×H + H · Côtés : H minimum</td><td>Idem siège simple</td></tr>
+    <tr><td>Tyrolienne / Téléphérique</td><td>Zone départ : 1,00 m autour · Zone arrivée : 2,00 m autour</td><td>Zone de roulement : largeur + 1,00 m de chaque côté</td></tr>
+    <tr><td>Tourniquet / Manège</td><td>Rayon extérieur + 2,00 m tout autour</td><td>Zone circulaire complète — pas d'obstacle dans le cercle</td></tr>
+    <tr><td>Bascule monosiège</td><td>1,10 m dans toutes les directions du point d'impact</td><td>Depuis le sol sous le siège</td></tr>
+    <tr><td>Bascule multi-sièges</td><td>1,10 m côté siège + 1,50 m côtés flanc</td><td>Zones différentes selon EN 1176-6:2017</td></tr>
+    <tr><td>Équipement à grimper / filet</td><td>1,50 m autour de la base + zone sous équipement</td><td>Hauteur max. 3,00 m absolue</td></tr>
+    <tr><td>Agrès sportifs (EN 16630)</td><td>1,50 m minimum si H &gt; 1,00 m</td><td>Vérifier notice fabricant pour zones spécifiques</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Règles de chevauchement</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Cas</th><th>Règle</th><th>Action si non-conforme</th></tr></thead>
+  <tbody>
+    <tr><td><span class="pill-red pill">Zone mobile ↔ Zone mobile</span></td><td>Chevauchement <strong>INTERDIT</strong> — espace de sécurité ≥ somme des zones</td><td>Déplacer un équipement ou le supprimer</td></tr>
+    <tr><td><span class="pill-red pill">Zone mobile ↔ Zone fixe</span></td><td>Chevauchement <strong>INTERDIT</strong> — maintenir dégagement complet</td><td>Déplacer l'équipement fixe hors zone mobile</td></tr>
+    <tr><td>Zone fixe ↔ Zone fixe</td><td>2,00 m minimum entre équipements fixes — 1,50 m minimum entre zones</td><td>Signalement + réorganisation à prévoir</td></tr>
+    <tr><td><span class="pill-red pill">Clôture / mobilier dans zone d'impact</span></td><td>INTERDIT — tout objet dur dans la zone d'impact est non-conforme</td><td>Déplacer/supprimer la source dure</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S07 COINCEMENTS ==================== -->
+<div id="s07" class="section">
+<div class="section-wrap">
+
+<h2>7. Coincements — Zones dangereuses</h2>
+<p class="text-sm">Référence : NF EN 1176-1 §4.2.7 + Annexe D. Utiliser les gabarits normalisés.</p>
+
+<div class="alert alert-warn">
+  <strong>⚠️ MÉTHODE TOUT-OU-RIEN</strong>
+  Pour les ouvertures partiellement circonscrites : si le <strong>petit gabarit PASSE</strong> mais que le <strong>grand NE PASSE PAS</strong> → DANGER DE COINCEMENT. Les deux gabarits doivent soit passer tous les deux, soit être tous les deux bloqués.
+</div>
+
+<h3>Gabarits normalisés</h3>
+<div class="coinc-grid">
+  <div class="coinc-card coinc-tete">
+    <div class="dim">89 – 230 mm</div>
+    <div class="label">Tête / Cou</div>
+    <div class="status">INTERDIT</div>
+    <div class="label" style="margin-top:4px;">OK si &lt;89 ou &gt;230</div>
+  </div>
+  <div class="coinc-card coinc-doigt">
+    <div class="dim">8 – 25 mm</div>
+    <div class="label">Doigt(s)</div>
+    <div class="status">INTERDIT</div>
+    <div class="label" style="margin-top:4px;">OK si &lt;8 ou &gt;25</div>
+  </div>
+  <div class="coinc-card coinc-bras">
+    <div class="dim">30 – 500 mm</div>
+    <div class="label">Bras / Torse</div>
+    <div class="status">INTERDIT</div>
+    <div class="label" style="margin-top:4px;">OK si &lt;30 ou &gt;500</div>
+  </div>
+  <div class="coinc-card coinc-corde">
+    <div class="dim">&gt; 200 mm</div>
+    <div class="label">Cordage libre</div>
+    <div class="status">INTERDIT</div>
+    <div class="label" style="margin-top:4px;">OK si ≤200 mm ou rigide</div>
+  </div>
+</div>
+
+<h3>Points courants à inspecter</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Zone / Élément</th><th>Type de coincement</th><th>Vérification terrain</th></tr></thead>
+  <tbody>
+    <tr><td>Ouvertures garde-corps / balustrades</td><td>Tête, cou, bras</td><td>Gabarit tête dans toutes les ouvertures verticales et horizontales</td></tr>
+    <tr><td>Ouvertures escaliers / rampes</td><td>Tête, cou, jambe</td><td>Gabarit dans tous les vides entre marches et montants</td></tr>
+    <tr><td>Entre montants verticaux d'une structure</td><td>Tête, corps entier</td><td>Gabarit 89 mm et 230 mm dans chaque espace</td></tr>
+    <tr><td>Jonction montant/poutre horizontale (angle V/Y)</td><td>Cou, corde de vêtement</td><td>Angle d'insertion ≥ 50° requis — mesure avec rapporteur</td></tr>
+    <tr><td>Charnières / articulations (bascules, manèges)</td><td>Doigts, main</td><td>Gabarit doigt dans tous les jeux mécaniques</td></tr>
+    <tr><td>Liaison chaîne-ancrage (balançoires)</td><td>Doigt, cheveux</td><td>Vérifier absence d'espace doigt entre maillons et fixation</td></tr>
+    <tr><td>Boulons saillants / têtes de vis exposées</td><td>Doigt, accrochage vêtement</td><td>Boulons dépassant &gt; 8 mm ou sans capuchon = NON-CONFORME</td></tr>
+    <tr><td>Trous dans plateformes / passerelles</td><td>Pied/cheville, genou</td><td>Gabarit bras (30–500 mm) dans toutes les ouvertures</td></tr>
+    <tr><td>Embouts de tubes ouverts</td><td>Doigt (8–25 mm)</td><td>Tous les tubes creux accessibles doivent être bouchés</td></tr>
+    <tr><td>Espace sous toboggan (entre lisse et sol)</td><td>Tête</td><td>Si accessible : vérifier au gabarit 89–230 mm</td></tr>
+    <tr><td>Câbles tendeurs / haubanage</td><td>Doigt, cheveux, vêtement</td><td>Espacement entre câbles ≥ 25 mm ou ≤ 8 mm</td></tr>
+    <tr><td>Ouvertures décoratives (étoiles, formes)</td><td>Tête, bras selon diamètre</td><td>Gabarit systématique sur toutes formes découpées</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Coincements spécifiques aux éléments mobiles</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Équipement</th><th>Risque spécifique</th><th>Critère / Vérification</th></tr></thead>
+  <tbody>
+    <tr><td>Balançoire — entre siège et montant</td><td>Écrasement / cisaillement doigts</td><td>Garde ≥ 60 mm entre siège et montant côté gaine</td></tr>
+    <tr><td>Balançoire — entre sièges adjacents</td><td>Collision</td><td>Espacement ≥ 550 mm entre sièges</td></tr>
+    <tr><td>Manège — bord tournant et sol</td><td>Cisaillement pied, jambe</td><td><span class="pill-red pill">DANGER si jeu 12–39 mm</span> → Hors service. Autorisé : 6–11 mm ou &gt; 40 mm</td></tr>
+    <tr><td>Manège — bord tournant et structure fixe</td><td>Cisaillement membre</td><td>Même règle 6–11 mm ou &gt; 40 mm + vérifier usure</td></tr>
+    <tr><td>Bascule à ressort — mécanisme de ressort</td><td>Doigt, main</td><td>Ressort entièrement protégé (capot ou espace &lt; 8 mm)</td></tr>
+    <tr><td>Tyrolienne — chariot roulant</td><td>Doigt, main entre chariot et câble</td><td>Protège-doigts conforme notice fabricant · Espace &lt; 8 mm</td></tr>
+    <tr><td>Tourniquet — pieds/sol</td><td>Cisaillement pied</td><td>Jeu au sol entre 6 et 11 mm OU &gt; 40 mm</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S08 GARDE-CORPS ==================== -->
+<div id="s08" class="section">
+<div class="section-wrap">
+
+<h2>8. Garde-corps, balustrades, mains courantes et accès</h2>
+<p class="text-sm">Référence : NF EN 1176-1 §4.2.4 et §4.2.9</p>
+
+<div class="alert alert-danger">
+  <strong>🚫 BARREAUX HORIZONTAUX INTERDITS</strong>
+  Les garde-corps et balustrades constitués de barreaux ou traverses HORIZONTAUX sont INTERDITS — ils constituent des éléments facilitant l'escalade et augmentent le risque de chute par-dessus. Seuls les panneaux pleins ou barreaux VERTICAUX sont conformes.
+</div>
+
+<h3>Hauteurs et types de protection selon tranche d'âge</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Tranche d'âge</th><th>Hauteur plateforme</th><th>Protection requise</th><th>Hauteur garde-corps / balustrade</th></tr></thead>
+  <tbody>
+    <tr><td>&lt; 6 ans (préscolaire)</td><td>&gt; 50 cm</td><td>Balustrade obligatoire</td><td>≥ 72,5 cm (≥ 60 cm si plateforme ≤ 60 cm)</td></tr>
+    <tr><td>&lt; 6 ans (préscolaire)</td><td>≤ 50 cm</td><td>Aucune protection obligatoire</td><td>—</td></tr>
+    <tr><td>≥ 6 ans (scolaire)</td><td>&gt; 75 cm</td><td>Balustrade obligatoire</td><td>≥ 95 cm (≥ 75 cm si plateforme ≤ 100 cm)</td></tr>
+    <tr><td>≥ 6 ans (scolaire)</td><td>100–200 cm</td><td>Garde-corps requis</td><td>60–85 cm depuis surface plateforme</td></tr>
+    <tr><td>Tous âges — rampe / escalier</td><td>Toute hauteur</td><td>Main courante des deux côtés si large</td><td>60–85 cm au-dessus du nez de marche</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Dispositifs d'accès (escaliers, échelles, rampes)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Élément</th><th>Tranche &lt; 6 ans (préscolaire)</th><th>Tranche ≥ 6 ans (scolaire)</th></tr></thead>
+  <tbody>
+    <tr><td>Profondeur du giron (marche)</td><td>≥ 300 mm</td><td>≥ 400 mm</td></tr>
+    <tr><td>Hauteur de la contremarche</td><td>≤ 225 mm</td><td>≤ 300 mm</td></tr>
+    <tr><td>Profondeur d'appui escalier</td><td>≥ 175 mm</td><td>≥ 150 mm</td></tr>
+    <tr><td>Main courante — hauteur</td><td>725 mm à 950 mm</td><td>350–550 mm (ou double : 350–550 + 725–950 mm)</td></tr>
+    <tr><td>Diamètre main courante (prise totale)</td><td>24 mm à 40 mm</td><td>24 mm à 40 mm</td></tr>
+    <tr><td>Largeur entre échelons (échelle)</td><td>≤ 375 mm</td><td>≤ 375 mm</td></tr>
+    <tr><td>Espacement horizontal entre barreaux</td><td>≥ 250 mm (1er barreau depuis sol)</td><td>≥ 200–250 mm</td></tr>
+    <tr><td>Hauteur max. de la 1ère prise de main</td><td>≤ 1 500 mm</td><td>≤ 2 100 mm</td></tr>
+    <tr><td>Inclinaison rampe (max)</td><td>&lt; 38° (résine/EPDM avec poignées)</td><td>&lt; 38° sans poignées — &lt; 45° avec poignées</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S09 ÉQUIPEMENTS ==================== -->
+<div id="s09" class="section">
+<div class="section-wrap">
+
+<h2>9. Types d'équipements — Caractéristiques et points de contrôle</h2>
+
+<!-- Balançoires -->
+<div class="eq-card">
+  <div class="eq-card-head">🪂 9.1 — BALANÇOIRES <span>NF EN 1176-2:2017</span></div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Paramètre</th><th>Valeur normative</th><th>Action si déviation</th></tr></thead>
+    <tbody>
+      <tr><td>Jeu siège simple / montant</td><td>≥ 350 mm (côtés)</td><td>Si &lt; 350 mm : risque coincement → signaler</td></tr>
+      <tr><td>Jeu siège nid d'hirondelle / montant</td><td>≥ 400 mm (côtés)</td><td>Mesurer en position repos et en oscillation max</td></tr>
+      <tr><td>Jeu siège bébé / montant</td><td>≥ 380 mm (côtés)</td><td>Vérifier siège intègre (pourrissement, fissure)</td></tr>
+      <tr><td>Hauteur siège au repos (préscolaire)</td><td>≥ 750 mm depuis le sol</td><td>Trop bas → risque contact sol lors oscillation</td></tr>
+      <tr><td>Hauteur siège au repos (scolaire)</td><td>≥ 600 mm depuis le sol</td><td>Mesurer siège vide, position repos</td></tr>
+      <tr><td>Hauteur pivot maximum</td><td>≤ 2 500 mm</td><td>Mesurer depuis le sol</td></tr>
+      <tr><td>Espacement entre sièges</td><td>≥ 550 mm centre-à-centre</td><td>Mesurer centre-à-centre des sièges</td></tr>
+      <tr><td>État des chaînes</td><td>Acier inoxydable ou galvanisé, maillons intègres</td><td>Corrosion, déformation, maillon cassé → remplacement</td></tr>
+      <tr><td>Protection plastique des chaînes</td><td>Intacte sur toute la longueur</td><td>Fissures, trous, décollement → remplacement</td></tr>
+      <tr><td>Manilles / fixations</td><td>Conformes EN 1176-1 §4.2.13, serrées</td><td>Desserrage → sécuriser immédiatement</td></tr>
+      <tr><td>Siège (matériau)</td><td>Caoutchouc ou plastique homologué, sans coupures</td><td>Usure excessive, déchirure → remplacement</td></tr>
+      <tr><td>Axe de rotation / roulement</td><td>Sans jeu excessif, graissé</td><td>Grincement persistant, jeu → entretien/remplacement</td></tr>
+      <tr><td>Montants / traverse</td><td>Sans corrosion structurelle, sans déformation</td><td>Corrosion profonde → essai charge + évaluation</td></tr>
+      <tr><td>Fondations</td><td>Non exposées, sans mouvement</td><td>Mouvement perceptible → hors service immédiat</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Toboggans -->
+<div class="eq-card">
+  <div class="eq-card-head">🛝 9.2 — TOBOGGANS <span>NF EN 1176-3:2017</span></div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Paramètre</th><th>Valeur normative</th><th>Action si déviation</th></tr></thead>
+    <tbody>
+      <tr><td>Pente maximale glissière</td><td>≤ 50° (ratio ≤ 1:0,84)</td><td>Mesurer avec clinomètre — &gt; 50° = non-conforme</td></tr>
+      <tr><td>Plateforme de départ (préscolaire)</td><td>≥ 550 mm de largeur</td><td>Vérifier largeur utile</td></tr>
+      <tr><td>Main courante entrée</td><td>≥ 550 mm de hauteur (tous âges)</td><td>Présente des deux côtés si toboggan large</td></tr>
+      <tr><td>Parois latérales (préscolaire)</td><td>≥ 150 mm depuis surface de glissade</td><td>Mesurer hauteur paroi au-dessus de la lisse</td></tr>
+      <tr><td>Longueur sortie (section horizontale)</td><td>≤ 375 mm (nulle si pente ≤ 5°)</td><td>Mesurer section de freinage</td></tr>
+      <tr><td>Hauteur sortie au sol — petit</td><td>20 mm</td><td>Mesurer jeu entre fin lisse et sol</td></tr>
+      <tr><td>Hauteur sortie au sol — grand</td><td>35 mm</td><td>Mesurer jeu entre fin lisse et sol</td></tr>
+      <tr><td>Zone libre devant sortie</td><td>≥ 525 mm en hauteur + 1,50 m au sol</td><td>Vérifier espace libre de tout obstacle</td></tr>
+      <tr><td>Zone d'impact devant sortie</td><td>1,50 m si HCL ≤ 1,50 m / 2,00 m si HCL &gt; 1,50 m</td><td>Mesurer et vérifier surface amortissante</td></tr>
+      <tr><td>État de la lisse de glissade</td><td>Lisse, sans bords tranchants, sans délaminage</td><td>Toute coupure → Hors service + remplacement</td></tr>
+      <tr><td>État du tube / galerie couverte</td><td>Sans bords tranchants, joints intègres</td><td>Vérifier intérieur : état revêtement, joints</td></tr>
+      <tr><td>Accès (escalier/échelle)</td><td>Conforme §4.2.9 selon tranche d'âge</td><td>Vérifier marches, main courante, antiglisse</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Manèges -->
+<div class="eq-card">
+  <div class="eq-card-head">🎡 9.3 — MANÈGES / TOURNIQUETS <span>NF EN 1176-5:2019</span></div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Paramètre</th><th>Valeur normative</th><th>Action si déviation</th></tr></thead>
+    <tbody>
+      <tr><td>Diamètre du plateau</td><td>150–250 cm (max. 500 cm usage général)</td><td>Mesurer diamètre</td></tr>
+      <tr><td>Jeu au sol (bord tournant → sol)</td><td><strong>6–11 mm OU &gt; 40 mm</strong></td><td><span class="pill-red pill">12–39 mm = DANGER → Hors service</span></td></tr>
+      <tr><td>Hauteur surface utilisateur</td><td>≤ 600 mm au-dessus du sol</td><td>Mesurer depuis sol</td></tr>
+      <tr><td>Vitesse périphérique max.</td><td>≤ 2,5 m/s (≤ 13 tr/min)</td><td>Test avec chronomètre : mesurer plusieurs tours</td></tr>
+      <tr><td>HCC (zone de jeu circulaire)</td><td>≥ 1,00 m</td><td>Vérifier sol amortissant sur tout le périmètre + 2 m</td></tr>
+      <tr><td>Mécanisme de rotation</td><td>Souple, sans à-coups ni blocage soudain</td><td>Résistance anormale → graissage ou remplacement roulement</td></tr>
+      <tr><td>Axe / roulement central</td><td>Sans jeu vertical excessif (&lt; 10 mm)</td><td>Jeu excessif → remplacement</td></tr>
+      <tr><td>Barre de maintien</td><td>Présente, continue, solidement fixée</td><td>Barre desserrée ou absente → Hors service</td></tr>
+      <tr><td>Fondations / ancrage</td><td>Non exposés, sans mouvement</td><td>Mouvement → Hors service immédiat</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Bascules -->
+<div class="eq-card">
+  <div class="eq-card-head">🎠 9.4 — BASCULES À RESSORT / OSCILLANTS <span>NF EN 1176-6:2019</span></div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Paramètre</th><th>Valeur normative</th><th>Action si déviation</th></tr></thead>
+    <tbody>
+      <tr><td>Hauteur maximale siège</td><td>≤ 800 mm</td><td>Mesurer depuis le sol au siège en position repos</td></tr>
+      <tr><td>Débattement du ressort</td><td>100–150 mm</td><td>Débattement insuffisant → ressort fatigué → remplacement</td></tr>
+      <tr><td>Angle d'inclinaison max.</td><td>≤ 15°</td><td>Test manuel : angle maxi en oscillation forcée</td></tr>
+      <tr><td>Protection du mécanisme ressort</td><td>Entièrement capotée ou espace &lt; 8 mm</td><td>Capot absent/endommagé → Hors service + remplacement</td></tr>
+      <tr><td>Zone d'impact monosiège</td><td>1,10 m dans toutes les directions</td><td>Vérifier sol amortissant (HCC ≥ 1,00 m)</td></tr>
+      <tr><td>Zone d'impact multi-sièges</td><td>1,10 m côté siège + 1,50 m flancs</td><td>Zones différentes par côté EN 1176-6:2017</td></tr>
+      <tr><td>Poignées</td><td>Solidement fixées, diamètre 24–40 mm</td><td>Poignée tournante → verrouillage de rotation obligatoire</td></tr>
+      <tr><td>Siège</td><td>Sans bords tranchants, non pourri, non fissuré</td><td>Tout dommage structurel → remplacement</td></tr>
+      <tr><td>Ancrage sol</td><td>Non exposé, sans mouvement</td><td>Fondation mobile → Hors service immédiat</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Tyroliennes -->
+<div class="eq-card">
+  <div class="eq-card-head">🛸 9.5 — TÉLÉPHÉRIQUES / TYROLIENNES <span>NF EN 1176-4:2017</span></div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Paramètre</th><th>Valeur normative</th><th>Action si déviation</th></tr></thead>
+    <tbody>
+      <tr><td>Hauteur du câble porteur</td><td>≤ 2 500 mm au point haut</td><td>Mesurer au-dessus de la zone d'amortissement</td></tr>
+      <tr><td>Longueur maximale</td><td>10–30 m (standard)</td><td>Longueur &gt; 30 m = étude spécifique exigée</td></tr>
+      <tr><td>Vitesse maximale du chariot</td><td>≤ 3 m/s</td><td>Test avec chrono sur parcours complet</td></tr>
+      <tr><td>Freinage en zone d'arrivée</td><td>Obligatoire — amortisseur ou zone ralentisseur</td><td>Absence de freinage = non-conforme</td></tr>
+      <tr><td>HCC zone d'atterrissage</td><td>≥ 2,00 m</td><td>Tester avec labo (HIC sur toute la zone)</td></tr>
+      <tr><td>HCC zone sous câble (entre les deux)</td><td>Selon HCL réelle du câble</td><td>Sol amortissant sur tout le parcours</td></tr>
+      <tr><td>Poignée / barre de maintien chariot</td><td>Solidement fixée, sans jeu, protège-doigts</td><td>Protège-doigts absent → Hors service</td></tr>
+      <tr><td>Câble porteur</td><td>Sans câbles rompus, sans déformation, flèche correcte</td><td><span class="pill-red pill">1 câble rompu visible = Hors service immédiat</span></td></tr>
+      <tr><td>Ancrage des mâts</td><td>Mâts verticaux, fondations stables, sans mouvement</td><td>Tout mouvement = Hors service + essai charge</td></tr>
+      <tr><td>Chariot roulant</td><td>Roulements intègres, pas de jeu excessif</td><td>Grincements, blocages → remplacement roulement</td></tr>
+      <tr><td>Protection doigts au chariot</td><td>Espace &lt; 8 mm entre chariot et câble</td><td>Vérifier protège-câble conforme</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Structures à grimper -->
+<div class="eq-card">
+  <div class="eq-card-head">🧗 9.6 — STRUCTURES À GRIMPER / FILETS 3D <span>NF EN 1176-1 + EN 1176-11</span></div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Paramètre</th><th>Valeur normative</th><th>Action si déviation</th></tr></thead>
+    <tbody>
+      <tr><td>Hauteur maximale absolue</td><td>≤ 3 000 mm (3 m)</td><td>Aucune surface accessible au-delà de 3 m</td></tr>
+      <tr><td>Espacement prises de main (filet 3D)</td><td>≤ 375 mm max entre points d'appui</td><td>Mesurer plusieurs mailles dans les zones les plus tendues</td></tr>
+      <tr><td>Diamètre câble/corde filet &gt; 1 m de haut</td><td>≥ 70 mm de diamètre équivalent</td><td>Câbles fins (&lt; 70 mm) au-dessus de 1 m = risque coincement cou</td></tr>
+      <tr><td>HCC sous structure</td><td>≥ HCL mesurée</td><td>Sol amortissant sur toute la zone sous équipement + 1,50 m</td></tr>
+      <tr><td>État des cordages (synthétiques)</td><td>Sans effilochage, sans fils métalliques apparents</td><td><span class="pill-red pill">Fil acier visible → remplacement immédiat</span></td></tr>
+      <tr><td>Fixations de câbles (manchons)</td><td>Conformes EN 13411-3, serrés</td><td>Manchons ouverts ou déformés → hors service</td></tr>
+      <tr><td>Points d'ancrage au sol</td><td>Non exposés, sans mouvement</td><td>Plaque soulevée ou boulon sorti → hors service</td></tr>
+      <tr><td>Structure portante (inox/acier)</td><td>Sans corrosion active, sans déformation</td><td>Soudures fissurées → expertise + hors service</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Modules combinés -->
+<h3>9.7 — Modules combinés / Structures multijeux</h3>
+<div class="alert alert-info">
+  <strong>📌 Principe</strong>
+  Un module combiné est soumis à TOUTES les normes correspondant à chaque élément intégré. Vérifier chaque composant selon sa norme respective EN 1176-1 à 11.
+</div>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Élément du module</th><th>Norme applicable</th><th>Points spécifiques</th></tr></thead>
+  <tbody>
+    <tr><td>Toboggan intégré</td><td>EN 1176-3</td><td>Pente, parois, zone sortie</td></tr>
+    <tr><td>Passerelle / Pont de singe</td><td>EN 1176-1 §4.2.9</td><td>Largeur ≥ 400 mm, garde-corps, antiglisse</td></tr>
+    <tr><td>Mur d'escalade</td><td>EN 1176-1 §4.2.9.5</td><td>Prises solidement fixées, pas d'arêtes vives</td></tr>
+    <tr><td>Échelle de corde / filet d'accès</td><td>EN 1176-1 §4.2.12 + §4.2.9</td><td>Mailles, fixations, état cordage</td></tr>
+    <tr><td>Tunnel / espace clos</td><td>EN 1176-10</td><td>Deux sorties ≥ 500 mm, accessibilité adulte</td></tr>
+    <tr><td>Tour / plateforme haute</td><td>EN 1176-1 §4.2.4</td><td>Garde-corps, balustrade, hauteur conforme</td></tr>
+    <tr><td>Barre de pompier / descente</td><td>EN 1176-1</td><td>Diamètre barre 24–40 mm, hauteur départ</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S10 AGRÈS ==================== -->
+<div id="s10" class="section">
+<div class="section-wrap">
+
+<h2>10. Agrès sportifs et fitness de plein air</h2>
+<p class="text-sm">Référence : NF EN 16630 (2015) — Complémentaire à EN 1176-1</p>
+
+<div class="alert alert-warn">
+  <strong>⚠️ IMPORTANT — PIÈCES MOBILES FITNESS</strong>
+  Les appareils de fitness extérieur avec pièces mobiles (engrenages, câbles, poulies) nécessitent une vérification des coincements DE DOIGTS ET DE MAINS dans tous les mécanismes. Chaque espace entre <strong>8 et 25 mm dans un mécanisme en mouvement est DANGEREUX</strong>. (NF EN 16630 §5.2)
+</div>
+
+<h3>Spécificités EN 16630 vs EN 1176</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Point</th><th>EN 1176 (aires de jeux)</th><th>EN 16630 (agrès sportifs)</th></tr></thead>
+  <tbody>
+    <tr><td>Âge cible</td><td>Enfants (toutes tranches)</td><td>Adultes et adolescents (en général &gt; 14 ans)</td></tr>
+    <tr><td>HCC requise si H &gt; 1,00 m</td><td>Obligatoire</td><td>Obligatoire selon notice fabricant</td></tr>
+    <tr><td>Charges de calcul</td><td>Charges spécifiques enfants</td><td>Charges adultes (plus importantes)</td></tr>
+    <tr><td>Coincements</td><td>Pleine application EN 1176-1 §4.2.7</td><td>Pleine application EN 1176-1 §4.2.7</td></tr>
+    <tr><td>Zones d'impact</td><td>EN 1176-1 §4.2.8</td><td>EN 16630 §5.3 (similaire EN 1176-1)</td></tr>
+    <tr><td>Dossier maintenance</td><td>Décret 96-1136</td><td>Notice fabricant + bonnes pratiques</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Points de contrôle agrès sportifs</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Type d'agrès</th><th>Contrôle principal</th><th>Critères / Valeurs</th></tr></thead>
+  <tbody>
+    <tr><td>Barre de traction (fixe)</td><td>Ancrage, corrosion barre, jeu dans les fixations</td><td>Barre Ø 28–40 mm, hauteur ≤ 2 500 mm (EN 16630)</td></tr>
+    <tr><td>Barres parallèles</td><td>Solidité des barres, ancrage, espace entre barres</td><td>Espacement 500–600 mm entre barres</td></tr>
+    <tr><td>Barre à dips / push-up</td><td>Fixations, barre, sol sous équipement</td><td>HCC si H &gt; 1,00 m</td></tr>
+    <tr><td>Espaliers / cage de grimpe</td><td>Structure complète, soudures, peinture</td><td>Coincements (§4.2.7 EN 1176-1 applicable)</td></tr>
+    <tr><td>Appareil cardio-fitness (vélo, stepper…)</td><td>Pièces mobiles, engrenages, câbles, joints</td><td>Espace coincement mécanisme &lt; 8 mm ou &gt; 25 mm</td></tr>
+    <tr><td>Presse / appareil guidé</td><td>Câbles de guidage, poids, butées</td><td>Butées de fin de course obligatoires</td></tr>
+    <tr><td>Banc abdominal / inclinable</td><td>Fixations pivots, sangle, coussin</td><td>Pivot sans jeu excessif, sangle intègre</td></tr>
+    <tr><td>Panneau d'information spécifique</td><td>Présent, lisible, instructions d'utilisation</td><td>Obligatoire par EN 16630 — pictogrammes exercices visibles</td></tr>
+  </tbody>
+</table>
+</div>
+
+</div></div>
+
+<!-- ==================== S11 MATÉRIAUX ==================== -->
+<div id="s11" class="section">
+<div class="section-wrap">
+
+<h2>11. Matériaux — Contrôle de l'état</h2>
+
+<div class="mat-section">
+  <div class="mat-title">🪵 BOIS — Robinier, pin traité, épicéa, contreplaqué</div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;border-radius:0 0 var(--radius) var(--radius);border:1px solid var(--gris-bord);border-top:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Défaut / Anomalie</th><th>Seuil de non-conformité</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Fissure longitudinale</td><td>Ouverture &gt; ¼ de la section OU ouverture 5–9 mm avec profondeur &gt; ⅓ de la zone fissurée</td><td>Remplacement ou renfort mécanique validé</td></tr>
+      <tr><td>Pourrissement</td><td>Zone molle au sondage (couteau / alène), profondeur &gt; 20% de la section</td><td>Remplacement impératif</td></tr>
+      <tr><td>Éclats / arêtes vives</td><td>Éclat accessible, bord coupant non arrondi</td><td>Ponçage, rabot ou remplacement</td></tr>
+      <tr><td>Délaminage contreplaqué</td><td>Décollement de couche visible, gonflement</td><td>Remplacement de l'élément</td></tr>
+      <tr><td>Contact sol (poteaux)</td><td>Bois non traité classe 4 ou sans platine</td><td>Traitement ou remplacement + platine</td></tr>
+      <tr><td>Fixations métalliques sur bois</td><td>Corrosion galvanique visible (rouille brune autour de la vis)</td><td>Remplacement boulonnerie + traitement zone</td></tr>
+      <tr><td>Humidité / noircissement persistant</td><td>Noircissement profond, champignon visible</td><td>Évaluation structurelle + séchage + traitement fongicide</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<hr class="separator">
+
+<div class="mat-section">
+  <div class="mat-title">🔩 MÉTAUX — Acier galvanisé, acier inoxydable, aluminium</div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;border-radius:0 0 var(--radius) var(--radius);border:1px solid var(--gris-bord);border-top:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Défaut / Anomalie</th><th>Seuil de non-conformité</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Corrosion de surface (rouille légère)</td><td>Film de rouille superficiel, pas de piqûres profondes</td><td>Brossage + peinture antirouille</td></tr>
+      <tr><td>Corrosion par piqûres</td><td>Piqûres profondes (&gt; 1 mm) ou perforation</td><td>Remplacement de l'élément</td></tr>
+      <tr><td>Déformation / pliage</td><td>Déformation visible ou mesurable ≥ 5 mm sur 1 m</td><td>Expertise structurelle + éventuel remplacement</td></tr>
+      <tr><td>Soudures fissurées</td><td>Fissure visible, décollement partiel</td><td>Hors service immédiat + expertise soudeur</td></tr>
+      <tr><td>Galvanisation dégradée</td><td>Pellicule blanche (corrosion zinc) étendue, métal sous-jacent exposé</td><td>Traitement préventif + surveillance renforcée</td></tr>
+      <tr><td>Boulonnerie desserrée</td><td>Tout mouvement perceptible</td><td>Serrage immédiat au couple prescrit par fabricant</td></tr>
+      <tr><td>Capuchons / bouchons manquants</td><td>Tube creux accessible sans bouchon</td><td>Mise en place immédiate bouchon conforme</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<hr class="separator">
+
+<div class="mat-section">
+  <div class="mat-title">🔘 PLASTIQUES ET MATÉRIAUX SYNTHÉTIQUES</div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;border-radius:0 0 var(--radius) var(--radius);border:1px solid var(--gris-bord);border-top:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Défaut / Anomalie</th><th>Seuil de non-conformité</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Fissure PEHD / plastique structural</td><td>Toute fissure traversante ou initiation de fissure profonde</td><td>Remplacement</td></tr>
+      <tr><td>Fragilisation par UV (blanchiment, cassant)</td><td>Cassant au test de flexion manuelle, surface craquelée</td><td>Remplacement + signalement au fabricant</td></tr>
+      <tr><td>Délaminage gel-coat toboggan</td><td>Couche inférieure visible (fibre de verre exposée)</td><td>Hors service immédiat — risque blessure fibre</td></tr>
+      <tr><td>Usure excessive surface de glissade</td><td>Épaisseur restante &lt; seuil fabricant OU fibre exposée</td><td>Remplacement lisse</td></tr>
+      <tr><td>Décoloration profonde / dégradation</td><td>Si changement couleur indique fin de vie (couches indicatrices)</td><td>Remplacement préventif</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<hr class="separator">
+
+<div class="mat-section">
+  <div class="mat-title">⛓ CORDAGES ET CHAÎNES</div>
+  <div class="table-wrap" style="margin:0;box-shadow:none;border-radius:0 0 var(--radius) var(--radius);border:1px solid var(--gris-bord);border-top:none;">
+  <table style="box-shadow:none;">
+    <thead><tr><th>Élément</th><th>Critère de remplacement</th><th>Vérification</th></tr></thead>
+    <tbody>
+      <tr><td>Cordage synthétique (polyamide, polypropylène)</td><td>Fil métallique apparent, effilochage &gt; 10% section, brûlure</td><td>Inspecter sur toute la longueur</td></tr>
+      <tr><td>Câble acier</td><td><span class="pill-red pill">1 fil rompu visible = NON-CONFORME → Hors service</span></td><td>Dérouler légèrement si nécessaire pour voir</td></tr>
+      <tr><td>Protection plastique de chaîne</td><td>Toute fissure, trou, décollement</td><td>Remplacer la gaine avant corrosion de la chaîne</td></tr>
+      <tr><td>Chaîne acier</td><td>Maillon déformé, allongement &gt; 2% de la longueur initiale</td><td>Mesurer avec gabarit ou règle</td></tr>
+      <tr><td>Manille / chape</td><td>Goupille absente, filetage endommagé, jeu excessif</td><td>Remplacement manille complète + sécurisation goupille</td></tr>
+      <tr><td>Câble de filet 3D (Ø ≥ 70 mm &gt; 1 m haut)</td><td>Fil rompu, gaine ouverte</td><td>Remplacement immédiat — risque coincement cou</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+</div></div>
+
+<!-- ==================== S12 PROTOCOLES ==================== -->
+<div id="s12" class="section">
+<div class="section-wrap">
+
+<h2>12. Protocoles d'inspection selon le type de contrôle</h2>
+
+<!-- Routine -->
+<div class="proto-card proto-routine">
+  <div class="proto-card-head">
+    👁 Contrôle visuel de routine
+    <span class="freq">Hebdomadaire à mensuel · EN 1176-7 §4.2</span>
+  </div>
+  <div class="step-list">
+    <p style="font-size:0.77rem;margin-bottom:8px;color:#555;">Objectif : identifier les risques manifestes issus de l'utilisation normale, de vandalisme ou des conditions météorologiques.</p>
+    <div class="table-wrap" style="margin:0;box-shadow:none;">
+    <table style="box-shadow:none;">
+      <thead><tr><th>Zone / Élément</th><th>Ce qu'il faut regarder</th></tr></thead>
+      <tbody>
+        <tr><td>Panneau d'information</td><td>Présent, lisible, non vandalisé</td></tr>
+        <tr><td>Sol de l'aire</td><td>Niveau, compaction visible, présence verre/métal/déchets</td></tr>
+        <tr><td>Mobilier (bancs, poubelles)</td><td>Présence, intégrité, fixations</td></tr>
+        <tr><td>Équipements en général</td><td>Rien de cassé/arraché visible, équipements stables</td></tr>
+        <tr><td>Balançoires</td><td>Sièges présents, chaînes intactes, pas d'élément pendouillant</td></tr>
+        <tr><td>Toboggans</td><td>Lisse intacte, accès libre, pas de corps étranger</td></tr>
+        <tr><td>Clôtures / portillons</td><td>Intègres, portillon fermant correctement</td></tr>
+        <tr><td>Végétation</td><td>Branches tombées sur/dans équipements, plantes dangereuses</td></tr>
+        <tr><td>Propreté générale</td><td>Déjections animales, déchets, seringues</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- Opérationnel -->
+<div class="proto-card proto-op">
+  <div class="proto-card-head">
+    🔧 Contrôle opérationnel
+    <span class="freq">Trimestriel · EN 1176-7 §4.3</span>
+  </div>
+  <div class="step-list">
+    <p style="font-size:0.77rem;margin-bottom:8px;color:#555;">Objectif : vérifier le fonctionnement, la stabilité, l'usure. Réalisé par personnel qualifié ayant des compétences mécaniques.</p>
+    <div class="table-wrap" style="margin:0;box-shadow:none;">
+    <table style="box-shadow:none;">
+      <thead><tr><th>Thème</th><th>Ce qu'il faut contrôler</th><th>Outil / Méthode</th></tr></thead>
+      <tbody>
+        <tr><td>Fondations</td><td>Mouvement des mâts, exposition béton, fissures sol autour</td><td>Test manuel poussée, observation</td></tr>
+        <tr><td>Boulonnerie</td><td>Serrage de toutes les boulons accessibles, capuchons</td><td>Clé dynamométrique si possible, clé plate</td></tr>
+        <tr><td>Pièces mobiles</td><td>Jeu axe balançoires, roulement manège, pivot bascule</td><td>Observation + manipulation manuelle</td></tr>
+        <tr><td>Chaînes / cordages</td><td>Usure, maillon tordu, fil rompu, protection dégradée</td><td>Inspection visuelle + manipulation</td></tr>
+        <tr><td>Surfaces de glissade</td><td>Usure, fissures, délaminage, bords</td><td>Inspection visuelle + passage de main</td></tr>
+        <tr><td>Soudures / assemblages</td><td>Micro-fissures visibles, corrosion aux jonctions</td><td>Torche ou bonne lumière + loupe si besoin</td></tr>
+        <tr><td>Coincements (ciblé)</td><td>Zones connues à risque</td><td>Gabarits de coincement (Ø 89, 230, 8, 25 mm)</td></tr>
+        <tr><td>Sols (niveau + état)</td><td>Mesurage profondeur matériau meuble aux points critiques</td><td>Règle graduée / jauge de profondeur</td></tr>
+        <tr><td>Garde-corps / balustrades</td><td>Stabilité, jeu, fixations</td><td>Test poussée latérale + inspection fixations</td></tr>
+        <tr><td>Marquages</td><td>Plaque fabricant lisible, pictogrammes âge présents</td><td>Inspection visuelle</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- Annuel -->
+<div class="proto-card proto-annual">
+  <div class="proto-card-head">
+    📋 Contrôle annuel principal
+    <span class="freq">Annuel minimum · EN 1176-7 §4.4</span>
+  </div>
+  <div class="step-list">
+    <p style="font-size:0.77rem;margin-bottom:8px;color:#555;">Objectif : niveau de sûreté globale de l'équipement, des fondations et des surfaces de jeu. Réalisé par une personne <strong>COMPÉTENTE et INDÉPENDANTE</strong> (peut être prestataire externe).</p>
+    <div class="table-wrap" style="margin:0;box-shadow:none;">
+    <table style="box-shadow:none;">
+      <thead><tr><th>Thème</th><th>Contenu du contrôle annuel</th><th>Documentation</th></tr></thead>
+      <tbody>
+        <tr><td>Identité équipement</td><td>Vérification plaque fabricant, numéro de série, correspondance dossier</td><td>Comparer dossier réglementaire</td></tr>
+        <tr><td>Conformité normative</td><td>Vérification de conformité globale à EN 1176-1 à 11, EN 16630</td><td>Rapport détaillé par équipement</td></tr>
+        <tr><td>Coincements (complet)</td><td>Test systématique avec gabarits sur TOUS les espaces de TOUS les équipements</td><td>Gabarits Ø 89/230/8/25 mm + mesures</td></tr>
+        <tr><td>Zones d'impact</td><td>Mesure distances, chevauchements, présence obstacles dans zones</td><td>Mesures avec mètre + plan de l'aire</td></tr>
+        <tr><td>HCL mesurée</td><td>Mesure précise hauteur de chute libre de chaque équipement</td><td>Mesures documentées + comparaison HCC certifiée</td></tr>
+        <tr><td>État structurel (bois)</td><td>Sondage systématique : pourrissement, fissures, délaminage</td><td>Sonde + alène + photos</td></tr>
+        <tr><td>État structurel (métal)</td><td>Corrosion, déformation, soudures, galvanisation</td><td>Inspection + mesures si nécessaire</td></tr>
+        <tr><td>Fondations (excavation partielle)</td><td>Si doute sur état : excavation partielle pour vérification</td><td>Photos avant/après</td></tr>
+        <tr><td>Sols amortissants</td><td>Mesure épaisseur complète, état surface, retrait périphérique</td><td>Rapport mesures</td></tr>
+        <tr><td>Essais de charge (si requis)</td><td>Charge statique et dynamique conforme Annexe C EN 1176-1</td><td>Rapport essai charge signé</td></tr>
+        <tr><td>Plan d'actions correctives</td><td>Liste hiérarchisée des anomalies + délais de correction</td><td>Rapport écrit signé</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- Chantier -->
+<div class="proto-card proto-chantier">
+  <div class="proto-card-head">
+    🏗 Inspection à l'ouverture après chantier
+    <span class="freq">À chaque ouverture après travaux</span>
+  </div>
+  <div class="step-list">
+    <div class="alert alert-info" style="margin-bottom:10px;">
+      <strong>📌 OBLIGATION</strong>
+      Toute aire de jeux ayant fait l'objet de travaux (installation, remplacement d'équipement, travaux de sol, VRD à proximité) doit faire l'objet d'une inspection de réception AVANT ouverture au public.
+    </div>
+    <div class="step-item"><div class="step-num">1</div><div><div>Conformité de l'installation — Vérifier conformité au plan validé : implantation, espacement équipements</div><div class="step-doc">Plan de récolement signé</div></div></div>
+    <div class="step-item"><div class="step-num">2</div><div><div>Dossier fabricant — Notices de montage, fiches techniques, certificats CE de chaque équipement</div><div class="step-doc">Classement au dossier réglementaire</div></div></div>
+    <div class="step-item"><div class="step-num">3</div><div><div>Fondations — Profondeur d'ancrage conforme notice, béton de qualité, non exposé</div><div class="step-doc">Photos + rapport</div></div></div>
+    <div class="step-item"><div class="step-num">4</div><div><div>Coincements (complet) — Contrôle systématique gabarits sur tout équipement neuf</div><div class="step-doc">Rapport coincements</div></div></div>
+    <div class="step-item"><div class="step-num">5</div><div><div>Garde-corps / balustrades — Hauteurs, types (barreaux verticaux), jeux</div><div class="step-doc">Rapport conformité</div></div></div>
+    <div class="step-item"><div class="step-num">6</div><div><div>HCL de chaque équipement — Mesure précise + comparaison avec HCC certifiée du sol posé</div><div class="step-doc">Tableau HCL/HCC</div></div></div>
+    <div class="step-item"><div class="step-num">7</div><div><div>Sol amortissant — Épaisseur conforme selon HCL, fondations non exposées, finition correcte</div><div class="step-doc">Rapport mesures épaisseur</div></div></div>
+    <div class="step-item"><div class="step-num">8</div><div><div>Test HIC/GMAX (si sol coulé) — Test EN 1177 par laboratoire accrédité ISO 17025 AVANT ouverture</div><div class="step-doc">Rapport labo + HCC certifiée</div></div></div>
+    <div class="step-item"><div class="step-num">9</div><div><div>Zones d'impact — Aucun point dur dans zone d'impact, chevauchements vérifiés</div><div class="step-doc">Plan + rapport</div></div></div>
+    <div class="step-item"><div class="step-num">10</div><div><div>Panneau d'information — Installé, complet, lisible, coordonnées gestionnaire à jour</div><div class="step-doc">Photo panneau</div></div></div>
+    <div class="step-item"><div class="step-num">11</div><div><div>Clôture / accès — Portillon fonctionnel, clôture hauteur ≥ 1,20 m si requis, espacement &lt; 89 mm</div><div class="step-doc">Rapport</div></div></div>
+    <div class="step-item"><div class="step-num">12</div><div><div>Nettoyage — Chantier nettoyé, aucun outil/matériau/verre/clou laissé sur l'aire</div><div class="step-doc">Bon de fin de chantier</div></div></div>
+    <div class="step-item"><div class="step-num">13</div><div><div>Rapport de réception — Rapport global signé par le responsable + liste des réserves éventuelles</div><div class="step-doc">Rapport de réception</div></div></div>
+  </div>
+</div>
+
+</div></div>
+
+<!-- ==================== S13 ENVIRONNEMENT ==================== -->
+<div id="s13" class="section">
+<div class="section-wrap">
+
+<h2>13. Clôtures, environnement et végétation</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Élément</th><th>Exigence normative / réglementaire</th><th>Point de contrôle</th></tr></thead>
+  <tbody>
+    <tr><td>Clôture périmétrique</td><td>Hauteur ≥ 1,20 m — espacement barreaux &lt; 89 mm OU &gt; 230 mm</td><td>Hauteur, intégrité, absence d'escalade facile</td></tr>
+    <tr><td>Portillon / portail</td><td>Fermeture automatique recommandée — poignée côté extérieur hors portée enfants</td><td>Test fermeture automatique, état des gonds</td></tr>
+    <tr><td>Accès routier</td><td>Protection physique contre véhicules (barrière, potelets) — Décret 96-1136 Annexe</td><td>Présence et état des dispositifs anti-intrusion</td></tr>
+    <tr><td>Végétation (plantes toxiques)</td><td>Espèces toxiques INTERDITES à proximité</td><td>Identifier et signaler toute plante suspecte</td></tr>
+    <tr><td>Végétation (chutes de branches)</td><td>Aucun arbre présentant branches mortes au-dessus de l'aire</td><td>Inspection visuelle en hauteur — élagage requis</td></tr>
+    <tr><td>Végétation (épines, piquants)</td><td>Rosiers, ronces, haies épineuses à distance des zones de circulation enfants</td><td>Distance ≥ 2 m recommandée</td></tr>
+    <tr><td>Éclairage (si présent)</td><td>Fonctionnel, pas de câble apparent, luminaires intègres</td><td>Test + vérification état apparent</td></tr>
+    <tr><td>Mobilier (bancs, tables)</td><td>Sans bords tranchants, solidement fixés, pas de coincement visible</td><td>Gabarit doigt dans espaces mécaniques</td></tr>
+    <tr><td>Eau stagnante</td><td>Absence de zones d'eau stagnante favorisant la noyade ou les maladies</td><td>Inspecter creux, bâches, bacs non vidangés</td></tr>
+    <tr><td>Déchets / seringues</td><td>Zone propre avant chaque ouverture</td><td>Contrôle systématique avant utilisation</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Plantes toxiques à identifier — INTERDITES à proximité</h3>
+<div class="plantes-grid">
+  <div class="plante-item">If<em>Taxus baccata</em></div>
+  <div class="plante-item">Laurier-cerise<em>Prunus laurocerasus</em></div>
+  <div class="plante-item">Belladone<em>Atropa belladonna</em></div>
+  <div class="plante-item">Datura<em>Datura stramonium</em></div>
+  <div class="plante-item">Muguet<em>Convallaria majalis</em></div>
+  <div class="plante-item">Digitale<em>Digitalis purpurea</em></div>
+  <div class="plante-item">Ricin<em>Ricinus communis</em></div>
+  <div class="plante-item">Autres suspectes<em>Signaler toute plante inconnue</em></div>
+</div>
+
+</div></div>
+
+<!-- ==================== S14 RISQUES ==================== -->
+<div id="s14" class="section">
+<div class="section-wrap">
+
+<h2>14. Classification des risques et actions correctives</h2>
+<p class="text-sm">Référence : NF EN 1176-7 §5 — Classification des niveaux de risque et réponses appropriées.</p>
+
+<div class="alert alert-danger">
+  <strong>📝 TRAÇABILITÉ OBLIGATOIRE</strong>
+  Toute décision de mise hors service doit être TRACÉE (date, heure, responsable, motif) et conservée au registre. La condamnation physique est obligatoire — une simple pancarte "hors service" ne suffit pas.
+</div>
+
+<div class="risk-grid">
+  <div class="risk-card risk-1">
+    <div class="risk-title">🔴 NIVEAU 1 — CRITIQUE</div>
+    <p>Danger immédiat de blessure grave ou mortelle : coincement tête confirmé, chute structurelle imminente, câble rompu, fondation mobile, manège jeu 12–39 mm.</p>
+    <p style="margin-top:6px;font-weight:700;">HORS SERVICE IMMÉDIAT — Condamner physiquement l'accès (rubalise/cadenas/démontage)</p>
+    <span class="risk-delay">IMMÉDIAT (&lt; 1 heure)</span>
+  </div>
+  <div class="risk-card risk-2">
+    <div class="risk-title">🟠 NIVEAU 2 — URGENT</div>
+    <p>Risque élevé mais non immédiat : boulons structurels desserrés, sol compacté sous équipement, pièce cassée non coupante, protection manquante.</p>
+    <p style="margin-top:6px;font-weight:700;">Réparation prioritaire — Peut rester ouvert si risque maîtrisé temporairement</p>
+    <span class="risk-delay">&lt; 72 heures</span>
+  </div>
+  <div class="risk-card risk-3">
+    <div class="risk-title">🟡 NIVEAU 3 — MODÉRÉ</div>
+    <p>Dégradation notable mais sans risque immédiat : peinture écaillée, pourrissement superficiel, usure notable des sièges.</p>
+    <p style="margin-top:6px;font-weight:700;">Planifier la réparation dans le prochain programme de maintenance</p>
+    <span class="risk-delay">&lt; 30 jours</span>
+  </div>
+  <div class="risk-card risk-4">
+    <div class="risk-title">🟢 NIVEAU 4 — FAIBLE</div>
+    <p>Défaut esthétique ou d'entretien préventif sans incidence sécurité : corrosion superficielle, peinture terne.</p>
+    <p style="margin-top:6px;font-weight:700;">Programmation lors de la prochaine campagne d'entretien</p>
+    <span class="risk-delay">Prochain programme</span>
+  </div>
+</div>
+
+</div></div>
+
+<!-- ==================== S15 CHECKLIST ==================== -->
+<div id="s15" class="section">
+<div class="section-wrap">
+
+<h2>15. Checklist synthétique — Inspection annuelle</h2>
+<p class="text-sm" style="margin-bottom:12px;">À utiliser comme trame de base — adapter selon les équipements présents sur chaque site.</p>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">📁 ADMINISTRATIF</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Dossier réglementaire complet et à jour</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Panneau d'information : présent, lisible, coordonnées gestionnaire à jour</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Plaques fabricant lisibles sur tous les équipements</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🏖 SOLS</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Épaisseur matériau meuble ≥ minimum (HCC ≥ HCL de chaque équipement)</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Absence de compaction excessive (enfoncement &gt; 50 mm)</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Absence de points durs dans zones d'impact (béton, métal, bois dur)</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Joints / bords sol coulé (EPDM) : pas de retrait, pas de décollements</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Fondations non exposées en zone d'impact</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🔒 COINCEMENTS</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Test gabarit Ø 89–230 mm (tête) sur tous les espaces garde-corps/structures</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Test gabarit Ø 8–25 mm (doigt) sur toutes les jonctions, boulons, tubes</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Angles V/Y : angle d'insertion ≥ 50°</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Longueur cordages libres ≤ 200 mm</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🎯 ZONES D'IMPACT / CHEVAUCHEMENTS</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>HCL mesurée et comparée à HCC certifiée du sol</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Zones d'impact mobiles sans chevauchement entre elles</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><label>Espace ≥ 1,50 m entre équipements fixes</label><input type="checkbox"></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🪂 BALANÇOIRES</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Hauteur sièges, espacement, état chaînes et protections plastiques</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Manilles et axe de rotation — serrage et jeu vérifiés</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🛝 TOBOGGANS</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Pente ≤ 50°, parois intactes, sortie conforme</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Zone d'impact sortie conforme à HCL</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🎡 MANÈGES / TOURNIQUETS</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Jeu au sol : 6–11 mm ou &gt; 40 mm (DANGER si 12–39 mm)</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Vitesse ≤ 2,5 m/s, axe sans jeu excessif</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🎠 BASCULES / OSCILLANTS</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Mécanisme ressort protégé, angle ≤ 15°, HCC ≥ 1 m</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🛸 TÉLÉPHÉRIQUES</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Câble sans fil rompu, freinage zone arrivée, HCC ≥ 2 m zone atterrissage</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🧗 STRUCTURES / FILETS 3D</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>HCL ≤ 3 m, câbles Ø ≥ 70 mm au-dessus de 1 m, fixations serrées</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">💪 AGRÈS SPORTIFS (EN 16630)</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Pièces mobiles : coincements &lt; 8 mm ou &gt; 25 mm vérifiés</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Barres, fixations, ancrage — sans jeu, sans corrosion structurelle</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🔩 MATÉRIAUX</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Bois : sans pourrissement structurel, sans fissure &gt; ¼ section</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Métal : sans corrosion par piqûres, soudures intactes</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Plastique : sans délaminage gel-coat, sans fragilisation UV</label></div>
+  </div>
+</div>
+
+<div class="checklist-group">
+  <div class="checklist-group-title">🌿 ENVIRONNEMENT</div>
+  <div class="checklist-items">
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Clôture hauteur ≥ 1,20 m, espacement barreaux conforme</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Végétation : pas de plante toxique, pas de branche morte au-dessus</label></div>
+    <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>Zones d'impact propres, sans déchets, sans verre</label></div>
+  </div>
+</div>
+
+<div style="height:20px;"></div>
+
+</div></div>
+
+<!-- ==================== FOOTER PROGRESS ==================== -->
+<div id="checklist-progress">
+  <span id="progress-text">0 / 0</span>
+  <div class="bar-wrap"><div class="bar-fill" id="progress-bar" style="width:0%"></div></div>
+  <button id="reset-btn" onclick="resetChecklist()">Réinitialiser</button>
+</div>
+
+<script>
+  // ── NAV
+  function showSection(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+    btn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    window.scrollTo({top:0, behavior:'smooth'});
+    updateProgress();
+  }
+
+  // ── CHECKLIST
+  function toggleCheck(item) {
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (event.target !== cb) cb.checked = !cb.checked;
+    item.classList.toggle('done', cb.checked);
+    updateProgress();
+    saveChecklist();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.check-item input[type="checkbox"]');
+    const done = document.querySelectorAll('.check-item input[type="checkbox"]:checked');
+    const pct = all.length ? Math.round(done.length / all.length * 100) : 0;
+    document.getElementById('progress-text').textContent = done.length + ' / ' + all.length;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+
+  function saveChecklist() {
+    const states = [];
+    document.querySelectorAll('.check-item input[type="checkbox"]').forEach(cb => states.push(cb.checked));
+    try { localStorage.setItem('evn_checklist_2026', JSON.stringify(states)); } catch(e) {}
+  }
+
+  function loadChecklist() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('evn_checklist_2026') || '[]');
+      document.querySelectorAll('.check-item input[type="checkbox"]').forEach((cb, i) => {
+        if (saved[i]) { cb.checked = true; cb.closest('.check-item').classList.add('done'); }
+      });
+    } catch(e) {}
+    updateProgress();
+  }
+
+  function resetChecklist() {
+    if (!confirm('Réinitialiser toute la checklist ?')) return;
+    document.querySelectorAll('.check-item').forEach(item => {
+      item.querySelector('input[type="checkbox"]').checked = false;
+      item.classList.remove('done');
+    });
+    updateProgress();
+    saveChecklist();
+  }
+
+  // ── CALCULATEUR HCL
+  function calcHCL() {
+    const sol = parseFloat(document.getElementById('calc-sol').value);
+    const chaine = parseFloat(document.getElementById('calc-chaine').value);
+    const el = document.getElementById('calc-result');
+    if (isNaN(chaine) || chaine <= 0) { el.textContent = 'Entrer une longueur valide'; el.className = 'calc-result'; return; }
+    const hcl = (chaine * 0.867) + sol;
+    const hcl2 = Math.round(hcl * 100) / 100;
+    if (hcl2 > 3.0) {
+      el.textContent = 'HCL = ' + hcl2 + ' m  ⚠️ NON-CONFORME (> 3,00 m)';
+      el.className = 'calc-result danger';
+    } else if (hcl2 > 2.5) {
+      el.textContent = 'HCL = ' + hcl2 + ' m  — Sol HCC ≥ ' + hcl2 + ' m requis';
+      el.className = 'calc-result warn';
+    } else {
+      el.textContent = 'HCL = ' + hcl2 + ' m  — Sol HCC ≥ ' + hcl2 + ' m requis';
+      el.className = 'calc-result';
+    }
+  }
+
+  // Init
+  window.addEventListener('load', () => {
+    loadChecklist();
+    calcHCL();
+  });
+</script>
+</body>
+</html>

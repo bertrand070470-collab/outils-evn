@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Calculateur HCL v2.4 — EN 1176</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap');
+  :root {
+    --bg: #0f1117; --surface: #181c27; --surface2: #1e2435;
+    --border: #2a3045; --accent: #f0c040; --accent2: #3ecfb2;
+    --danger: #ff5c5c; --warn: #ff9a3c; --ok: #3ecfb2;
+    --text: #e8eaf0; --muted: #6b7491;
+    --mono: 'DM Mono', monospace; --head: 'Syne', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; padding-bottom: 40px; }
+  header { background: var(--surface); border-bottom: 2px solid var(--accent); padding: 14px 16px 10px; position: sticky; top: 0; z-index: 100; }
+  header h1 { font-family: var(--head); font-size: 1.15rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+  header p { font-size: 0.6rem; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tabs { display: flex; overflow-x: auto; background: var(--surface); border-bottom: 1px solid var(--border); scrollbar-width: none; padding: 0 6px; gap: 2px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex-shrink: 0; padding: 9px 10px; font-family: var(--mono); font-size: 0.65rem; font-weight: 500; color: var(--muted); background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  .tab .icon { display: block; font-size: 1rem; margin-bottom: 2px; text-align: center; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .panel { display: none; padding: 14px; }
+  .panel.active { display: block; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+  .card-title { font-family: var(--head); font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+  .schema { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.68rem; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+  .formula { background: #0a0c12; border-left: 3px solid var(--accent); padding: 8px 10px; font-size: 0.72rem; color: var(--accent2); margin: 8px 0; border-radius: 0 4px 4px 0; font-weight: 500; }
+  label { display: block; font-size: 0.68rem; color: var(--muted); margin: 10px 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input[type=number] { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; color: var(--text); font-family: var(--mono); font-size: 16px; outline: none; -webkit-appearance: none; }
+  input[type=number]:focus { border-color: var(--accent); }
+  .btn { width: 100%; margin-top: 14px; padding: 13px; background: var(--accent); color: #0f1117; border: none; border-radius: 8px; font-family: var(--head); font-size: 0.9rem; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; -webkit-tap-highlight-color: transparent; }
+  .btn:active { opacity: 0.85; transform: scale(0.98); }
+  .result { margin-top: 12px; border-radius: 8px; padding: 12px 14px; font-size: 0.78rem; line-height: 1.7; display: none; }
+  .result.ok { background: #0a1a16; border: 1px solid var(--ok); display: block; }
+  .result.warn { background: #1a1200; border: 1px solid var(--warn); display: block; }
+  .result.danger { background: #1a0808; border: 1px solid var(--danger); display: block; }
+  .result strong { font-size: 1.1rem; }
+  .result .hcl-val { font-family: var(--head); font-size: 1.4rem; font-weight: 800; color: var(--accent); display: block; margin: 4px 0; }
+  .result .note { font-size: 0.65rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .warn-box { background: #1a1200; border: 1px solid #664800; border-radius: 8px; padding: 10px 12px; font-size: 0.68rem; color: var(--warn); line-height: 1.6; margin-top: 10px; }
+  .info-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 0.68rem; color: var(--muted); line-height: 1.6; margin-top: 10px; }
+  .info-box strong { color: var(--text); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+  /* Mât pompier spécifique */
+  .mat-schema { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+  .mat-svg { display: block; margin: 0 auto 10px; }
+  .check-result { border-radius: 6px; padding: 8px 10px; font-size: 0.72rem; margin: 6px 0; display: flex; align-items: center; gap: 8px; }
+  .check-ok { background: #0a1a16; border: 1px solid var(--ok); color: var(--ok); }
+  .check-ko { background: #1a0808; border: 1px solid var(--danger); color: var(--danger); }
+  .check-warn { background: #1a1200; border: 1px solid var(--warn); color: var(--warn); }
+  /* Table référence */
+  table { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+  th { background: var(--surface2); color: var(--accent); padding: 8px 10px; text-align: left; font-family: var(--head); font-size: 0.7rem; }
+  td { padding: 7px 10px; border-top: 1px solid var(--border); color: var(--text); }
+  tr:nth-child(even) td { background: #141720; }
+  .badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 600; margin-left: 4px; }
+  .badge-new { background: var(--accent); color: #0f1117; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚠ Calculateur HCL <span style="font-size:0.7rem;color:var(--muted);font-family:var(--mono);font-weight:400">v2.4</span></h1>
+  <p>EN 1176 / EN 1177 / EN 16630 — EVN Strasbourg</p>
+</header>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-tab="balanc" onclick="switchTab(this,'balanc')"><span class="icon">🪂</span>Balançoire</button>
+  <button class="tab" data-tab="bascule" onclick="switchTab(this,'bascule')"><span class="icon">⚖️</span>Bascule</button>
+  <button class="tab" data-tab="ressort" onclick="switchTab(this,'ressort')"><span class="icon">🐴</span>Ressort</button>
+  <button class="tab" data-tab="tobo" onclick="switchTab(this,'tobo')"><span class="icon">🛝</span>Toboggan</button>
+  <button class="tab" data-tab="plateforme" onclick="switchTab(this,'plateforme')"><span class="icon">🟫</span>Plateforme</button>
+  <button class="tab" data-tab="tour" onclick="switchTab(this,'tour')"><span class="icon">🏰</span>Tour/Multi</button>
+  <button class="tab" data-tab="tourniquet" onclick="switchTab(this,'tourniquet')"><span class="icon">🔄</span>Tourniquet</button>
+  <button class="tab" data-tab="escalade" onclick="switchTab(this,'escalade')"><span class="icon">🧗</span>Escalade</button>
+  <button class="tab" data-tab="filet" onclick="switchTab(this,'filet')"><span class="icon">🕸️</span>Filet</button>
+  <button class="tab" data-tab="tyro" onclick="switchTab(this,'tyro')"><span class="icon">🚡</span>Tyrolienne</button>
+  <button class="tab" data-tab="agres" onclick="switchTab(this,'agres')"><span class="icon">🏋️</span>Agrès</button>
+  <button class="tab" data-tab="portique" onclick="switchTab(this,'portique')"><span class="icon">🎪</span>Portique</button>
+  <button class="tab" data-tab="aqua" onclick="switchTab(this,'aqua')"><span class="icon">💧</span>Aquatique</button>
+  <button class="tab" data-tab="mat" onclick="switchTab(this,'mat')"><span class="icon">🔴</span>Mât pompier<span class="badge badge-new">NEW</span></button>
+  <button class="tab" data-tab="ref" onclick="switchTab(this,'ref')"><span class="icon">📋</span>Référence</button>
+</div>
+
+<!-- ===== BALANÇOIRE ===== -->
+<div class="panel active" id="panel-balanc">
+  <div class="card">
+    <div class="card-title">🪂 Balançoire</div>
+    <div class="schema">
+      <strong>Méthode EN 1176-1 §4.2.8</strong><br>
+      La HCL est la longueur de chaîne divisée par 2, additionnée de la hauteur du dessous du siège au sol.<br><br>
+      <div class="formula">HCL = (L_chaîne ÷ 2) + H_sol_siège</div>
+      <span style="font-size:0.65rem;color:var(--muted)">L_chaîne = distance verticale poutre de suspension → assise du siège<br>H_sol_siège = hauteur sol → dessous du siège au repos</span>
+    </div>
+    <label>Longueur de chaîne / corde (m)<br><span style="font-size:0.65rem">Distance verticale poutre de suspension → assise du siège</span></label>
+    <input type="number" id="b_chaine" step="0.01" min="0" placeholder="ex: 1.80">
+    <label>Hauteur sol → dessous du siège au repos (m)<br><span style="font-size:0.65rem">Sol → dessous siège/nacelle</span></label>
+    <input type="number" id="b_siege" step="0.01" min="0" placeholder="ex: 0.35">
+    <button class="btn" onclick="calcBalanc()">CALCULER LA HCL</button>
+    <div class="result" id="res-balanc"></div>
+  </div>
+</div>
+
+<!-- ===== BASCULE ===== -->
+<div class="panel" id="panel-bascule">
+  <div class="card">
+    <div class="card-title">⚖️ Bascule</div>
+    <div class="schema">
+      <strong>EN 1176-6</strong><br>
+      La HCL est la hauteur maximale du siège en position haute, mesurée depuis le sol.<br>
+      <div class="formula">HCL = hauteur du siège en position haute</div>
+    </div>
+    <label>Hauteur du siège en position haute (m)<br><span style="font-size:0.65rem">Sol → siège en position relevée max</span></label>
+    <input type="number" id="bas_haut" step="0.01" min="0" placeholder="ex: 0.85">
+    <label>Hauteur du siège au repos (m)<br><span style="font-size:0.65rem">Sol → siège à l'horizontal (optionnel)</span></label>
+    <input type="number" id="bas_repos" step="0.01" min="0" placeholder="ex: 0.45">
+    <button class="btn" onclick="calcBascule()">CALCULER LA HCL</button>
+    <div class="result" id="res-bascule"></div>
+  </div>
+</div>
+
+<!-- ===== RESSORT ===== -->
+<div class="panel" id="panel-ressort">
+  <div class="card">
+    <div class="card-title">🐴 Jeu sur ressort</div>
+    <div class="schema">
+      <strong>EN 1176-1</strong><br>
+      La HCL est la hauteur maximale du centre de gravité de l'utilisateur en position de balancement maximum.<br>
+      <div class="formula">HCL = hauteur assise au repos + amplitude verticale de balancement</div>
+    </div>
+    <label>Hauteur du siège/assise au repos (m)<br><span style="font-size:0.65rem">Sol → surface d'assise</span></label>
+    <input type="number" id="res_siege" step="0.01" min="0" placeholder="ex: 0.55">
+    <label>Type de ressort</label>
+    <select id="res_type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;">
+      <option value="mono">Animal / mono-siège</option>
+      <option value="multi">Plateau multi-sièges</option>
+    </select>
+    <button class="btn" onclick="calcRessort()">CALCULER LA HCL</button>
+    <div class="result" id="res-ressort"></div>
+  </div>
+</div>
+
+<!-- ===== TOBOGGAN ===== -->
+<div class="panel" id="panel-tobo">
+  <div class="card">
+    <div class="card-title">🛝 Toboggan</div>
+    <div class="schema">
+      <strong>EN 1176-4</strong><br>
+      HCL = hauteur de la plateforme d'accès la plus élevée.<br>
+      Zone de réception ≤ 0,35 m → pas d'exigence sol amortissant.
+      <div class="formula">HCL = Hauteur plateforme d'accès la plus haute</div>
+    </div>
+    <label>Hauteur de la plateforme d'accès (m)<br><span style="font-size:0.65rem">Sol → plancher de la plateforme</span></label>
+    <input type="number" id="t_plateforme" step="0.01" min="0" placeholder="ex: 1.20">
+    <label>Hauteur point de départ glissière (m)<br><span style="font-size:0.65rem">Si différent de la plateforme (optionnel)</span></label>
+    <input type="number" id="t_depart" step="0.01" min="0" placeholder="optionnel">
+    <button class="btn" onclick="calcTobo()">CALCULER LA HCL</button>
+    <div class="result" id="res-tobo"></div>
+  </div>
+</div>
+
+<!-- ===== PLATEFORME ===== -->
+<div class="panel" id="panel-plateforme">
+  <div class="card">
+    <div class="card-title">🟫 Plateforme / Pont</div>
+    <div class="schema">
+      <strong>EN 1176-1</strong><br>
+      HCL directe = hauteur du plancher accessible au-dessus du sol.
+      <div class="formula">HCL = hauteur du plancher accessible</div>
+    </div>
+    <label>Hauteur du plancher (m)<br><span style="font-size:0.65rem">Sol → surface du plancher accessible</span></label>
+    <input type="number" id="p_plancher" step="0.01" min="0" placeholder="ex: 1.00">
+    <label>Hauteur de la rambarde/garde-corps (m)<br><span style="font-size:0.65rem">Sol → sommet de la rambarde (optionnel)</span></label>
+    <input type="number" id="p_garde" step="0.01" min="0" placeholder="optionnel">
+    <button class="btn" onclick="calcPlateforme()">CALCULER LA HCL</button>
+    <div class="result" id="res-plateforme"></div>
+  </div>
+</div>
+
+<!-- ===== TOUR / MULTI ===== -->
+<div class="panel" id="panel-tour">
+  <div class="card">
+    <div class="card-title">🏰 Tour / Structure multi-activités</div>
+    <div class="schema">
+      <strong>EN 1176-1</strong><br>
+      La HCL retenue est la hauteur du point le plus haut accessible à l'utilisateur, sans garde-corps conforme.
+      <div class="formula">HCL = hauteur max du niveau accessible sans protection</div>
+    </div>
+    <label>Hauteur du niveau accessible le plus haut (m)</label>
+    <input type="number" id="tour_h" step="0.01" min="0" placeholder="ex: 2.50">
+    <label>Hauteur du garde-corps si présent (m)<br><span style="font-size:0.65rem">0 si absent</span></label>
+    <input type="number" id="tour_gc" step="0.01" min="0" placeholder="0">
+    <button class="btn" onclick="calcTour()">CALCULER LA HCL</button>
+    <div class="result" id="res-tour"></div>
+  </div>
+</div>
+
+<!-- ===== TOURNIQUET ===== -->
+<div class="panel" id="panel-tourniquet">
+  <div class="card">
+    <div class="card-title">🔄 Tourniquet</div>
+    <div class="schema">
+      <strong>EN 1176-1 / EN 1176-5</strong><br>
+      La HCL est la hauteur maximale de la surface sur laquelle l'utilisateur peut se trouver.
+      <div class="formula">HCL = hauteur max de la surface accessible en rotation</div>
+    </div>
+    <label>Hauteur de la surface accessible (m)<br><span style="font-size:0.65rem">Sol → surface du plateau/assise</span></label>
+    <input type="number" id="tour_surf" step="0.01" min="0" placeholder="ex: 0.60">
+    <label>Diamètre du plateau (m)<br><span style="font-size:0.65rem">Pour info zone de sécurité</span></label>
+    <input type="number" id="tour_diam" step="0.01" min="0" placeholder="ex: 1.80">
+    <button class="btn" onclick="calcTourniquet()">CALCULER LA HCL</button>
+    <div class="result" id="res-tourniquet"></div>
+  </div>
+</div>
+
+<!-- ===== ESCALADE ===== -->
+<div class="panel" id="panel-escalade">
+  <div class="card">
+    <div class="card-title">🧗 Structure d'escalade</div>
+    <div class="schema">
+      <strong>EN 1176-1</strong><br>
+      La HCL est la hauteur maximale atteinte par l'utilisateur (point le plus haut accessible).
+      <div class="formula">HCL = hauteur max accessible sans garde-corps</div>
+    </div>
+    <label>Hauteur maximale accessible (m)<br><span style="font-size:0.65rem">Sol → point le plus haut de la structure</span></label>
+    <input type="number" id="esc_hmax" step="0.01" min="0" placeholder="ex: 3.00">
+    <button class="btn" onclick="calcEscalade()">CALCULER LA HCL</button>
+    <div class="result" id="res-escalade"></div>
+  </div>
+</div>
+
+<!-- ===== FILET ===== -->
+<div class="panel" id="panel-filet">
+  <div class="card">
+    <div class="card-title">🕸️ Filet de grimpe / Cage</div>
+    <div class="schema">
+      <strong>EN 1176-1</strong><br>
+      La HCL est la hauteur du point le plus haut accessible sur le filet.
+      <div class="formula">HCL = hauteur max accessible sur le filet</div>
+    </div>
+    <label>Hauteur du sommet du filet (m)<br><span style="font-size:0.65rem">Sol → point le plus haut accessible</span></label>
+    <input type="number" id="filet_h" step="0.01" min="0" placeholder="ex: 4.00">
+    <label>Type de filet</label>
+    <select id="filet_type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;">
+      <option value="pyramide">Pyramide</option>
+      <option value="cage">Cage / Dôme</option>
+      <option value="spatial">Structure spatiale</option>
+    </select>
+    <button class="btn" onclick="calcFilet()">CALCULER LA HCL</button>
+    <div class="result" id="res-filet"></div>
+  </div>
+</div>
+
+<!-- ===== TYROLIENNE ===== -->
+<div class="panel" id="panel-tyro">
+  <div class="card">
+    <div class="card-title">🚡 Tyrolienne / Téléphérique</div>
+    <div class="schema">
+      <strong>EN 1176-1</strong><br>
+      La HCL est la hauteur maximale du centre de gravité de l'utilisateur suspendu au câble, au point le plus haut du trajet.
+      <div class="formula">HCL = H_câble_max − H_utilisateur_suspendu</div>
+    </div>
+    <label>Hauteur du câble au point le plus haut (m)<br><span style="font-size:0.65rem">Sol → câble à son point le plus élevé</span></label>
+    <input type="number" id="tyro_cable" step="0.01" min="0" placeholder="ex: 2.80">
+    <label>Longueur de suspension (poignée → CG) (m)<br><span style="font-size:0.65rem">Distance poignée → centre de gravité utilisateur</span></label>
+    <input type="number" id="tyro_susp" step="0.01" min="0" placeholder="ex: 0.80">
+    <button class="btn" onclick="calcTyro()">CALCULER LA HCL</button>
+    <div class="result" id="res-tyro"></div>
+  </div>
+</div>
+
+<!-- ===== AGRES ===== -->
+<div class="panel" id="panel-agres">
+  <div class="card">
+    <div class="card-title">🏋️ Agrès / Barres / Fitness</div>
+    <div class="schema">
+      <strong>EN 1176-1 (enfants) / EN 16630 (adultes)</strong><br>
+      La HCL est la hauteur maximale atteinte par le centre de gravité de l'utilisateur.
+      <div class="formula">HCL = hauteur de la barre / anneau / point de suspension</div>
+    </div>
+    <label>Type d'équipement</label>
+    <select id="agres_type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;">
+      <option value="barre_h">Barre horizontale</option>
+      <option value="anneaux">Anneaux / Trapèze</option>
+      <option value="poutre">Poutre d'équilibre</option>
+      <option value="fitness">Engin fitness adulte</option>
+    </select>
+    <label>Hauteur de l'élément (m)<br><span style="font-size:0.65rem">Sol → barre / anneau / surface</span></label>
+    <input type="number" id="agres_h" step="0.01" min="0" placeholder="ex: 2.20">
+    <button class="btn" onclick="calcAgres()">CALCULER LA HCL</button>
+    <div class="result" id="res-agres"></div>
+  </div>
+</div>
+
+<!-- ===== PORTIQUE ===== -->
+<div class="panel" id="panel-portique">
+  <div class="card">
+    <div class="card-title">🎪 Portique multi-jeux</div>
+    <div class="schema">
+      <strong>EN 1176-1</strong><br>
+      La HCL du portique est la valeur maximale parmi tous les équipements associés.
+      <div class="formula">HCL portique = max(HCL balançoire, HCL toboggan, HCL trapèze...)</div>
+    </div>
+    <label>Balançoire — distance assise→barre ÷ 2 + H sol→siège (m)<br><span style="font-size:0.65rem">Saisir directement la HCL calculée via l'onglet Balançoire</span></label>
+    <input type="number" id="port_balanc" step="0.01" min="0" placeholder="ex: 0.65">
+    <label>Hauteur plateforme toboggan (m)</label>
+    <input type="number" id="port_tobo" step="0.01" min="0" placeholder="ex: 1.20">
+    <label>Hauteur trapèze / anneaux (m)</label>
+    <input type="number" id="port_trape" step="0.01" min="0" placeholder="ex: 1.80">
+    <label>Autre équipement — hauteur (m)</label>
+    <input type="number" id="port_autre" step="0.01" min="0" placeholder="optionnel">
+    <button class="btn" onclick="calcPortique()">CALCULER LA HCL</button>
+    <div class="result" id="res-portique"></div>
+  </div>
+</div>
+
+<!-- ===== AQUATIQUE ===== -->
+<div class="panel" id="panel-aqua">
+  <div class="card">
+    <div class="card-title">💧 Jeux aquatiques</div>
+    <div class="schema">
+      <strong>EN 16869</strong><br>
+      HCL selon équipement. Attention : sol mouillé = coefficient d'amortissement différent.<br>
+      Profondeur pataugeoire ≤ 0,20 m (enfants).
+      <div class="formula">HCL = hauteur plateforme ou point d'accès le plus haut</div>
+    </div>
+    <label>Type d'équipement aquatique</label>
+    <select id="aqua_type" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:16px;outline:none;">
+      <option value="jets">Jets / Pataugeoire (sol plat)</option>
+      <option value="tobo_aqua">Toboggan aquatique</option>
+      <option value="tour_aqua">Tour aquatique</option>
+    </select>
+    <label>Hauteur maximale accessible (m)<br><span style="font-size:0.65rem">0 pour jets de sol</span></label>
+    <input type="number" id="aqua_h" step="0.01" min="0" placeholder="ex: 0.00">
+    <button class="btn" onclick="calcAqua()">CALCULER LA HCL</button>
+    <div class="result" id="res-aqua"></div>
+    <div class="warn-box">⚠ Sol mouillé : la norme EN 1177 s'applique avec des paramètres spécifiques. La résine/béton lisse mouillé ne constitue pas un sol amortissant.</div>
+  </div>
+</div>
+
+<!-- ===== MAT DE POMPIER ===== -->
+<div class="panel" id="panel-mat">
+  <div class="card">
+    <div class="card-title">🔴 Mât de pompier <span class="badge badge-new">NEW</span></div>
+    <div class="schema">
+      <strong>EN 1176-1 §4.2</strong><br>
+      Le mât de pompier est un équipement sur lequel l'utilisateur se laisse glisser verticalement.<br><br>
+      <strong>📐 Calcul de la HCL (hauteur de lâcher) :</strong>
+      <div class="formula">H_lâcher = H_mât_max − 1,00 m<br>HCL = H_lâcher</div>
+      La boule est lâchée à 1 m sous le sommet du mât (point de prise le plus haut).<br><br>
+      <strong>🚨 Zone de sécurité autour du mât :</strong><br>
+      Rayon de 500 mm autour du mât → aucun obstacle (plancher, paroi, équipement).<br>
+      Vérifier la distance du plancher le plus proche au mât.
+    </div>
+
+    <label>Hauteur du sommet du mât (m)<br><span style="font-size:0.65rem">Sol → point le plus haut accessible du mât</span></label>
+    <input type="number" id="mat_h" step="0.01" min="0" placeholder="ex: 3.00">
+
+    <label>Distance plancher → axe du mât (m)<br><span style="font-size:0.65rem">Mesurer la distance entre le bord du plancher et l'axe du mât</span></label>
+    <input type="number" id="mat_plancher" step="0.01" min="0" placeholder="ex: 0.80">
+
+    <label>Hauteur du plancher adjacent (m)<br><span style="font-size:0.65rem">Sol → surface du plancher (optionnel)</span></label>
+    <input type="number" id="mat_h_plancher" step="0.01" min="0" placeholder="ex: 1.50">
+
+    <label>Diamètre du mât (mm)<br><span style="font-size:0.65rem">Pour vérification des écartements</span></label>
+    <input type="number" id="mat_diam" step="1" min="0" placeholder="ex: 60">
+
+    <button class="btn" onclick="calcMat()">CALCULER HCL + VÉRIFICATIONS</button>
+    <div class="result" id="res-mat"></div>
+  </div>
+</div>
+
+<!-- ===== RÉFÉRENCE ===== -->
+<div class="panel" id="panel-ref">
+  <div class="card">
+    <div class="card-title">📋 Tableau de référence HCL</div>
+    <table>
+      <tr><th>Équipement</th><th>HCL typique</th></tr>
+      <tr><td>Balançoire siège plat</td><td>0,60–1,20 m</td></tr>
+      <tr><td>Balançoire nacelle</td><td>0,80–1,50 m</td></tr>
+      <tr><td>Bascule standard</td><td>0,60–1,00 m</td></tr>
+      <tr><td>Ressort mono (animal)</td><td>0,40–0,70 m</td></tr>
+      <tr><td>Ressort multi (plateau)</td><td>0,30–0,60 m</td></tr>
+      <tr><td>Tourniquet plateau</td><td>0,00–0,90 m</td></tr>
+      <tr><td>Toboggan classique</td><td>0,80–1,50 m</td></tr>
+      <tr><td>Tour 3 niveaux</td><td>1,20–2,50 m</td></tr>
+      <tr><td>Filet pyramide</td><td>2,00–4,00 m</td></tr>
+      <tr><td>Tyrolienne</td><td>1,00–3,00 m</td></tr>
+      <tr><td>Barre horizontale agrès</td><td>1,80–2,50 m</td></tr>
+      <tr><td>Portique multi-jeux</td><td>selon équipements</td></tr>
+      <tr><td>Jeux aquatiques (jets)</td><td>0,00–0,60 m</td></tr>
+      <tr><td>Toboggan aquatique</td><td>0,80–2,00 m</td></tr>
+      <tr><td>Mât de pompier 3 m</td><td>≈ 2,00 m</td></tr>
+      <tr><td>Mât de pompier 4 m</td><td>≈ 3,00 m</td></tr>
+    </table>
+    <div class="divider"></div>
+    <div class="info-box">
+      <strong>Seuils EN 1177 :</strong><br>
+      HCL ≤ 0,60 m → sol dur toléré (usage limité)<br>
+      HCL &gt; 0,60 m → sol amortissant obligatoire<br>
+      HCL &gt; 3,00 m → sol amortissant haute performance<br><br>
+      <strong>Mât de pompier (rappel) :</strong><br>
+      H_lâcher = H_mât − 1,00 m<br>
+      Zone exclusive autour du mât : r = 500 mm
+    </div>
+    <div class="info-box" style="margin-top:8px">
+      <strong>v2.4</strong> — Balançoire · Bascule · Ressort · Toboggan · Plateforme · Tour/Multi · Tourniquet · Escalade · Filet · Tyrolienne · Agrès · Portique · Aquatique · <strong>Mât pompier</strong> · Référence<br>
+      <span style="color:var(--muted)">EVN — DEPN Strasbourg</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(btn, tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('tabs').scrollLeft = btn.offsetLeft - 40;
+}
+
+function showResult(id, cls, html) {
+  var el = document.getElementById(id);
+  el.className = 'result ' + cls;
+  el.innerHTML = html;
+}
+
+function seuil(hcl) {
+  if (hcl <= 0.60) return '<span style="color:var(--ok)">✅ HCL ≤ 0,60 m — Sol dur toléré (EN 1177)</span>';
+  if (hcl <= 1.50) return '<span style="color:var(--warn)">⚠ HCL > 0,60 m — Sol amortissant obligatoire (EN 1177)</span>';
+  if (hcl <= 3.00) return '<span style="color:var(--warn)">⚠ HCL > 1,50 m — Sol amortissant renforcé requis</span>';
+  return '<span style="color:var(--danger)">🔴 HCL > 3,00 m — Sol amortissant haute performance</span>';
+}
+
+function calcBalanc() {
+  var chaine = parseFloat(document.getElementById('b_chaine').value);
+  var siege = parseFloat(document.getElementById('b_siege').value);
+  if (isNaN(chaine) || isNaN(siege)) { showResult('res-balanc','warn','⚠ Veuillez saisir la longueur de chaîne et la hauteur du siège.'); return; }
+  // HCL = longueur chaîne / 2 + hauteur sol → dessous siège
+  var hcl = (chaine / 2) + siege;
+  var cls = hcl <= 0.60 ? 'ok' : (hcl <= 1.50 ? 'warn' : 'danger');
+  showResult('res-balanc', cls,
+    'Longueur de chaîne (poutre → assise) : <strong>' + chaine.toFixed(2) + ' m</strong><br>' +
+    'L_chaîne ÷ 2 : <strong>' + (chaine / 2).toFixed(2) + ' m</strong><br>' +
+    'Hauteur sol → dessous siège : <strong>' + siege.toFixed(2) + ' m</strong><br>' +
+    'HCL calculée : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl) +
+    '<div class="note">Formule : HCL = ' + chaine.toFixed(2) + ' ÷ 2 + ' + siege.toFixed(2) + ' = ' + hcl.toFixed(2) + ' m</div>');
+}
+
+function calcBascule() {
+  var haut = parseFloat(document.getElementById('bas_haut').value);
+  if (isNaN(haut)) { showResult('res-bascule','warn','⚠ Veuillez saisir la hauteur du siège en position haute.'); return; }
+  var cls = haut <= 0.60 ? 'ok' : (haut <= 1.00 ? 'warn' : 'danger');
+  showResult('res-bascule', cls,
+    'HCL = hauteur siège en position haute<br>' +
+    'HCL calculée : <span class="hcl-val">' + haut.toFixed(2) + ' m</span>' +
+    seuil(haut));
+}
+
+function calcRessort() {
+  var siege = parseFloat(document.getElementById('res_siege').value);
+  var type = document.getElementById('res_type').value;
+  if (isNaN(siege)) { showResult('res-ressort','warn','⚠ Veuillez saisir la hauteur du siège.'); return; }
+  var ampli = type === 'mono' ? 0.20 : 0.15;
+  var hcl = siege + ampli;
+  var cls = hcl <= 0.60 ? 'ok' : 'warn';
+  showResult('res-ressort', cls,
+    'Hauteur siège : <strong>' + siege.toFixed(2) + ' m</strong><br>' +
+    'Amplitude estimée (' + (type === 'mono' ? 'mono' : 'multi') + ') : +' + ampli.toFixed(2) + ' m<br>' +
+    'HCL estimée : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl) +
+    '<div class="note">Amplitude de balancement estimée selon type. Vérifier avec la fiche fabricant.</div>');
+}
+
+function calcTobo() {
+  var plat = parseFloat(document.getElementById('t_plateforme').value);
+  var dep = parseFloat(document.getElementById('t_depart').value);
+  if (isNaN(plat)) { showResult('res-tobo','warn','⚠ Veuillez saisir la hauteur de la plateforme.'); return; }
+  var hcl = isNaN(dep) ? plat : Math.max(plat, dep);
+  var cls = hcl <= 0.60 ? 'ok' : (hcl <= 1.50 ? 'warn' : 'danger');
+  showResult('res-tobo', cls,
+    'HCL = hauteur plateforme la plus haute<br>' +
+    'HCL calculée : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl));
+}
+
+function calcPlateforme() {
+  var plancher = parseFloat(document.getElementById('p_plancher').value);
+  if (isNaN(plancher)) { showResult('res-plateforme','warn','⚠ Veuillez saisir la hauteur du plancher.'); return; }
+  var cls = plancher <= 0.60 ? 'ok' : (plancher <= 1.50 ? 'warn' : 'danger');
+  showResult('res-plateforme', cls,
+    'HCL = hauteur du plancher accessible<br>' +
+    'HCL calculée : <span class="hcl-val">' + plancher.toFixed(2) + ' m</span>' +
+    seuil(plancher));
+}
+
+function calcTour() {
+  var h = parseFloat(document.getElementById('tour_h').value);
+  if (isNaN(h)) { showResult('res-tour','warn','⚠ Veuillez saisir la hauteur accessible.'); return; }
+  var cls = h <= 0.60 ? 'ok' : (h <= 2.50 ? 'warn' : 'danger');
+  showResult('res-tour', cls,
+    'HCL = niveau le plus haut sans protection conforme<br>' +
+    'HCL calculée : <span class="hcl-val">' + h.toFixed(2) + ' m</span>' +
+    seuil(h));
+}
+
+function calcTourniquet() {
+  var surf = parseFloat(document.getElementById('tour_surf').value);
+  var diam = parseFloat(document.getElementById('tour_diam').value);
+  if (isNaN(surf)) { showResult('res-tourniquet','warn','⚠ Veuillez saisir la hauteur de la surface.'); return; }
+  var zs = isNaN(diam) ? 'N/A' : (diam / 2 + 1.50).toFixed(2) + ' m (rayon)';
+  var cls = surf <= 0.60 ? 'ok' : 'warn';
+  showResult('res-tourniquet', cls,
+    'HCL = hauteur surface accessible<br>' +
+    'HCL calculée : <span class="hcl-val">' + surf.toFixed(2) + ' m</span>' +
+    seuil(surf) +
+    '<div class="note">Zone de sécurité : ' + zs + '</div>');
+}
+
+function calcEscalade() {
+  var h = parseFloat(document.getElementById('esc_hmax').value);
+  if (isNaN(h)) { showResult('res-escalade','warn','⚠ Veuillez saisir la hauteur maximale accessible.'); return; }
+  var cls = h <= 0.60 ? 'ok' : (h <= 3.00 ? 'warn' : 'danger');
+  showResult('res-escalade', cls,
+    'HCL = hauteur max accessible<br>' +
+    'HCL calculée : <span class="hcl-val">' + h.toFixed(2) + ' m</span>' +
+    seuil(h));
+}
+
+function calcFilet() {
+  var h = parseFloat(document.getElementById('filet_h').value);
+  if (isNaN(h)) { showResult('res-filet','warn','⚠ Veuillez saisir la hauteur du filet.'); return; }
+  var cls = h <= 1.00 ? 'ok' : (h <= 3.00 ? 'warn' : 'danger');
+  showResult('res-filet', cls,
+    'HCL = hauteur sommet du filet<br>' +
+    'HCL calculée : <span class="hcl-val">' + h.toFixed(2) + ' m</span>' +
+    seuil(h));
+}
+
+function calcTyro() {
+  var cable = parseFloat(document.getElementById('tyro_cable').value);
+  var susp = parseFloat(document.getElementById('tyro_susp').value);
+  if (isNaN(cable) || isNaN(susp)) { showResult('res-tyro','warn','⚠ Veuillez saisir hauteur câble et longueur de suspension.'); return; }
+  var hcl = cable - susp;
+  var cls = hcl <= 0.60 ? 'ok' : (hcl <= 2.00 ? 'warn' : 'danger');
+  showResult('res-tyro', cls,
+    'HCL = H_câble − longueur suspension<br>' +
+    'HCL calculée : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl));
+}
+
+function calcAgres() {
+  var h = parseFloat(document.getElementById('agres_h').value);
+  var type = document.getElementById('agres_type').value;
+  if (isNaN(h)) { showResult('res-agres','warn','⚠ Veuillez saisir la hauteur de l\'element.'); return; }
+  var hcl = (type === 'poutre') ? h : h;
+  var note = type === 'poutre' ? 'Poutre : HCL = hauteur de la surface.' : 'Barre/Anneau : HCL = hauteur de l\'element.';
+  var cls = hcl <= 0.60 ? 'ok' : (hcl <= 2.50 ? 'warn' : 'danger');
+  showResult('res-agres', cls,
+    note + '<br>HCL calculée : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl));
+}
+
+function calcPortique() {
+  var b = parseFloat(document.getElementById('port_balanc').value) || 0;
+  var t = parseFloat(document.getElementById('port_tobo').value) || 0;
+  var tr = parseFloat(document.getElementById('port_trape').value) || 0;
+  var a = parseFloat(document.getElementById('port_autre').value) || 0;
+  var vals = [];
+  var labels = [];
+  if (b > 0) { vals.push(b); labels.push('Balançoire (HCL) : ' + b.toFixed(2) + ' m'); }
+  if (t > 0) { vals.push(t); labels.push('Toboggan : ' + t.toFixed(2) + ' m'); }
+  if (tr > 0) { vals.push(tr); labels.push('Trapeze : ' + tr.toFixed(2) + ' m'); }
+  if (a > 0) { vals.push(a); labels.push('Autre : ' + a.toFixed(2) + ' m'); }
+  if (vals.length === 0) { showResult('res-portique','warn','⚠ Saisir au moins un equipement.'); return; }
+  var hcl = Math.max.apply(null, vals);
+  var cls = hcl <= 0.60 ? 'ok' : (hcl <= 2.00 ? 'warn' : 'danger');
+  showResult('res-portique', cls,
+    labels.join('<br>') + '<br>' +
+    'HCL portique (max) : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl));
+}
+
+function calcAqua() {
+  var h = parseFloat(document.getElementById('aqua_h').value) || 0;
+  var type = document.getElementById('aqua_type').value;
+  var hcl = h;
+  var note = '';
+  if (type === 'jets') { note = 'Jets de sol : HCL ≈ 0 m. Attention sol mouillé glissant.'; hcl = 0; }
+  else note = 'HCL = hauteur max accessible.';
+  var cls = hcl <= 0.60 ? 'ok' : 'warn';
+  showResult('res-aqua', cls,
+    note + '<br>HCL calculée : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl) +
+    '<div class="note">Sol mouillé : EN 1177 paramètres specifiques. Verifier la certification du revetement.</div>');
+}
+
+/* ===== MAT DE POMPIER ===== */
+function calcMat() {
+  var hMat = parseFloat(document.getElementById('mat_h').value);
+  var dPlancher = parseFloat(document.getElementById('mat_plancher').value);
+  var hPlancher = parseFloat(document.getElementById('mat_h_plancher').value);
+  var diam = parseFloat(document.getElementById('mat_diam').value);
+
+  if (isNaN(hMat) || hMat <= 0) {
+    showResult('res-mat','warn','⚠ Veuillez saisir la hauteur du mât.');
+    return;
+  }
+
+  // Calcul HCL
+  var hLacher = hMat - 1.00;
+  var hcl = hLacher;
+  if (hcl < 0) hcl = 0;
+
+  // Vérification zone plancher
+  var zonePlancher = '';
+  var zoneOk = true;
+  var RAYON_SECURITE = 0.50; // 500 mm
+
+  if (!isNaN(dPlancher)) {
+    if (dPlancher < RAYON_SECURITE) {
+      zoneOk = false;
+      zonePlancher = '<div class="check-result check-ko">❌ Plancher trop proche : ' + (dPlancher*100).toFixed(0) + ' cm &lt; 50 cm requis</div>';
+    } else {
+      zonePlancher = '<div class="check-result check-ok">✅ Distance plancher : ' + (dPlancher*100).toFixed(0) + ' cm ≥ 50 cm — OK</div>';
+    }
+  } else {
+    zonePlancher = '<div class="check-result check-warn">⚠ Distance plancher non renseignée — à vérifier sur site</div>';
+    zoneOk = false;
+  }
+
+  // Vérification HCL plancher (si plancher dans la zone, sa hauteur est aussi la HCL à tester)
+  var plancherHCLInfo = '';
+  if (!isNaN(hPlancher) && !isNaN(dPlancher) && dPlancher < RAYON_SECURITE) {
+    plancherHCLInfo = '<div class="check-result check-warn">⚠ Plancher à ' + hPlancher.toFixed(2) + ' m → HCL plancher = ' + hPlancher.toFixed(2) + ' m (à tester aussi)</div>';
+  }
+
+  var cls = !zoneOk ? 'danger' : (hcl <= 1.50 ? 'warn' : 'danger');
+  if (!zoneOk) cls = 'danger';
+  if (zoneOk && hcl <= 1.50) cls = 'warn';
+  if (zoneOk && hcl > 1.50) cls = 'danger';
+
+  var html =
+    '🔴 <strong>Mât de pompier — Résultats</strong><br><br>' +
+    'Hauteur du mât : <strong>' + hMat.toFixed(2) + ' m</strong><br>' +
+    'H_lâcher (mât − 1 m) : <strong>' + hLacher.toFixed(2) + ' m</strong><br>' +
+    'HCL à programmer : <span class="hcl-val">' + hcl.toFixed(2) + ' m</span>' +
+    seuil(hcl) +
+    '<div class="divider"></div>' +
+    '<strong style="font-size:0.75rem;color:var(--text)">🚨 VÉRIFICATION ZONE DE SÉCURITÉ (r = 500 mm)</strong><br><br>' +
+    zonePlancher +
+    plancherHCLInfo +
+    '<div class="note" style="margin-top:10px">' +
+    '📐 <strong>Méthode HIC terrain :</strong><br>' +
+    '1. Mesurer le mât au sommet → ' + hMat.toFixed(2) + ' m<br>' +
+    '2. Hauteur de lâcher boule = <strong>' + hLacher.toFixed(2) + ' m</strong><br>' +
+    '3. Programmer la Lugdosphère à ' + hLacher.toFixed(2) + ' m<br>' +
+    '4. Point de test : sol à la base du mât (axe)<br>' +
+    (diam > 0 ? '5. Diamètre mât : ' + diam + ' mm — vérifier jeux d\'ouvertures EN 1176-1 §4.2.3' : '') +
+    '</div>';
+
+  showResult('res-mat', cls, html);
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.tab')[0].classList.add('active');
+  document.querySelectorAll('.panel')[0].classList.add('active');
+});
+window.addEventListener('load', function() {
+  var tabs = document.querySelectorAll('.tab');
+  var panels = document.querySelectorAll('.panel');
+  if (!document.querySelector('.tab.active')) {
+    tabs[0].classList.add('active');
+    panels[0].classList.add('active');
+  }
+});
+</script>
+</body>
+</html>
