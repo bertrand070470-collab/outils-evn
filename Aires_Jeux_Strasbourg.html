@@ -57,7 +57,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font
 
 /* CARTE */
 #map{width:100%;height:100%;}
-.leaflet-container{background:#1a1f35;}
+.leaflet-container{background:#e8e6e1;}
 
 /* Popup carte */
 .lpop{min-width:200px;}
@@ -188,10 +188,23 @@ function saveState(){
 
 // ── CARTE ──────────────────────────────────────────────
 function initMap(){
-  map = L.map('map',{zoomControl:false,attributionControl:false}).setView([48.5734,7.7521],13);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-    maxZoom:19,attribution:'© CartoDB'
-  }).addTo(map);
+  map = L.map('map',{zoomControl:false,attributionControl:true}).setView([48.5734,7.7521],13);
+  // Fonds sans clé API, essayés dans l'ordre si le précédent ne charge pas
+  const FONDS = [
+    ['https://tile.openstreetmap.org/{z}/{x}/{y}.png', '© OpenStreetMap'],
+    ['https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', '© OpenStreetMap France'],
+    ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', '© Esri']
+  ];
+  let iFond = 0, couche = null, erreurs = 0;
+  function poserFond(){
+    if (couche) map.removeLayer(couche);
+    erreurs = 0;
+    couche = L.tileLayer(FONDS[iFond][0], {maxZoom:19, attribution:FONDS[iFond][1]}).addTo(map);
+    couche.on('tileerror', () => {
+      if (++erreurs >= 4 && iFond < FONDS.length - 1) { iFond++; poserFond(); }
+    });
+  }
+  poserFond();
   L.control.zoom({position:'bottomright'}).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
   renderMap();
