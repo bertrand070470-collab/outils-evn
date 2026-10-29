@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HCL EN 1176">
+<meta name="theme-color" content="#14213d">
+<title>Calculateur HCL</title>
+<style>
+:root{
+  --bg:#f3f5f9; --card:#ffffff; --ink:#14181f; --muted:#5b6475; --line:#d9dee8;
+  --brand:#14213d; --accent:#e8a317; --ok:#1f8a4c; --warn:#c96a00; --ko:#c62828;
+  --okbg:#e7f5ec; --warnbg:#fff3e0; --kobg:#fdecea; --input:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0e1116; --card:#171b22; --ink:#e9edf3; --muted:#9aa3b2; --line:#2a313c;
+    --brand:#0b1220; --accent:#f2b632; --ok:#4cc27e; --warn:#ffa94d; --ko:#ff6b6b;
+    --okbg:#12261b; --warnbg:#2b1f0d; --kobg:#2c1414; --input:#0e1116;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.45;padding-bottom:40px}
+header{background:var(--brand);color:#fff;padding:12px 16px 10px;padding-top:calc(12px + env(safe-area-inset-top));position:sticky;top:0;z-index:10}
+header h1{font-size:18px;font-weight:700}
+header h1 span{color:var(--accent)}
+header p{font-size:12px;opacity:.75}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:var(--brand);position:sticky;top:58px;z-index:9;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;border-radius:18px;padding:7px 12px;font-size:14px;cursor:pointer}
+nav button.on{background:var(--accent);border-color:var(--accent);color:#14181f;font-weight:700}
+main{padding:14px 14px 0;max-width:640px;margin:0 auto}
+section{display:none}
+section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{font-size:17px;margin-bottom:4px}
+.ref{font-size:12px;color:var(--muted);margin-bottom:10px}
+.how{font-size:13px;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.how b{color:var(--ink)}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 4px}
+label small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+input,select{width:100%;font-size:17px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--input);color:var(--ink);-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+input:focus,select:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+.unit{position:relative}
+.unit input{padding-right:40px}
+.unit::after{content:"m";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px}
+.unit.mm::after{content:"mm"}
+.unit.m2::after{content:""}
+.hint{font-size:12px;color:var(--warn);margin-top:3px;min-height:0}
+.row2{display:flex;gap:10px}
+.row2>div{flex:1;min-width:0}
+.chk{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:15px}
+.chk input{width:22px;height:22px;flex:0 0 22px}
+.res{margin-top:14px;border-radius:10px;overflow:hidden;border:1px solid var(--line);display:none}
+.res.on{display:block}
+.big{padding:12px 14px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.big .v{font-size:34px;font-weight:800;letter-spacing:-.5px}
+.big .l{font-size:13px;color:var(--muted)}
+.st{padding:8px 14px;font-weight:700;font-size:15px}
+.st.ok{background:var(--okbg);color:var(--ok)}
+.st.warn{background:var(--warnbg);color:var(--warn)}
+.st.ko{background:var(--kobg);color:var(--ko)}
+.res ul{list-style:none;padding:10px 14px;border-top:1px solid var(--line)}
+.res li{font-size:14px;padding:3px 0 3px 16px;position:relative}
+.res li::before{content:"›";position:absolute;left:2px;color:var(--muted)}
+.res li.k::before{content:"✔";color:var(--ok)}
+.res li.x::before{content:"✖";color:var(--ko)}
+.res li.w::before{content:"!";color:var(--warn);font-weight:800}
+.res .n{font-size:12px;color:var(--muted)}
+.btns{display:flex;gap:8px;padding:0 14px 12px}
+.btn{flex:1;border:0;border-radius:8px;padding:12px;font-size:15px;font-weight:700;background:var(--brand);color:#fff;cursor:pointer}
+.btn.alt{background:transparent;border:1px solid var(--line);color:var(--ink)}
+@media (prefers-color-scheme: dark){.btn{background:var(--accent);color:#14181f}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:600}
+.list{border:1px solid var(--line);border-radius:8px;max-height:320px;overflow-y:auto;margin-top:8px}
+.item{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+.item:last-child{border-bottom:0}
+.item b{font-size:14px}.item small{display:block;color:var(--muted);font-size:12px}
+.item .h{font-weight:800;white-space:nowrap}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#14181f;color:#fff;padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20}
+#toast.on{opacity:1}
+.foot{font-size:12px;color:var(--muted);text-align:center;padding:12px}
+a{color:inherit}
+</style>
+</head>
+<body>
+<header>
+  <h1>Calculateur <span>HCL</span></h1>
+  <p>NF EN 1176-1 à -6 · EN 1177 · EN 16630 — v3.0</p>
+</header>
+<nav id="nav">
+  <button data-s="gen" class="on">Général</button>
+  <button data-s="bal">Balançoire</button>
+  <button data-s="osc">Oscillant / ressort</button>
+  <button data-s="tob">Toboggan</button>
+  <button data-s="tel">Téléphérique</button>
+  <button data-s="man">Manège</button>
+  <button data-s="fit">Fitness</button>
+  <button data-s="kom">Kompan</button>
+  <button data-s="ref">Référence</button>
+</nav>
+<main>
+
+<!-- ===== GÉNÉRAL (EN 1176-1 Tableau 2) ===== -->
+<section id="s-gen" class="on">
+ <div class="card">
+  <h2>Structure, plateforme, escalade, filet</h2>
+  <div class="ref">NF EN 1176-1:2017 § 4.2.8.1 et Tableau 2</div>
+  <div class="how">La HCL dépend de <b>la façon dont l'enfant utilise</b> l'élément. Pour une structure, faire le calcul pour chaque point haut et retenir le plus élevé.</div>
+  <label>Type d'utilisation</label>
+  <select id="g_use">
+    <option value="debout">Debout — plateforme, pont, poutre</option>
+    <option value="assis">Assis — siège, assise</option>
+    <option value="susp">En suspension — barre, échelle horizontale</option>
+    <option value="esc">En escalade — mur, filet, corde, mât</option>
+    <option value="reb">En rebond — équipement à rebond</option>
+  </select>
+  <label id="g_lbl">Hauteur de l'appui des pieds</label>
+  <div class="unit"><input id="g_h" inputmode="decimal" placeholder="ex. 1,40"></div>
+  <div class="hint" id="g_h_hint"></div>
+  <div id="g_acc_box">
+   <label>Accessibilité de la plateforme</label>
+   <select id="g_acc">
+     <option value="fac">Facilement accessible (escalier, rampe)</option>
+     <option value="nfac">Non facilement accessible (échelle, filet)</option>
+   </select>
+  </div>
+  <label class="chk"><input type="checkbox" id="g_forced"> Mouvement forcé (l'équipement entraîne l'enfant)</label>
+  <div class="res" id="r_gen"></div>
+ </div>
+</section>
+
+<!-- ===== BALANÇOIRE ===== -->
+<section id="s-bal">
+ <div class="card">
+  <h2>Balançoire</h2>
+  <div class="ref">NF EN 1176-2:2017 § 4.10</div>
+  <div class="how"><b>D = h2 ÷ 2 + h3</b> (siège levé à 60°). h2 = longueur de l'élément de suspension (axe → siège), h3 = hauteur du siège au repos.</div>
+  <div class="row2">
+   <div><label>h2 suspension</label><div class="unit"><input id="b_h2" inputmode="decimal" placeholder="2,05"></div><div class="hint" id="b_h2_hint"></div></div>
+   <div><label>h3 siège repos</label><div class="unit"><input id="b_h3" inputmode="decimal" placeholder="0,40"></div><div class="hint" id="b_h3_hint"></div></div>
+  </div>
+  <label>Type de balançoire</label>
+  <select id="b_type">
+    <option value="axe">Sur axe(s) — types 1, 2, 4</option>
+    <option value="nid">Nid, suspension unique — type 3</option>
+    <option value="panier">Siège de groupe forme panier</option>
+  </select>
+  <label>Revêtement de la zone d'impact</label>
+  <select id="b_sol">
+    <option value="syn">Au niveau du sol — B = 1,75 m</option>
+    <option value="meuble">Encaissé, meuble — C = 2,25 m</option>
+  </select>
+  <label>Largeur du siège <small>Laisser vide si ≤ 0,50 m</small></label>
+  <div class="unit"><input id="b_w" inputmode="decimal" placeholder="optionnel"></div>
+  <div class="res" id="r_bal"></div>
+ </div>
+</section>
+
+<!-- ===== OSCILLANTS ===== -->
+<section id="s-osc">
+ <div class="card">
+  <h2>Oscillant, bascule, jeu sur ressort</h2>
+  <div class="ref">NF EN 1176-6:2017 § 4.2, Tableau 1, § 4.10</div>
+  <div class="how">HCL mesurée <b>depuis le centre du siège / plateau, aux positions extrêmes</b> du mouvement (pousser le jeu en butée).</div>
+  <label>Type</label>
+  <select id="o_type">
+    <option value="1">Type 1 — balançoire à fléau (bascule)</option>
+    <option value="2A">Type 2A — 1 support, direction fixe (ressort)</option>
+    <option value="2B">Type 2B — 1 support, multidirectionnel (ressort)</option>
+    <option value="3A">Type 3A — plusieurs supports, direction fixe</option>
+    <option value="3B">Type 3B — plusieurs supports, multidirectionnel</option>
+    <option value="4">Type 4 — bascule longitudinale</option>
+    <option value="5">Type 5 — oscillant suspendu à plusieurs axes</option>
+    <option value="6">Type 6 — oscillant suspendu à un seul axe</option>
+  </select>
+  <label>Hauteur du centre du siège en position extrême</label>
+  <div class="unit"><input id="o_h" inputmode="decimal" placeholder="ex. 0,85"></div>
+  <div class="hint" id="o_h_hint"></div>
+  <label>Garde au sol mesurée <small>Optionnel — sous le siège, en position basse</small></label>
+  <div class="unit mm"><input id="o_g" inputmode="decimal" placeholder="optionnel"></div>
+  <label class="chk"><input type="checkbox" id="o_debout"> Utilisé debout</label>
+  <div class="res" id="r_osc"></div>
+ </div>
+</section>
+
+<!-- ===== TOBOGGAN ===== -->
+<section id="s-tob">
+ <div class="card">
+  <h2>Toboggan</h2>
+  <div class="ref">NF EN 1176-3:2017 § 4.3.2, § 4.8</div>
+  <div class="how">HCL = hauteur de la <b>zone de départ</b> (plancher de la plateforme de départ) au-dessus du sol.</div>
+  <label>Hauteur de la zone de départ</label>
+  <div class="unit"><input id="t_h" inputmode="decimal" placeholder="ex. 1,50"></div>
+  <div class="hint" id="t_h_hint"></div>
+  <label>Accès à la zone de départ</label>
+  <select id="t_acc">
+    <option value="nfac">Non facilement accessible (échelle)</option>
+    <option value="fac">Facilement accessible (escalier, butte)</option>
+  </select>
+  <div class="row2">
+   <div><label>Longueur zone de départ <small>&nbsp;</small></label><div class="unit"><input id="t_ld" inputmode="decimal" placeholder="0,35"></div></div>
+   <div><label>Longueur zone de glissade <small>&nbsp;</small></label><div class="unit"><input id="t_lg" inputmode="decimal" placeholder="2,40"></div></div>
+  </div>
+  <label>Type de toboggan</label>
+  <select id="t_type">
+    <option value="chev">Toboggan à chevalet (autoporté)</option>
+    <option value="comb">Toboggan combiné (sur structure)</option>
+  </select>
+  <label class="chk"><input type="checkbox" id="t_prot"> Zone protégée (balustrade) présente au départ</label>
+  <div class="res" id="r_tob"></div>
+ </div>
+</section>
+
+<!-- ===== TÉLÉPHÉRIQUE ===== -->
+<section id="s-tel">
+ <div class="card">
+  <h2>Téléphérique / tyrolienne</h2>
+  <div class="ref">NF EN 1176-4:2017 § 4.11, § 4.14</div>
+  <div class="how">Mesurer <b>sans charge</b>, siège ou poignée pendant à la verticale sous le câble, au point le plus haut du trajet (valeurs de référence à 15 °C).</div>
+  <label>Position de l'utilisateur</label>
+  <select id="c_mode">
+    <option value="assis">Assis (siège)</option>
+    <option value="susp">Suspendu (poignée)</option>
+  </select>
+  <label id="c_lbl">Hauteur du siège au-dessus du sol</label>
+  <div class="unit"><input id="c_h" inputmode="decimal" placeholder="ex. 1,60"></div>
+  <div class="hint" id="c_h_hint"></div>
+  <div class="res" id="r_tel"></div>
+ </div>
+</section>
+
+<!-- ===== MANÈGE ===== -->
+<section id="s-man">
+ <div class="card">
+  <h2>Manège / tourniquet</h2>
+  <div class="ref">NF EN 1176-5:2019 § 4.2, Tableau 1</div>
+  <label>Type de manège</label>
+  <select id="m_type">
+    <option value="A">Type A — tourniquet (sièges)</option>
+    <option value="B">Type B — plateforme tournante</option>
+    <option value="C">Type C — manège à suspension</option>
+    <option value="D">Type D — manège sur piste</option>
+    <option value="E">Type E — plateau incliné</option>
+    <option value="F">Type F — bol / toupie</option>
+  </select>
+  <label id="m_lbl">Hauteur de la place la plus haute</label>
+  <div class="unit"><input id="m_h" inputmode="decimal" placeholder="ex. 0,45"></div>
+  <div class="hint" id="m_h_hint"></div>
+  <div id="m_g_box">
+   <label>Garde au sol de la plateforme <small>Optionnel — mesurée sous la circonférence</small></label>
+   <div class="unit mm"><input id="m_g" inputmode="decimal" placeholder="optionnel"></div>
+   <label class="chk"><input type="checkbox" id="m_fluent"> Sol en matériau fluent (meuble)</label>
+  </div>
+  <div class="res" id="r_man"></div>
+ </div>
+</section>
+
+<!-- ===== FITNESS ===== -->
+<section id="s-fit">
+ <div class="card">
+  <h2>Module fitness plein air</h2>
+  <div class="ref">NF EN 16630:2015 § 4.3.14.3 à 4.3.14.5, Tableaux 3 et 4</div>
+  <div class="how">Attention : en suspension, la règle diffère de l'EN 1176 (on retire 1 m à la hauteur des mains).</div>
+  <label>Type d'utilisation</label>
+  <select id="f_use">
+    <option value="debout">Debout — appui des pieds</option>
+    <option value="assis">Assis — assise</option>
+    <option value="susp">Suspendu — support des mains</option>
+  </select>
+  <label id="f_lbl">Hauteur de l'appui des pieds</label>
+  <div class="unit"><input id="f_h" inputmode="decimal" placeholder="ex. 0,50"></div>
+  <div class="hint" id="f_h_hint"></div>
+  <label class="chk"><input type="checkbox" id="f_forced"> Mouvement forcé</label>
+  <label class="chk"><input type="checkbox" id="f_firm"> Exercice nécessitant un appui ferme des pieds</label>
+  <div class="res" id="r_fit"></div>
+ </div>
+</section>
+
+<!-- ===== KOMPAN ===== -->
+<section id="s-kom">
+ <div class="card">
+  <h2>Base Kompan</h2>
+  <div class="ref">Hauteur de chute max. déclarée sur la fiche produit</div>
+  <label>Référence ou nom</label>
+  <input id="k_q" placeholder="ex. COR49330 ou Medite" autocomplete="off" autocapitalize="characters">
+  <div class="res" id="r_kom"></div>
+  <div class="list" id="k_list"></div>
+ </div>
+</section>
+
+<!-- ===== RÉFÉRENCE ===== -->
+<section id="s-ref">
+ <div class="card">
+  <h2>Mesure de la HCL</h2>
+  <div class="ref">NF EN 1176-1:2017 Tableau 2</div>
+  <table>
+   <tr><th>Utilisation</th><th>Mesure</th></tr>
+   <tr><td>Debout</td><td>Appui des pieds → sol</td></tr>
+   <tr><td>Assis</td><td>Assise → sol</td></tr>
+   <tr><td>Suspension</td><td>Prise des mains → sol</td></tr>
+   <tr><td>Escalade</td><td>Position max. des mains (≤ 4,00 m) − 1,00 m → sol</td></tr>
+   <tr><td>Rebond</td><td>Surface de rebond → point bas de l'espace de chute + 0,90 m</td></tr>
+  </table>
+  <p class="ref" style="margin-top:8px">HCL ≤ 3,00 m (§ 4.2.8.1). Balançoire : h2/2 + h3 (EN 1176-2 § 4.10.1).</p>
+ </div>
+ <div class="card">
+  <h2>Zone d'impact</h2>
+  <div class="ref">NF EN 1176-1:2017 § 4.2.8.2.4 (Figure 17)</div>
+  <table>
+   <tr><th>HCL</th><th>Étendue min. autour de l'équipement</th></tr>
+   <tr><td>≤ 1,50 m</td><td>1,50 m</td></tr>
+   <tr><td>&gt; 1,50 m</td><td>2/3 × HCL + 0,50 m</td></tr>
+  </table>
+  <p class="ref" style="margin-top:8px">Revêtement atténuant obligatoire si HCL &gt; 0,60 m ou mouvement forcé, avec HCC ≥ HCL (§ 4.2.8.5.2). En France, pas de sol dur même sous 0,60 m (Annexe I.2 / Décret 96-1136 Annexe II § 3 a)).</p>
+ </div>
+ <div class="card">
+  <h2>Revêtements sans essai</h2>
+  <div class="ref">NF EN 1176-1:2017 Tableau 4</div>
+  <table>
+   <tr><th>Matériau</th><th>Épaisseur min.*</th><th>HCL max</th></tr>
+   <tr><td>Gazon / terreau</td><td>—</td><td>1,00 m</td></tr>
+   <tr><td>Écorces 20–80 mm</td><td>200 / 300 mm</td><td>2,00 / 3,00 m</td></tr>
+   <tr><td>Copeaux 5–30 mm</td><td>200 / 300 mm</td><td>2,00 / 3,00 m</td></tr>
+   <tr><td>Sable ou gravier 0,25–8 mm</td><td>200 / 300 mm</td><td>2,00 / 3,00 m</td></tr>
+   <tr><td>Autres (synthétique…)</td><td colspan="2">HCC selon essai EN 1177</td></tr>
+  </table>
+  <p class="ref" style="margin-top:8px">* Matériaux meubles : ajouter 100 mm pour le déplacement (§ 4.2.8.5.1) → 300 / 400 mm à poser.</p>
+ </div>
+ <div class="card">
+  <h2>Protection contre les chutes</h2>
+  <div class="ref">NF EN 1176-1:2017 § 4.2.4.3 et § 4.2.4.4</div>
+  <table>
+   <tr><th>Plateforme</th><th>Facilement accessible</th><th>Non facilement accessible</th></tr>
+   <tr><td>≤ 0,60 m</td><td>—</td><td>—</td></tr>
+   <tr><td>0,60 – 1,00 m</td><td>Balustrade ≥ 0,70 m</td><td>—</td></tr>
+   <tr><td>1,00 – 2,00 m</td><td>Balustrade ≥ 0,70 m</td><td>Garde-corps 0,60–0,85 m</td></tr>
+   <tr><td>&gt; 2,00 m</td><td>Balustrade ≥ 0,70 m</td><td>Balustrade ≥ 0,70 m</td></tr>
+  </table>
+ </div>
+ <div class="card">
+  <h2>À propos</h2>
+  <p class="ref">v3.0 — octobre 2026 — EVN Strasbourg. Références vérifiées sur les textes : NF EN 1176-1:2017, -2:2017, -3:2017, -4:2017, -5:2019, -6:2017, NF EN 16630:2015. Outil d'aide : la conclusion reste celle du contrôleur et de la notice du fabricant.</p>
+ </div>
+</section>
+</main>
+<div class="foot">Fonctionne hors connexion · aucune donnée envoyée</div>
+<div id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+function $(id){return document.getElementById(id);}
+function f2(x){return x.toFixed(2).replace('.',',');}
+function mm(x){return Math.round(x*1000).toLocaleString('fr-FR')+' mm';}
+
+/* Lecture d'un champ : accepte la virgule ; une valeur > 15 est lue comme des cm */
+function num(id,isMM){
+  var el=$(id); if(!el) return NaN;
+  var s=(el.value||'').replace(/\s/g,'').replace(',','.');
+  var hint=$(id+'_hint');
+  if(hint) hint.textContent='';
+  if(s==='') return NaN;
+  var v=parseFloat(s);
+  if(isNaN(v)||v<0){ if(hint) hint.textContent='Valeur non lue'; return NaN; }
+  if(isMM) return v;
+  if(v>15){ if(hint) hint.textContent='Lu comme '+s+' cm = '+f2(v/100)+' m'; v=v/100; }
+  return v;
+}
+
+/* Étendue de la zone d'impact EN 1176-1 Figure 17 */
+function zoneX(h){ return h<=1.5 ? 1.5 : (2/3)*h+0.5; }
+
+/* Revêtements sans essai EN 1176-1 Tableau 4 */
+function solsTab4(h){
+  var out=[];
+  if(h<=1.0) out.push('Gazon / terreau naturel bien entretenu');
+  if(h<=2.0) out.push('Écorces, copeaux, sable ou gravier : 200 mm + 100 mm = 300 mm à poser');
+  else if(h<=3.0) out.push('Écorces, copeaux, sable ou gravier : 300 mm + 100 mm = 400 mm à poser');
+  out.push('Synthétique ou autre : rapport d\'essai EN 1177 avec HCC ≥ '+f2(h)+' m');
+  return out;
+}
+
+function render(id,o){
+  var el=$(id);
+  if(!o){ el.className='res'; el.innerHTML=''; return; }
+  var h='<div class="big"><span class="l">'+(o.label||'HCL')+'</span><span class="v">'+f2(o.hcl)+' m</span></div>';
+  h+='<div class="st '+o.cls+'">'+o.status+'</div><ul>';
+  for(var i=0;i<o.items.length;i++){ var it=o.items[i]; h+='<li class="'+(it[0]||'')+'">'+it[1]+'</li>'; }
+  h+='</ul><div class="btns"><button class="btn" data-copy="1">Copier pour le rapport</button></div>';
+  el.innerHTML=h; el.className='res on';
+  el.querySelector('[data-copy]').onclick=function(){ copy(o.copy); };
+}
+
+function copy(txt){
+  function ok(){ toast('Copié — à coller dans le rapport'); }
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(ok,function(){ fallback(txt)?ok():toast('Copie impossible'); });
+  } else { fallback(txt)?ok():toast('Copie impossible'); }
+}
+function fallback(txt){
+  var t=document.createElement('textarea'); t.value=txt; t.setAttribute('readonly','');
+  t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select();
+  var r=false; try{ r=document.execCommand('copy'); }catch(e){}
+  document.body.removeChild(t); return r;
+}
+var tt;
+function toast(m){ var t=$('toast'); t.textContent=m; t.className='on'; clearTimeout(tt); tt=setTimeout(function(){t.className='';},1800); }
+
+/* Synthèse sol + zone pour EN 1176-1 */
+function solItems(h,forced,items,copyParts){
+  var X=zoneX(h);
+  items.push(['','Zone d\'impact : '+f2(X)+' m minimum autour de l\'équipement (EN 1176-1 § 4.2.8.2.4)']);
+  if(h<=0.6 && !forced){
+    items.push(['k','HCL ≤ 0,60 m sans mouvement forcé : pas d\'essai HCC exigé (§ 4.2.8.5.3)']);
+    items.push(['w','En France : pas de béton, bitume, pavés ni pierre sous l\'équipement (Annexe I.2 / Décret 96-1136 Annexe II § 3 a))']);
+    copyParts.push('Zone d\'impact ≥ '+f2(X)+' m ; sol atténuant approprié, sol dur proscrit (NF EN 1176-1:2017 Annexe I.2)');
+  } else {
+    items.push(['w','Revêtement atténuant sur toute la zone d\'impact, HCC ≥ '+f2(h)+' m (§ 4.2.8.5.2)']);
+    var s=solsTab4(h);
+    for(var i=0;i<s.length;i++) items.push(['','<span class="n">Admis : </span>'+s[i]]);
+    copyParts.push('Zone d\'impact ≥ '+f2(X)+' m ; revêtement atténuant HCC ≥ '+f2(h)+' m (NF EN 1176-1:2017 § 4.2.8.2.4 / § 4.2.8.5.2)');
+  }
+}
+
+/* ===== GÉNÉRAL ===== */
+var GEN={debout:'Hauteur de l\'appui des pieds',assis:'Hauteur de l\'assise',susp:'Hauteur de la prise des mains',esc:'Hauteur maximale de position des mains',reb:'Hauteur de la surface de rebond au-dessus du point bas de l\'espace de chute'};
+var GENtxt={debout:'debout, appui des pieds',assis:'assis',susp:'en suspension, prise des mains',esc:'en escalade, position max. des mains − 1,00 m',reb:'en rebond, + 0,90 m'};
+function calcGen(){
+  var use=$('g_use').value;
+  $('g_lbl').textContent=GEN[use];
+  $('g_acc_box').style.display=(use==='debout')?'block':'none';
+  var H=num('g_h'); if(isNaN(H)){ render('r_gen',null); return; }
+  var h=H, items=[], cp=[];
+  if(use==='esc'){
+    h=Math.max(0,H-1.0);
+    items.push(['','HCL = '+f2(H)+' − 1,00 = '+f2(h)+' m (Tableau 2, escalade)']);
+    if(H>4.0) items.push(['x','Position des mains '+f2(H)+' m > 4,00 m maximum (Tableau 2)']);
+  } else if(use==='reb'){
+    h=H+0.9;
+    items.push(['','HCL = '+f2(H)+' + 0,90 = '+f2(h)+' m (Tableau 2, rebond)']);
+  } else {
+    items.push(['','Mesure : '+GENtxt[use]+' (Tableau 2)']);
+  }
+  var bad=h>3.0 || (use==='esc' && H>4.0);
+  if(h>3.0) items.push(['x','HCL > 3,00 m : non admis (EN 1176-1 § 4.2.8.1)']);
+  if(use==='debout'){
+    var acc=$('g_acc').value;
+    if(acc==='fac'){
+      if(H>0.6) items.push(['w','Balustrade obligatoire, hauteur ≥ 0,70 m, gabarit C ne passant pas (§ 4.2.4.4)']);
+      else items.push(['k','Plateforme ≤ 0,60 m : pas de protection exigée']);
+    } else {
+      if(H>2.0) items.push(['w','Balustrade obligatoire, hauteur ≥ 0,70 m (§ 4.2.4.4)']);
+      else if(H>1.0) items.push(['w','Garde-corps obligatoire, dessus entre 0,60 et 0,85 m, ouvertures ≤ 500 mm (§ 4.2.4.3)']);
+      else items.push(['k','Plateforme ≤ 1,00 m non facilement accessible : pas de protection exigée']);
+    }
+  }
+  solItems(h,$('g_forced').checked,items,cp);
+  render('r_gen',{hcl:h,cls:bad?'ko':(h>0.6?'warn':'ok'),status:bad?'Non conforme':(h>0.6?'Revêtement atténuant exigé':'Faible hauteur de chute'),items:items,
+    copy:'HCL = '+f2(h)+' m (utilisation '+GENtxt[use]+' ; NF EN 1176-1:2017 Tableau 2). '+cp.join('. ')+'.'});
+}
+
+/* ===== BALANÇOIRE ===== */
+function calcBal(){
+  var h2=num('b_h2'), h3=num('b_h3');
+  if(isNaN(h2)||isNaN(h3)){ render('r_bal',null); return; }
+  var type=$('b_type').value, sol=$('b_sol').value;
+  var D=h2/2+h3, A=0.867*h2, B=(sol==='syn')?1.75:2.25, L=A+B;
+  var w=num('b_w'), W=1.75+((!isNaN(w)&&w>0.5)?(w-0.5):0);
+  var items=[];
+  items.push(['','D = '+f2(h2)+' ÷ 2 + '+f2(h3)+' = '+f2(D)+' m (§ 4.10.1)']);
+  if(type==='panier') items.push(['w','Siège panier : mesurer depuis le haut du cadre d\'appui (§ 4.10.1)']);
+  if(D>3.0) items.push(['x','HCL > 3,00 m : non admis (EN 1176-1 § 4.2.8.1)']);
+  if(type==='nid'){
+    items.push(['','Zone d\'impact circulaire, rayon '+f2(L)+' m = 0,867 × '+f2(h2)+' + '+f2(B)+' (§ 4.10.2.3)']);
+  } else {
+    items.push(['','Zone d\'impact : '+f2(L)+' m de part et d\'autre de l\'axe, soit '+f2(2*L)+' m au total (0,867 × h2 + '+f2(B)+' ; § 4.10.2.1)']);
+    items.push(['','Largeur minimale : '+f2(W)+' m (§ 4.10.2.2)']);
+  }
+  if(sol==='syn') items.push(['','+ 0,50 m sans obstacle dans le sens du balancement']);
+  items.push(['w','Mouvement forcé : revêtement atténuant HCC ≥ '+f2(D)+' m sur toute la zone (EN 1176-1 § 4.2.8.5.2)']);
+  var s=solsTab4(D); for(var i=0;i<s.length;i++) items.push(['','<span class="n">Admis : </span>'+s[i]]);
+  items.push(['','Espaces de chute de portiques différents : pas de chevauchement']);
+  var zoneTxt=(type==='nid')?('zone d\'impact circulaire de rayon '+f2(L)+' m'):('zone d\'impact '+f2(L)+' m de part et d\'autre de l\'axe, largeur ≥ '+f2(W)+' m');
+  render('r_bal',{hcl:D,label:'Hauteur de chute D',cls:D>3?'ko':'warn',status:D>3?'Non conforme':'Revêtement atténuant exigé',items:items,
+    copy:'Balançoire : HCL D = '+f2(D)+' m (h2 '+f2(h2)+' m ÷ 2 + h3 '+f2(h3)+' m ; NF EN 1176-2:2017 § 4.10.1) ; '+zoneTxt+' (§ 4.10.2) ; revêtement HCC ≥ '+f2(D)+' m.'});
+}
+
+/* ===== OSCILLANTS (EN 1176-6 Tableau 1) ===== */
+var OSC={'1':[1.5,20,'230 mm min.'],'2A':[1.0,30,'facultative'],'2B':[1.0,30,'230 mm min.'],'3A':[1.0,30,'facultative'],'3B':[1.0,30,'230 mm min.'],'4':[1.0,20,'230 mm min. dans toutes les positions'],'5':[2.0,null,'230 mm min.'],'6':[2.0,null,'230 mm min.']};
+function calcOsc(){
+  var t=$('o_type').value, r=OSC[t], h=num('o_h');
+  if(isNaN(h)){ render('r_osc',null); return; }
+  var g=num('o_g',true), items=[], bad=false;
+  if(h>r[0]){ bad=true; items.push(['x','HCL '+f2(h)+' m > '+f2(r[0])+' m maximum pour le type '+t+' (Tableau 1)']); }
+  else items.push(['k','HCL ≤ '+f2(r[0])+' m maximum pour le type '+t+' (Tableau 1)']);
+  if(r[1]) items.push(['','Inclinaison max. du siège / plateau : '+r[1]+'° (§ 4.3)']);
+  items.push(['','Garde au sol : '+r[2]+' (Tableau 1)']);
+  if(!isNaN(g) && r[2].indexOf('230')===0){
+    if(g<230 && t==='4'){ bad=true; items.push(['x','Garde au sol '+g+' mm < 230 mm']); }
+    else if(g<230) items.push(['w','Garde au sol '+g+' mm < 230 mm : admis seulement s\'il y a un amortissement (ressort) ou un mouvement surtout horizontal (note a)']);
+    else items.push(['k','Garde au sol '+g+' mm ≥ 230 mm']);
+  }
+  var esp=$('o_debout').checked?1.5:1.0;
+  if(t==='5'||t==='6') items.push(['','Espace libre : EN 1176-1 § 4.2.8.2.3 (utilisateur assis)']);
+  else items.push(['','Espace de chute : '+f2(esp)+' m minimum autour de l\'équipement en positions extrêmes (§ 4.10)']);
+  items.push(['w','Mouvement forcé : revêtement atténuant HCC ≥ '+f2(h)+' m (EN 1176-1 § 4.2.8.5.2)']);
+  var s=solsTab4(h); for(var i=0;i<s.length;i++) items.push(['','<span class="n">Admis : </span>'+s[i]]);
+  render('r_osc',{hcl:h,cls:bad?'ko':'ok',status:bad?'Non conforme':'Conforme au Tableau 1',items:items,
+    copy:'Équipement oscillant type '+t+' : HCL mesurée '+f2(h)+' m pour '+f2(r[0])+' m maximum (NF EN 1176-6:2017 § 4.2, Tableau 1) ; '+((t==='5'||t==='6')?'espace libre selon EN 1176-1 § 4.2.8.2.3':('espace de chute ≥ '+f2(esp)+' m (§ 4.10)'))+' ; revêtement HCC ≥ '+f2(h)+' m.'});
+}
+
+/* ===== TOBOGGAN ===== */
+function calcTob(){
+  var h=num('t_h'); if(isNaN(h)){ render('r_tob',null); return; }
+  var acc=$('t_acc').value, ld=num('t_ld'), lg=num('t_lg'), type=$('t_type').value, prot=$('t_prot').checked;
+  var items=[], bad=false, need=[];
+  if(!isNaN(ld)&&ld>0.4) need.push('zone de départ > 400 mm');
+  if(acc==='fac'&&h>1.0) need.push('départ facilement accessible > 1,00 m');
+  if(h>2.0) need.push('HCL > 2,00 m');
+  if(need.length){
+    if(prot) items.push(['k','Zone protégée requise ('+need.join(', ')+') : présente (§ 4.3.2)']);
+    else { bad=true; items.push(['x','Zone protégée (balustrade EN 1176-1) exigée : '+need.join(', ')+' (§ 4.3.2)']); }
+  } else items.push(['k','Pas de zone protégée exigée au départ (§ 4.3.2)']);
+  if(h>3.0){ bad=true; items.push(['x','HCL > 3,00 m : non admis (EN 1176-1 § 4.2.8.1)']); }
+  var X=zoneX(h);
+  items.push(['','Structure et départ : zone d\'impact '+f2(X)+' m (EN 1176-1 § 4.2.8.2.4), HCC ≥ '+f2(h)+' m']);
+  items.push(['','Sortie : zone d\'impact ≥ 1,00 m autour de la zone de sortie, HCC ≥ 1,00 m (§ 4.8)']);
+  if(!isNaN(lg)){
+    if(type==='chev') items.push(['','Au-delà de la sortie : '+(lg<1.5?'1,50 m':'2,00 m')+' (zone de glissade '+(lg<1.5?'< ':'≥ ')+'1,50 m ; § 4.8)']);
+    else items.push(['','Au-delà de la sortie : ≥ 1,00 m (§ 4.8)']);
+  }
+  var s=solsTab4(h); for(var i=0;i<s.length;i++) items.push(['','<span class="n">Admis sous la structure : </span>'+s[i]]);
+  render('r_tob',{hcl:h,cls:bad?'ko':'warn',status:bad?'Non conforme':'Revêtement atténuant exigé',items:items,
+    copy:'Toboggan : HCL = '+f2(h)+' m (hauteur de la zone de départ) ; '+(need.length?('zone protégée exigée ('+need.join(', ')+') — NF EN 1176-3:2017 § 4.3.2 ; '):'')+'zone d\'impact de sortie ≥ 1,00 m avec HCC ≥ 1,00 m (§ 4.8).'});
+}
+
+/* ===== TÉLÉPHÉRIQUE ===== */
+function calcTel(){
+  var mode=$('c_mode').value;
+  $('c_lbl').textContent=(mode==='assis')?'Hauteur du siège au-dessus du sol':'Hauteur de la poignée au-dessus du sol';
+  var H=num('c_h'); if(isNaN(H)){ render('r_tel',null); return; }
+  var h=(mode==='assis')?H:Math.max(0,H-1.5), max=(mode==='assis')?2.0:1.5, items=[], bad=h>max;
+  if(mode==='susp') items.push(['','HCL = '+f2(H)+' − 1,50 = '+f2(h)+' m (poignée − 1 500 mm ; § 4.11)']);
+  items.push([bad?'x':'k','HCL '+(bad?'> ':'≤ ')+f2(max)+' m maximum en position '+(mode==='assis'?'assise':'suspendue')+' (§ 4.11)']);
+  items.push(['','Zone d\'impact : 2,00 m de chaque côté de l\'axe du câble et 2,00 m au-delà du balancement max. (45°) en bout de course (§ 4.14)']);
+  items.push(['w','Revêtement HCC ≥ '+f2(Math.max(1.0,h))+' m (au moins 1,00 m, davantage si HCL > 1,00 m ; § 4.14)']);
+  items.push(['','Plateforme de départ souple (bois, métal) : sans revêtement admis jusqu\'à 1,00 m (§ 4.14)']);
+  render('r_tel',{hcl:h,cls:bad?'ko':'warn',status:bad?'Non conforme':'Revêtement atténuant exigé',items:items,
+    copy:'Téléphérique : HCL = '+f2(h)+' m en position '+(mode==='assis'?'assise':'suspendue')+' ('+f2(max)+' m maximum ; NF EN 1176-4:2017 § 4.11) ; zone d\'impact 2,00 m de part et d\'autre du câble, HCC ≥ '+f2(Math.max(1.0,h))+' m (§ 4.14).'});
+}
+
+/* ===== MANÈGE (EN 1176-5 Tableau 1) ===== */
+var MAN={A:['Hauteur du siège',1.0,'2,00 m'],B:['Hauteur de la plateforme / du siège',1.0,'2,00 m'],C:['Hauteur de la poignée (inclinée à 30°)',3.0,'2,00 m + 1,00 m (zone sans obstacle)'],D:['Hauteur du siège',1.0,'1,50 m'],E:['Hauteur du plateau',1.0,'3,00 m'],F:['Hauteur du bol',1.0,'1,50 m']};
+function calcMan(){
+  var t=$('m_type').value, r=MAN[t];
+  $('m_lbl').textContent=r[0];
+  $('m_g_box').style.display=(t==='B')?'block':'none';
+  var H=num('m_h'); if(isNaN(H)){ render('r_man',null); return; }
+  var items=[], bad=false, h;
+  if(t==='C'){ h=Math.max(1.0,H-1.5); items.push(['','HCL = poignée − 1,50 m, au moins 1,00 m → '+f2(h)+' m (sièges : 1,50 m max.)']); }
+  else if(t==='D'){ h=H; items.push(['','HCL = hauteur du siège']); }
+  else { h=1.0; items.push(['','HCL forfaitaire du type '+t+' : 1,00 m (Tableau 1)']); }
+  if(H>r[1]){ bad=true; items.push(['x','Place à '+f2(H)+' m > '+f2(r[1])+' m maximum (Tableau 1)']); }
+  else items.push(['k','Place ≤ '+f2(r[1])+' m maximum (Tableau 1)']);
+  items.push(['','Champ minimum de la zone d\'impact : '+r[2]+' (Tableau 1)']);
+  var hcc=Math.max(0.6,h);
+  items.push(['w','Revêtement HCC ≥ '+f2(hcc)+' m (au moins la HCL et jamais moins de 0,60 m ; § 4.2)']);
+  if(t==='B'){
+    var g=num('m_g',true);
+    if(!isNaN(g)){
+      var hi=$('m_fluent').checked?300:400;
+      if((g>=60&&g<=110)||g>=hi) items.push(['k','Garde au sol '+g+' mm conforme (60–110 mm ou ≥ '+hi+' mm)']);
+      else { bad=true; items.push(['x','Garde au sol '+g+' mm : exigé 60–110 mm ou ≥ '+hi+' mm (§ 5.2.3)']); }
+    }
+  }
+  render('r_man',{hcl:h,cls:bad?'ko':'warn',status:bad?'Non conforme':'Revêtement atténuant exigé',items:items,
+    copy:'Manège type '+t+' : HCL = '+f2(h)+' m ; zone d\'impact '+r[2]+' ; revêtement HCC ≥ '+f2(hcc)+' m (NF EN 1176-5:2019 § 4.2, Tableau 1).'});
+}
+
+/* ===== FITNESS (EN 16630) ===== */
+var FIT={debout:['Hauteur de l\'appui des pieds',2.0],assis:['Hauteur de l\'assise',1.0],susp:['Hauteur du support des mains',3.0]};
+function calcFit(){
+  var u=$('f_use').value, r=FIT[u];
+  $('f_lbl').textContent=r[0];
+  var H=num('f_h'); if(isNaN(H)){ render('r_fit',null); return; }
+  var h=(u==='susp')?Math.max(0,H-1.0):H, items=[], bad=h>r[1], forced=$('f_forced').checked, firm=$('f_firm').checked;
+  if(u==='susp') items.push(['','HCL = '+f2(H)+' − 1,00 = '+f2(h)+' m (Tableau 4)']);
+  items.push([bad?'x':'k','HCL '+(bad?'> ':'≤ ')+f2(r[1])+' m maximum (Tableau 4)']);
+  var X=zoneX(h);
+  items.push(['','Zone d\'évolution : '+f2(X)+' m minimum (§ 4.3.14.3.1, Figure 11)']);
+  var need=(h>1.0)||forced;
+  if(need) items.push(['w','Sol amortissant exigé (HCL > 1,00 m ou mouvement forcé ; § 4.3.14.3.2)']);
+  else items.push(['k','Sol amortissant non exigé (HCL ≤ 1,00 m, sans mouvement forcé)']);
+  var t3=[];
+  if(h<=1.0) t3.push('Béton, pierre ou enrobé (≤ 1,00 m)');
+  if(h<=1.2) t3.push('Terreau naturel (≤ 1,20 m)');
+  if(h<=1.5) t3.push('Gazon (≤ 1,50 m)');
+  if(h<=2.0) t3.push('Écorces ou copeaux 200 mm + 100 mm'+(firm?'':' ; sable / gravier 200 mm + 100 mm'));
+  else if(h<=3.0) t3.push('Écorces ou copeaux 300 mm + 100 mm'+(firm?'':' ; sable / gravier 300 mm + 100 mm'));
+  t3.push('Autre : HCC selon essai EN 1177 ≥ '+f2(h)+' m');
+  for(var i=0;i<t3.length;i++) items.push(['','<span class="n">Tableau 3 : </span>'+t3[i]]);
+  if(firm) items.push(['','Sable et gravier non adaptés aux exercices à appui ferme (note c)']);
+  render('r_fit',{hcl:h,cls:bad?'ko':(need?'warn':'ok'),status:bad?'Non conforme':(need?'Sol amortissant exigé':'Sol amortissant non exigé'),items:items,
+    copy:'Module fitness : HCL = '+f2(h)+' m ('+f2(r[1])+' m maximum ; NF EN 16630:2015 Tableau 4) ; zone d\'évolution ≥ '+f2(X)+' m ; '+(need?'sol amortissant exigé (§ 4.3.14.3.2)':'sol amortissant non exigé')+'.'});
+}
+
+/* ===== KOMPAN ===== */
+var KOMPAN=[
+ {ref:'NRO812',fab:'NRO812-1001',nom:'Filet d\'escalade double',hcl:1.10,zone:18.0,age:'4+',dim:'210×140×140 cm'},
+ {ref:'COR49480',fab:'COR494801-0406',nom:'Maxite',hcl:2.27,zone:96.0,age:'5+',dim:'604×604×639 cm'},
+ {ref:'COR20200',fab:'COR202001-0301',nom:'Petite arche 1,3 m',hcl:1.30,zone:21.3,age:'3+',dim:'300×103×130 cm'},
+ {ref:'COR49330',fab:'COR493301-0406',nom:'Medite',hcl:1.65,zone:51.7,age:'5+',dim:'423×423×446 cm'},
+ {ref:'COR37441',fab:'COR374411-1106',nom:'Petit Pyracord triangulaire',hcl:2.35,zone:91.9,age:'5+',dim:'1000×866×580 cm'},
+ {ref:'CRP302501',fab:'CRP302501-1101',nom:'Petit Pyracord',hcl:1.63,zone:97.1,age:'5+',dim:'887×887×591 cm'},
+ {ref:'CRP300101',fab:'CRP300101-1101',nom:'Spacenet Micro',hcl:1.00,zone:45.4,age:'3+',dim:'427×427×295 cm'},
+ {ref:'COR24301',fab:'COR243011-0804',nom:'La Fusée',hcl:1.20,zone:26.4,age:'3+',dim:'283×246×240 cm'},
+ {ref:'COR33481',fab:'COR334811-1401',nom:'Pyracord géant',hcl:2.60,zone:246.4,age:'8+',dim:'1500×1500×942 cm'},
+ {ref:'COR23401',fab:'COR234011-1103',nom:'Petit filet de jeux',hcl:1.40,zone:42.2,age:'3+',dim:'571×571×260 cm'},
+ {ref:'COR48330',fab:'COR483301-0406',nom:'Cubite',hcl:3.00,zone:43.4,age:'5+',dim:'415×415×300 cm'},
+ {ref:'COR47330',fab:'COR473301-0406',nom:'Dragite',hcl:2.30,zone:57.4,age:'3+',dim:'437×437×436 cm'}
+];
+function norm(s){ return (s||'').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[\s-]/g,''); }
+function kList(){
+  var q=norm($('k_q').value), list=KOMPAN.filter(function(p){ return !q || norm(p.ref+p.fab+p.nom).indexOf(q)!==-1; });
+  list.sort(function(a,b){ return a.nom.localeCompare(b.nom,'fr'); });
+  var el=$('k_list');
+  if(!list.length){ el.innerHTML='<div class="item"><small>Aucune fiche — vérifier la référence sur kompan.com</small></div>'; render('r_kom',null); return; }
+  el.innerHTML=list.map(function(p){ return '<div class="item" data-ref="'+p.ref+'"><div><b>'+p.nom+'</b><small>'+p.ref+'</small></div><div class="h">'+f2(p.hcl)+' m</div></div>'; }).join('');
+  var items=el.querySelectorAll('.item[data-ref]');
+  for(var i=0;i<items.length;i++) items[i].onclick=function(){ kShow(this.getAttribute('data-ref')); };
+  if(list.length===1) kShow(list[0].ref);
+}
+function kShow(ref){
+  var p=KOMPAN.filter(function(x){return x.ref===ref;})[0]; if(!p) return;
+  var items=[['','Réf. '+p.ref+' — '+p.fab],['','Zone de sécurité (revêtement) : '+p.zone.toLocaleString('fr-FR')+' m²'],['','Dimensions L × l × H : '+p.dim],['','Âge : '+p.age],
+    ['w','Revêtement HCC ≥ '+f2(p.hcl)+' m sur toute la zone de sécurité'],['','<a href="https://www.kompan.com/fr/fr/p/'+p.ref.toLowerCase()+'" target="_blank" rel="noopener">Ouvrir la fiche kompan.com</a>']];
+  if(p.hcl>3.0) items.push(['x','HCL > 3,00 m']);
+  render('r_kom',{hcl:p.hcl,label:p.nom,cls:'warn',status:'Hauteur de chute déclarée par le fabricant',items:items,
+    copy:p.nom+' (Kompan '+p.ref+') : hauteur de chute max. fabricant '+f2(p.hcl)+' m ; zone de sécurité '+p.zone.toLocaleString('fr-FR')+' m² à couvrir d\'un revêtement HCC ≥ '+f2(p.hcl)+' m.'});
+}
+
+/* ===== Navigation et sauvegarde des saisies ===== */
+var CALC={gen:calcGen,bal:calcBal,osc:calcOsc,tob:calcTob,tel:calcTel,man:calcMan,fit:calcFit,kom:kList};
+function show(s){
+  var b=$('nav').querySelectorAll('button');
+  for(var i=0;i<b.length;i++) b[i].className=(b[i].getAttribute('data-s')===s)?'on':'';
+  var sec=document.querySelectorAll('section');
+  for(var j=0;j<sec.length;j++) sec[j].className=(sec[j].id==='s-'+s)?'on':'';
+  window.scrollTo(0,0);
+  try{ localStorage.setItem('hcl_tab',s); }catch(e){}
+}
+$('nav').onclick=function(e){ var s=e.target.getAttribute('data-s'); if(s) show(s); };
+
+function save(){ try{ var d={}; var f=document.querySelectorAll('input,select'); for(var i=0;i<f.length;i++){ if(!f[i].id) continue; d[f[i].id]=f[i].type==='checkbox'?f[i].checked:f[i].value; } localStorage.setItem('hcl_v3',JSON.stringify(d)); }catch(e){} }
+function load(){ try{ var d=JSON.parse(localStorage.getItem('hcl_v3')||'{}'); for(var k in d){ var el=$(k); if(!el) continue; if(el.type==='checkbox') el.checked=!!d[k]; else el.value=d[k]; } var t=localStorage.getItem('hcl_tab'); if(t&&$('s-'+t)) show(t); }catch(e){} }
+
+function bind(){
+  var f=document.querySelectorAll('input,select');
+  for(var i=0;i<f.length;i++){
+    var sec=f[i].closest('section'); if(!sec) continue;
+    (function(key){ var h=function(){ CALC[key]&&CALC[key](); save(); }; f[i].addEventListener('input',h); f[i].addEventListener('change',h); })(sec.id.slice(2));
+  }
+}
+load(); bind();
+for(var k in CALC) CALC[k]();
+})();
+</script>
+</body>
+</html>
